@@ -1,0 +1,87 @@
+<!-- ============================================
+  comment-panel 评论面板（支持楼中楼回复互动）
+  Figma 基准: 375px → 1px = 2rpx
+  外层容器: 30rpx 边距
+  ============================================ -->
+
+<view class="cp-container">
+
+  <!-- ================= 评论输入框 ================= -->
+  <view class="cp-input-area">
+    <!-- 回复目标提示（可取消） -->
+    <view class="cp-reply-bar" wx:if="{{replyTarget._id}}">
+      <text class="cp-reply-info">回复 {{replyTarget.nickname}}：</text>
+      <view class="cp-reply-cancel" catchtap="onCancelReply">取消</view>
+    </view>
+
+    <view class="cp-input-wrap">
+      <input
+        class="cp-input"
+        placeholder="{{replyTarget._id ? '回复 ' + replyTarget.nickname + '…' : '发表你的评论'}}"
+        placeholder-class="cp-placeholder"
+        value="{{inputValue}}"
+        bindinput="onInput"
+        bindconfirm="onSend"
+        confirm-type="send"
+        maxlength="200"
+        focus="{{inputFocus}}"
+      />
+      <!-- 发送按钮 -->
+      <view class="cp-send-btn {{inputValue ? 'cp-send-btn--active' : ''}}" catchtap="onSend">
+        <text>发送</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ================= 加载态 ================= -->
+  <view class="cp-status" wx:if="{{loading}}">
+    <text class="cp-status-text">加载中…</text>
+  </view>
+
+  <!-- ================= 空态 ================= -->
+  <view class="cp-status" wx:elif="{{isEmpty}}">
+    <text class="cp-status-text">还没有评论，快来抢沙发吧</text>
+  </view>
+
+  <!-- ================= 评论列表 ================= -->
+  <view class="cp-list" wx:else>
+
+    <block wx:for="{{comments}}" wx:key="_id" wx:for-item="parent">
+
+      <!-- ---- 顶层评论 ---- -->
+      <view class="cp-item">
+        <image class="cp-avatar" src="{{parent.avatar}}" mode="aspectFill"></image>
+        <view class="cp-body">
+          <view class="cp-title-row">
+            <text class="cp-nick">{{parent.nickname}}：</text>
+            <text class="cp-text">{{parent.content}}</text>
+          </view>
+          <view class="cp-meta-row">
+            <text class="cp-time">{{parent.createTime}}</text>
+            <text class="cp-reply-btn" catchtap="onReplyTap" data-id="{{parent._id}}" data-nick="{{parent.nickname}}">回复</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ---- 楼中楼回复（缩进） ---- -->
+      <block wx:if="{{parent.replies.length > 0}}">
+        <view class="cp-item cp-item--reply" wx:for="{{parent.replies}}" wx:key="_id" wx:for-item="reply">
+          <image class="cp-avatar" src="{{reply.avatar}}" mode="aspectFill"></image>
+          <view class="cp-body">
+            <view class="cp-title-row">
+              <text class="cp-nick">{{reply.nickname}}<text class="cp-reply-at" wx:if="{{reply.replyToNick}}"> 回复 {{reply.replyToNick}}</text>：</text>
+              <text class="cp-text">{{reply.content}}</text>
+            </view>
+            <view class="cp-meta-row">
+              <text class="cp-time">{{reply.createTime}}</text>
+              <text class="cp-reply-btn" catchtap="onReplyTap" data-id="{{parent._id}}" data-nick="{{reply.nickname}}">回复</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+    </block>
+
+  </view>
+
+</view>

@@ -1,0 +1,326 @@
+/* ============================================
+   onboard - 欢迎登录页
+   Figma 基准: 375 × 852 px → 750 × 1704 rpx
+   换算规则: 1 Figma px = 2 rpx
+   全部 rpx，禁止 px
+   ============================================ */
+
+/* ---- 根元素 ---- */
+page {
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+/* ============================================
+   外层容器（强制样式）
+   ============================================ */
+.page {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 0 60rpx;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* ============================================
+   内容包装器
+   Figma: 236px × 486px, left: 69px, top: 178px
+   → 472rpx, top: 356rpx, 水平居中
+   ============================================ */
+.content {
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================
+   标题区域
+   Figma: 168px × 82px
+   → 336rpx × 164rpx
+   标题→表单间距: 67px → 134rpx
+   ============================================ */
+.title-section {
+  width: 336rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 134rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #6155F5;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #000000;
+  margin-top: 28rpx;
+  text-align: center;
+}
+
+/* ============================================
+   表单区域
+   Figma: 236px × 235px, padding: 8px
+   → 472rpx × 470rpx, padding: 16rpx
+   表单→按钮间距: 67px → 134rpx
+   ============================================ */
+.form-section {
+  width: 472rpx;
+  padding: 16rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 134rpx;
+}
+
+/* ---- 表单项组 ---- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 42rpx;
+  width: 100%;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- 标签 ---- */
+.form-label {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 20rpx;
+}
+
+/* ---- 输入框/选择框 通用样式 ---- */
+.form-input {
+  width: 100%;
+  height: 70rpx;
+  background: #ffffff;
+  border: 2rpx solid #6155F5;
+  border-radius: 18rpx;
+  font-size: 28rpx;
+  color: #000000;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+/* ---- placeholder 颜色 ---- */
+.ph {
+  color: #9CA3AF;
+}
+
+/* ============================================
+   选择器行（日期 / 专属图像）
+   ============================================ */
+.picker-full {
+  width: 100%;
+}
+
+.picker-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.val {
+  font-size: 28rpx;
+  color: #000000;
+}
+
+.picker-icon {
+  width: 38rpx;
+  height: 38rpx;
+  flex-shrink: 0;
+}
+
+/* ---- 选中头像预览（居中显示在 bar 下方） ---- */
+.avatar-preview {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 32rpx;
+}
+
+.avatar-preview-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+}
+
+/* ============================================
+   提交按钮
+   Figma: 195px × 35px, border-radius: 9px
+   → 390rpx × 70rpx, border-radius: 18rpx
+   ============================================ */
+.submit-btn {
+  width: 390rpx;
+  height: 70rpx;
+  background: #6155F5;
+  border-radius: 18rpx;
+  border: 2rpx solid #ffffff;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 70rpx;
+}
+
+.submit-btn::after {
+  border: none;
+}
+
+.submit-btn-hover {
+  opacity: 0.85;
+  background: #6155F5;
+}
+
+/* ============================================
+   右下角装饰图（相对定位容器内绝对放置）
+   Figma: 121px × 121px
+   → 242rpx × 242rpx
+   不挤压正文内容
+   ============================================ */
+.deco {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 242rpx;
+  height: 242rpx;
+  pointer-events: none;
+}
+
+/* ============================================
+   头像选择弹窗（底部对话框）
+   ============================================ */
+.dialog-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-panel {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 36rpx 36rpx 0 0;
+  padding: 48rpx 30rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- 弹窗头部 ---- */
+.dialog-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+}
+
+.dialog-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #000000;
+}
+
+.dialog-close {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #F3F4F6;
+}
+
+.dialog-close-icon {
+  font-size: 28rpx;
+  color: #6B7280;
+  line-height: 1;
+}
+
+/* ---- 可滚动区域（Figma 18个头像） ---- */
+.dialog-scroll {
+  width: 100%;
+  max-height: 520rpx;
+  margin-bottom: 48rpx;
+}
+
+/* ---- 6列头像网格 ---- */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.avatar-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4rpx solid transparent;
+  box-sizing: border-box;
+  background: #F3F4F6;
+}
+
+.avatar-cell-on {
+  border-color: #6155F5;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- 弹窗确认按钮 ---- */
+.dialog-confirm {
+  width: 100%;
+  height: 80rpx;
+  background: #6155F5;
+  border-radius: 18rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+  line-height: 80rpx;
+}
+
+.dialog-confirm::after {
+  border: none;
+}

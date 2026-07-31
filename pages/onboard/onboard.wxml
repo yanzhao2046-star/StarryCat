@@ -1,0 +1,114 @@
+<!-- ============================================
+     onboard - 欢迎登录页
+     Figma 基准 375×852 → 750×1704rpx
+     换算：1px = 2rpx
+     ============================================ -->
+
+<view class="page">
+
+  <!-- ====== 内容包装器（236px×486px 居中） ====== -->
+  <view class="content">
+
+    <!-- ****** 标题区域 ****** -->
+    <view class="title-section">
+      <text class="title">欢迎来到\n星星猫宇宙</text>
+      <text class="subtitle">记录情绪 了解内心</text>
+    </view>
+
+    <!-- ****** 表单区域 ****** -->
+    <view class="form-section">
+
+      <!-- ① 昵称 -->
+      <view class="form-group">
+        <text class="form-label">你的昵称</text>
+        <input
+          class="form-input"
+          type="text"
+          maxlength="20"
+          placeholder="给自己取个名字吧"
+          placeholder-class="ph"
+          value="{{nickname}}"
+          bindinput="onNicknameInput"
+        />
+      </view>
+
+      <!-- ② 出生日期 -->
+      <view class="form-group">
+        <text class="form-label">你的出生</text>
+        <picker
+          class="picker-full"
+          mode="date"
+          value="{{birthday}}"
+          start="1970-01-01"
+          end="{{today}}"
+          bindchange="onDateChange"
+        >
+          <view class="form-input picker-row">
+            <text class="{{birthday ? 'val' : 'ph'}}">{{birthday || '选择日期'}}</text>
+            <image class="picker-icon" src="/assets/1.svg" mode="aspectFit" />
+          </view>
+        </picker>
+      </view>
+
+      <!-- ③ 专属图像 -->
+      <view class="form-group">
+        <text class="form-label">你的专属图像</text>
+        <view class="form-input picker-row" bindtap="onAvatarTap">
+          <text class="{{selectedAvatar >= 0 ? 'val' : 'ph'}}">{{selectedAvatar >= 0 ? '已选择' : '选择图像'}}</text>
+          <image class="picker-icon" src="/assets/2.svg" mode="aspectFit" />
+        </view>
+      </view>
+
+      <!-- ④ 选中头像预览（bar 下方居中） -->
+      <view class="avatar-preview" wx:if="{{selectedAvatar >= 0}}">
+        <image class="avatar-preview-img" src="{{avatarList[selectedAvatar]}}" mode="aspectFit"></image>
+      </view>
+
+    </view>
+
+    <!-- ****** 主按钮 ****** -->
+    <button
+      class="submit-btn"
+      hover-class="submit-btn-hover"
+      bindtap="onSubmit"
+    >开启情绪旅程</button>
+
+  </view>
+
+  <!-- ====== 右下角装饰图 ====== -->
+  <image class="deco" src="/assets/3.png" mode="aspectFit" />
+
+  <!-- ==================================================================
+       头像选择弹窗（底部对话框 — Figma 18个专属头像）
+       ================================================================== -->
+  <view class="dialog-mask" wx:if="{{showAvatarDialog}}" catchtap="onCloseDialog">
+    <view class="dialog-panel" catchtap="">
+      <!-- 弹窗头部 -->
+      <view class="dialog-header">
+        <text class="dialog-title">选择你的专属图像</text>
+        <view class="dialog-close" bindtap="onCloseDialog">
+          <text class="dialog-close-icon">✕</text>
+        </view>
+      </view>
+
+      <!-- 6列头像网格（Figma 18 个 SVGs） -->
+      <scroll-view class="dialog-scroll" scroll-y show-scrollbar="{{false}}">
+        <view class="avatar-grid">
+          <view
+            class="avatar-cell {{tempAvatar === index ? 'avatar-cell-on' : ''}}"
+            wx:for="{{avatarList}}"
+            wx:key="index"
+            data-index="{{index}}"
+            bindtap="onTempSelect"
+          >
+            <image class="avatar-img" src="{{item}}" mode="aspectFit"></image>
+          </view>
+        </view>
+      </scroll-view>
+
+      <!-- 确认按钮 -->
+      <button class="dialog-confirm" bindtap="onConfirmTap">确 定</button>
+    </view>
+  </view>
+
+</view>

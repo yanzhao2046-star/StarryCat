@@ -1,0 +1,4 @@
+page {
+  background: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+}

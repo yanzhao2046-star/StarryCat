@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/onboard/onboard",
+    "pages/moodAdd/moodAdd",
+    "pages/moodDetail/moodDetail",
+    "pages/moodRecord/moodRecord",
+    "pages/moodLib/moodLib",
+    "pages/moodCalendar/moodCalendar",
+    "pages/catCare/catCare",
+    "pages/growUp/growUp",
+    "pages/youMeOther/youMeOther",
+    "pages/chat/chat"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "CCMOO",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#ffffff"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}
