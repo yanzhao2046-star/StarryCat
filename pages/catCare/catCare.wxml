@@ -1,94 +1,92 @@
-<!-- ============================================================
-  catCare.wxml — 星猫说（底部 Tab 第三栏）
-  Figma 基准：375px → 750rpx (1px = 2rpx)
-  静态 UI，数据来自 growData 本地存储
-  ============================================================ -->
-
-<view class="page">
-
-  <!-- =================== 主内容区域（可滚动） =================== -->
-  <scroll-view class="cat-body" scroll-y show-scrollbar="{{false}}">
-
-    <!-- ========== 顶部标题区 ========== -->
-    <view class="header">
-      <!-- 星星猫头像 -->
-      <view class="header-avatar-wrap">
-        <image class="header-avatar" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
-      </view>
-      <!-- 标题 + 副标题 -->
-      <view class="header-text">
+<view class="page" bindtap="onPageTap">
+  <!-- ====== 上半区：头部 + 聊天消息 ====== -->
+  <view class="chat-area">
+    <view class="chat-header">
+      <view class="header-title-row">
         <text class="header-title">星星猫宇宙</text>
-        <text class="header-subtitle">聊心事，养猫</text>
-      </view>
-    </view>
-
-    <!-- ========== 星猫个性问候（根据近期情绪变化） ========== -->
-    <view class="greeting-bubble">
-      <text class="greeting-text">{{catGreeting}}</text>
-    </view>
-
-    <!-- ========== "和星猫聊心事"入口按钮 ========== -->
-    <view class="chat-entry-btn" bindtap="onChatEntry">
-      <text class="chat-entry-btn__icon">💬</text>
-      <text class="chat-entry-btn__text">和星猫聊心事</text>
-      <text class="chat-entry-btn__arrow">→</text>
-    </view>
-
-    <!-- 说明文字 -->
-    <view class="tip-text" bindtap="onGotoGrowth">
-      <text>你的心情记录会转换为Token喂给这只猫</text>
-    </view>
-
-    <!-- 星星猫数值卡片 -->
-    <view class="stats-card">
-      <!-- 左侧大猫图 + 右侧数值 -->
-      <view class="sc-top">
-        <view class="sc-cat-circle">
-          <image class="sc-cat-img" src="/assets/CodeBuddyAssets/279_204/10.png" mode="aspectFit"></image>
-        </view>
-        <view class="sc-stats">
-          <text class="sc-stat-line">心情Token：{{tokenValue}}</text>
-          <text class="sc-stat-line">智慧指数：{{wisdomValue}}</text>
-          <text class="sc-stat-line">懂你指数：{{knowYouValue}}</text>
+        <view class="header-mycatter-btn" hover-class="header-mycatter-btn--hover" bindtap="onMyCatter">
+          <text class="header-mycatter-text">我的猫</text>
         </view>
       </view>
-      <!-- 等级进度条 -->
-      <view class="sc-progress-wrap">
-        <view class="sc-progress-bar">
-          <view class="sc-progress-fill" style="width: {{levelProgress}}%;"></view>
-        </view>
-        <text class="sc-level-text">{{totalScore}}分：{{levelTitle}}</text>
+      <text class="header-subtitle">聊心事，养猫</text>
+    </view>
+
+    <scroll-view
+      class="chat-body"
+      scroll-y
+      scroll-into-view="{{scrollToView}}"
+      scroll-with-animation
+      enhanced
+      show-scrollbar="{{false}}"
+      id="chat-scroll"
+    >
+      <view class="chat-messages" wx:if="{{messages.length > 0}}">
+        <block wx:for="{{messages}}" wx:key="id">
+          <view class="msg-time" wx:if="{{item.showTime}}">{{item.timeText}}</view>
+          <view class="msg-row msg-row--ai" wx:if="{{item.role === 'ai'}}">
+          <image class="msg-avatar" src="/assets/3.png" mode="aspectFill"></image>
+          <view class="msg-bubble msg-bubble--ai">{{item.content}}</view>
+          </view>
+          <view class="msg-row msg-row--user" wx:if="{{item.role === 'user'}}">
+            <view class="msg-bubble msg-bubble--user">{{item.content}}</view>
+            <image class="msg-avatar" src="/assets/moodAdd/{{item.avatar || '5'}}.png" mode="aspectFill"></image>
+          </view>
+        </block>
       </view>
+
+      <view class="chat-empty" wx:if="{{messages.length === 0}}">
+        <image class="empty-cat-img" src="/assets/3.png" mode="aspectFit"></image>
+        <text class="empty-tip">和星星猫聊聊吧~</text>
+      </view>
+
+      <view class="msg-row msg-row--ai" wx:if="{{isTyping}}">
+      <image class="msg-avatar" src="/assets/3.png" mode="aspectFill"></image>
+      <view class="msg-bubble msg-bubble--ai msg-bubble--typing">
+          <view class="typing-dot"></view>
+          <view class="typing-dot"></view>
+          <view class="typing-dot"></view>
+        </view>
+      </view>
+
+      <view id="scroll-bottom" style="height:2rpx"></view>
+    </scroll-view>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="chat-input-bar">
+    <input
+      class="chat-input"
+      value="{{inputText}}"
+      placeholder="和猫猫说点什么..."
+      placeholder-class="input-placeholder"
+      confirm-type="send"
+      bindinput="onInput"
+      bindconfirm="onSend"
+      adjust-position="{{true}}"
+      maxlength="500"
+    />
+    <view class="chat-send-btn {{inputText ? 'chat-send-btn--active' : ''}}" bindtap="onSend" hover-class="chat-send-btn--hover">
+      <text class="chat-send-text">发送</text>
     </view>
+  </view>
 
-    <!-- ========== 成长规则卡片 ========== -->
-    <view class="grow-rules-card">
-      <!-- 成长规则标签 -->
-      <view class="gr-tag">成长规则</view>
-      <!-- 规则说明图 -->
-      <image class="gr-img" src="/assets/CodeBuddyAssets/313_1834/1.png" mode="widthFix"></image>
-    </view>
-
-  </scroll-view>
-
-  <!-- =================== 底部 Tab 栏（星猫说高亮） =================== -->
+  <!-- 底部导航栏（来自 youMeOther — inline flex + margin-top:auto） -->
   <view class="tab-bar">
-    <view class="tab-item" data-tab="moodIsland" bindtap="onTabSwitch">
+    <view class="tab-item" data-tab="moodIsland" bindtap="onTabTap">
       <image class="tab-icon" src="/assets/moodLib/4.svg" mode="aspectFit"></image>
       <text class="tab-label">情绪岛</text>
     </view>
-    <view class="tab-item" data-tab="moodLib" bindtap="onTabSwitch">
+    <view class="tab-item" data-tab="moodLib" bindtap="onTabTap">
       <image class="tab-icon" src="/assets/moodLib/3.svg" mode="aspectFit"></image>
       <text class="tab-label">心情库</text>
     </view>
-    <view class="tab-item active" data-tab="starTalk" bindtap="onTabSwitch">
+    <view class="tab-item active" data-tab="starTalk" bindtap="onTabTap">
       <image class="tab-icon" src="/assets/moodLib/2.svg" mode="aspectFit"></image>
       <text class="tab-label">星猫说</text>
     </view>
-    <view class="tab-item" data-tab="people" bindtap="onTabSwitch">
+    <view class="tab-item" data-tab="people" bindtap="onTabTap">
       <image class="tab-icon" src="/assets/moodLib/1.svg" mode="aspectFit"></image>
       <text class="tab-label">你我他</text>
     </view>
   </view>
-
 </view>

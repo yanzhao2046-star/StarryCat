@@ -1,145 +1,51 @@
 <!-- ============================================================
   growUp.wxml — 星猫成长页
-  Figma 基准：375px → 750rpx (1px = 2rpx)
-  容器：padding: 0 30rpx
+  Figma 313_1778 蓝图：375×932px → 750rpx
+  容器：padding 0 60rpx（对齐 youMeOther）
   ============================================================ -->
 
 <view class="page">
 
-  <!-- =================== 主内容区域（可滚动） =================== -->
+  <!-- ====== 主内容（可滚动） ====== -->
   <scroll-view class="content" scroll-y show-scrollbar="{{false}}">
 
-    <!-- ========== 头部：星星猫形象 + AI对话入口 ========== -->
+    <!-- ========== 头部渐变区 ========== -->
     <view class="header">
-      <!-- 星星猫头像 -->
-      <view class="header-avatar-wrap">
-        <image class="header-avatar" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+      <text class="header-title">星星猫宇宙</text>
+      <text class="header-subtitle">聊心事，养猫</text>
+    </view>
+
+    <!-- ========== 星猫状态区 ========== -->
+    <view class="cat-section">
+      <text class="cat-section-desc">每一个情绪记录都会喂养这只猫</text>
+      <view class="cat-section-main">
+        <!-- 星猫头像圆 -->
+        <view class="cat-avatar-wrap">
+          <image class="cat-avatar-img" src="/assets/CodeBuddyAssets/313_1778/5.png" mode="aspectFit"></image>
+        </view>
+        <!-- 三项数据 -->
+        <view class="cat-stats">
+          <text class="cat-stats-text">心情Token：{{growData.token}}</text>
+          <text class="cat-stats-text">智慧指数：{{growData.wisdom}}</text>
+          <text class="cat-stats-text">懂你指数：{{growData.understand}}</text>
+        </view>
       </view>
-      <!-- 标题 -->
-      <view class="header-text">
-        <text class="header-title">星星猫宇宙</text>
-        <text class="header-subtitle">聊心事，养猫</text>
+      <!-- 总分进度条 -->
+      <view class="cat-progress">
+        <view class="cat-progress-bar">
+          <view class="cat-progress-fill" style="width: {{overallProgress}}%;"></view>
+        </view>
+        <text class="cat-progress-label">{{totalScore}}分：{{levelTitle}}</text>
       </view>
     </view>
 
-    <!-- AI 对话入口 -->
-    <view class="chat-entry" bindtap="onChatTap">
-      <text class="chat-entry__text">和星猫聊心事</text>
-      <text class="chat-entry__arrow">→</text>
-    </view>
-
-    <!-- ========== 三大成长指标 ========== -->
-    <view class="stats-section">
-
-      <!-- 一级词汇（整体等级） -->
-      <view class="level-badge">
-        <text class="level-badge__label">成长等级</text>
-        <text class="level-badge__title">{{levelTitle}}</text>
+    <!-- ========== 成长规则区 ========== -->
+    <view class="rules-section">
+      <view class="rules-header">
+        <text class="rules-title">成长规则</text>
       </view>
-
-      <!-- 指标1：心情Token -->
-      <view class="stat-card">
-        <view class="stat-card__header">
-          <view class="stat-card__icon stat-card__icon--token">
-            <text class="stat-card__emoji">🔥</text>
-          </view>
-          <view class="stat-card__info">
-            <text class="stat-card__name">心情Token</text>
-            <text class="stat-card__value">{{growData.token}}</text>
-          </view>
-          <view class="stat-card__level">
-            <text class="stat-card__level-title">{{tokenLevel.title}}</text>
-          </view>
-        </view>
-        <view class="stat-card__progress">
-          <view class="stat-card__progress-bar">
-            <view class="stat-card__progress-fill" style="width: {{tokenLevel.progressInLevel}}%;"></view>
-          </view>
-          <text class="stat-card__progress-text">{{tokenLevel.needForNext > 0 ? '距升级还差' + tokenLevel.needForNext + '分' : '已达最高等级'}}</text>
-        </view>
-      </view>
-
-      <!-- 指标2：智慧指数 -->
-      <view class="stat-card">
-        <view class="stat-card__header">
-          <view class="stat-card__icon stat-card__icon--wisdom">
-            <text class="stat-card__emoji">💎</text>
-          </view>
-          <view class="stat-card__info">
-            <text class="stat-card__name">智慧指数</text>
-            <text class="stat-card__value">{{growData.wisdom}}</text>
-          </view>
-          <view class="stat-card__level">
-            <text class="stat-card__level-title">{{wisdomLevel.title}}</text>
-          </view>
-        </view>
-        <view class="stat-card__progress">
-          <view class="stat-card__progress-bar">
-            <view class="stat-card__progress-fill stat-card__progress-fill--wisdom" style="width: {{wisdomLevel.progressInLevel}}%;"></view>
-          </view>
-          <text class="stat-card__progress-text">{{wisdomLevel.needForNext > 0 ? '距升级还差' + wisdomLevel.needForNext + '分' : '已达最高等级'}}</text>
-        </view>
-      </view>
-
-      <!-- 指标3：懂你指数 -->
-      <view class="stat-card">
-        <view class="stat-card__header">
-          <view class="stat-card__icon stat-card__icon--understand">
-            <text class="stat-card__emoji">💜</text>
-          </view>
-          <view class="stat-card__info">
-            <text class="stat-card__name">懂你指数</text>
-            <text class="stat-card__value">{{growData.understand}}</text>
-          </view>
-          <view class="stat-card__level">
-            <text class="stat-card__level-title">{{understandLevel.title}}</text>
-          </view>
-        </view>
-        <view class="stat-card__progress">
-          <view class="stat-card__progress-bar">
-            <view class="stat-card__progress-fill stat-card__progress-fill--understand" style="width: {{understandLevel.progressInLevel}}%;"></view>
-          </view>
-          <text class="stat-card__progress-text">{{understandLevel.needForNext > 0 ? '距升级还差' + understandLevel.needForNext + '分' : '已达最高等级'}}</text>
-        </view>
-      </view>
-
-    </view>
-
-    <!-- ========== 星星猫形象卡片 ========== -->
-    <view class="cat-card">
-      <view class="cat-card__avatar">
-        <image class="cat-card__img" src="/assets/CodeBuddyAssets/279_204/10.png" mode="aspectFit"></image>
-      </view>
-      <view class="cat-card__body">
-        <text class="cat-card__greeting">{{catGreeting}}</text>
-        <text class="cat-card__desc">累计成长分：{{totalScore}} 分</text>
-      </view>
-    </view>
-
-    <!-- ========== 成长记录 / 积分历史 ========== -->
-    <view class="records-section">
-      <view class="records-header">
-        <text class="records-title">成长记录</text>
-        <text class="records-count" wx:if="{{growData.records.length > 0}}">共 {{growData.records.length}} 条</text>
-      </view>
-
-      <block wx:if="{{growData.records.length > 0}}">
-        <view class="record-item" wx:for="{{growData.records}}" wx:key="timestamp">
-          <view class="record-item__left">
-            <text class="record-item__desc">{{item.desc}}</text>
-            <text class="record-item__time">{{item.time}}</text>
-          </view>
-          <view class="record-item__right">
-            <text class="record-item__score" wx:if="{{item.token > 0}}">🔥+{{item.token}}</text>
-            <text class="record-item__score record-item__score--wisdom" wx:if="{{item.wisdom > 0}}">💎+{{item.wisdom}}</text>
-            <text class="record-item__score record-item__score--understand" wx:if="{{item.understand > 0}}">💜+{{item.understand}}</text>
-          </view>
-        </view>
-      </block>
-
-      <view class="records-empty" wx:else>
-        <text class="records-empty__text">还没有成长记录</text>
-        <text class="records-empty__hint">去情绪岛记录心情，开始和星猫一起成长吧</text>
+      <view class="rules-body">
+        <image class="rules-img" src="/assets/CodeBuddyAssets/313_1778/6.png" mode="widthFix"></image>
       </view>
     </view>
 
@@ -148,22 +54,22 @@
 
   </scroll-view>
 
-  <!-- =================== 底部导航栏（星猫说激活） =================== -->
+  <!-- ========== 底部导航栏（对齐 youMeOther — 星猫说激活） ========== -->
   <view class="tab-bar">
     <view class="tab-item" data-tab="moodIsland" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/CodeBuddyAssets/279_204/4.svg" mode="aspectFit"></image>
+      <image class="tab-icon" src="/assets/moodLib/4.svg" mode="aspectFit"></image>
       <text class="tab-label">情绪岛</text>
     </view>
     <view class="tab-item" data-tab="moodLib" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/CodeBuddyAssets/279_204/3.svg" mode="aspectFit"></image>
+      <image class="tab-icon" src="/assets/moodLib/3.svg" mode="aspectFit"></image>
       <text class="tab-label">心情库</text>
     </view>
     <view class="tab-item active" data-tab="starTalk" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/CodeBuddyAssets/279_204/2.svg" mode="aspectFit"></image>
+      <image class="tab-icon" src="/assets/moodLib/2.svg" mode="aspectFit"></image>
       <text class="tab-label">星猫说</text>
     </view>
     <view class="tab-item" data-tab="people" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/CodeBuddyAssets/279_204/1.svg" mode="aspectFit"></image>
+      <image class="tab-icon" src="/assets/moodLib/1.svg" mode="aspectFit"></image>
       <text class="tab-label">你我他</text>
     </view>
   </view>

@@ -1,13 +1,4 @@
-/* ============================================
-   catCare.wxss — 星猫说
-   Figma 基准：375px → 750rpx (1px = 2rpx)
-   ============================================ */
-
-page {
-  background: #FFFFFF;
-  min-height: 100vh;
-}
-
+/* ========== 页面容器（对齐 youMeOther — 左右 60rpx） ========== */
 .page {
   width: 100%;
   min-height: 100vh;
@@ -15,312 +6,241 @@ page {
   padding: 0 60rpx;
   display: flex;
   flex-direction: column;
+  background: #FFFFFF;
 }
 
-.cat-body {
+/* ========== 上半区容器：头部 + 聊天 ========== */
+.chat-area {
   flex: 1;
-  width: 100%;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-/* ============================================
-   顶部标题区
-   ============================================ */
-.header {
-  width: 100%;
-  margin-top: 0;
-  padding-top: 24rpx;
-  padding-bottom: 12rpx;
-  box-sizing: border-box;
-  background: linear-gradient(160deg, #FFF1F2 0%, #FFFFFF 70%);
-  border-radius: 0 0 20rpx 20rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.header-avatar-wrap {
-  width: 160rpx;
-  height: 160rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ========== 头部 ========== */
+.chat-header {
+  padding: 24rpx 0 20rpx;
+  background: #FFFFFF;
   flex-shrink: 0;
 }
 
-.header-avatar {
-  width: 120rpx;
-  height: 120rpx;
-}
-
-.header-text {
-  margin-left: 4rpx;
+.header-title-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .header-title {
   font-size: 38rpx;
   font-weight: 700;
   color: #101828;
+  line-height: 1.4;
+}
+
+.header-mycatter-btn {
+  padding: 12rpx 28rpx;
+  background: #7C3AED;
+  border-radius: 24rpx;
+  transition: opacity 0.2s;
+}
+
+.header-mycatter-btn--hover {
+  opacity: 0.8;
+}
+
+.header-mycatter-text {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #FFFFFF;
 }
 
 .header-subtitle {
+  display: block;
   font-size: 38rpx;
   font-weight: 700;
   color: #101828;
-  margin-top: 2rpx;
+  margin-top: 8rpx;
+  line-height: 1.4;
 }
 
-/* ============================================
-   星猫个性问候气泡
-   ============================================ */
-.greeting-bubble {
-  margin-top: 16rpx;
-  padding: 18rpx 28rpx;
-  background: linear-gradient(135deg, #FFF1F2, #FFF);
-  border-radius: 20rpx;
-  border: 1rpx solid #FEE2E5;
-}
-
-.greeting-text {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: #475569;
-  line-height: 1.5;
-}
-
-/* ============================================
-   "和星猫聊心事"入口按钮
-   ============================================ */
-.chat-entry-btn {
-  margin-top: 20rpx;
-  padding: 22rpx 28rpx;
-  background: #FFFFFF;
-  border: 2rpx solid #E8E5FF;
-  border-radius: 18rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.chat-entry-btn:active {
-  background: #F8F7FF;
-}
-
-.chat-entry-btn__icon {
-  font-size: 36rpx;
-  flex-shrink: 0;
-}
-
-.chat-entry-btn__text {
+/* ========== 聊天消息区 ========== */
+.chat-body {
   flex: 1;
-  margin-left: 14rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #6155F5;
+  background: #F6F6F6;
+  padding: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-.chat-entry-btn__arrow {
-  font-size: 28rpx;
-  color: #6155F5;
-  font-weight: 600;
+.chat-messages {
+  padding-top: 20rpx;
+  padding-bottom: 16rpx;
 }
 
-/* ============================================
-   对话输入框组件（Figma 原版）
-   ============================================ */
-.input-card {
-  width: 100%;
-  margin-top: 20rpx;
-  background: #FFFFFF;
-  border-radius: 32rpx;
-  border: 1rpx solid #D9D9D9;
-  box-sizing: border-box;
-  padding: 28rpx 32rpx;
-}
-
-.ic-placeholder-wrap {
-  margin-bottom: 52rpx;
-}
-
-.ic-placeholder {
-  font-size: 32rpx;
-  font-weight: 400;
-  color: #B3B3B3;
-}
-
-.ic-toolbar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.ic-tools-left {
-  display: flex;
-  flex-direction: row;
-  gap: 16rpx;
-}
-
-.ic-tool-btn {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ic-tool-icon {
-  width: 40rpx;
-  height: 40rpx;
-}
-
-.ic-send-btn {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ic-send-btn--disabled {
-  background: #D9D9D9;
-  border: 2rpx solid #B3B3B3;
-}
-
-.ic-send-icon {
-  width: 40rpx;
-  height: 40rpx;
-}
-
-/* ============================================
-   说明文字
-   ============================================ */
-.tip-text {
-  margin-top: 28rpx;
-  margin-bottom: 12rpx;
-}
-
-.tip-text text {
-  font-size: 32rpx;
-  font-weight: 290;
-  color: #000000;
-}
-
-/* ============================================
-   星星猫数值卡片
-   ============================================ */
-.stats-card {
-  width: 100%;
-  margin-top: 0;
-  box-sizing: border-box;
-}
-
-.sc-top {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.sc-cat-circle {
-  width: 330rpx;
-  height: 330rpx;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sc-cat-img {
-  width: 248rpx;
-  height: 248rpx;
-}
-
-.sc-stats {
-  flex: 1;
-  margin-left: 4rpx;
+/* 空状态 */
+.chat-empty {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
 }
 
-.sc-stat-line {
-  font-size: 32rpx;
-  font-weight: 290;
-  color: #000000;
+.empty-cat-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 80rpx;
+  background: #F0E6FF;
+  margin-bottom: 24rpx;
 }
 
-/* 等级进度条包裹 */
-.sc-progress-wrap {
-  width: 100%;
-  margin-top: 12rpx;
-}
-
-/* 渐变进度条（底色） */
-.sc-progress-bar {
-  width: 100%;
-  height: 38rpx;
-  background: #E8E5FF;
-  border-radius: 1876rpx;
-  overflow: hidden;
-}
-
-/* 进度条填充（从左到右增长） */
-.sc-progress-fill {
-  height: 100%;
-  border-radius: 1876rpx;
-  background: linear-gradient(90deg, #D9D9D9 0%, #6155F5 100%);
-  transition: width 0.5s ease;
-}
-
-/* 等级称号文字 */
-.sc-level-text {
-  display: block;
-  margin-top: 10rpx;
+.empty-tip {
   font-size: 28rpx;
-  font-weight: 500;
-  color: #6155F5;
-  text-align: right;
+  color: #999;
 }
 
-/* ============================================
-   成长规则卡片
-   ============================================ */
-.grow-rules-card {
-  width: 100%;
-  margin-top: 28rpx;
-  padding-bottom: 40rpx;
-  box-sizing: border-box;
+/* 时间分割线 */
+.msg-time {
+  text-align: center;
+  font-size: 22rpx;
+  color: #C4C4C4;
+  margin: 20rpx 0 12rpx;
+}
+
+/* 消息行 */
+.msg-row {
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
+  margin-bottom: 18rpx;
 }
 
-.gr-tag {
-  padding: 8rpx 20rpx;
-  background: #BA99ED;
-  border-radius: 18rpx;
-  font-size: 24rpx;
-  font-weight: 290;
-  color: #000000;
-  line-height: 1.2;
-  margin-bottom: 14rpx;
+.msg-row--ai {
+  flex-direction: row;
 }
 
-.gr-img {
-  width: 100%;
-  border-radius: 16rpx;
-  display: block;
+.msg-row--user {
+  flex-direction: row-reverse;
 }
 
-/* ============================================
-   底部 Tab 栏
-   ============================================ */
+.msg-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #F0E6FF;
+}
+
+.msg-row--ai .msg-avatar {
+  margin-right: 16rpx;
+}
+
+.msg-row--user .msg-avatar {
+  margin-left: 16rpx;
+}
+
+/* 消息气泡 */
+.msg-bubble {
+  max-width: 470rpx;
+  padding: 18rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #101828;
+  word-break: break-all;
+  position: relative;
+}
+
+.msg-bubble--ai {
+  background: #FFFFFF;
+  border-top-left-radius: 6rpx;
+}
+
+.msg-bubble--user {
+  background: #7C3AED;
+  color: #FFFFFF;
+  border-top-right-radius: 6rpx;
+}
+
+/* 输入中动画 */
+.msg-bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 24rpx;
+  min-width: 100rpx;
+}
+
+.typing-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #C4C4C4;
+  animation: typingBounce 1.4s ease-in-out infinite both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+  30% { opacity: 1; transform: scale(1); }
+}
+
+/* ========== 输入区域 ========== */
+.chat-input-bar {
+  display: flex;
+  align-items: center;
+  padding: 14rpx 0;
+  padding-bottom: calc(14rpx + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  border-top: 1rpx solid #EEEEEE;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  height: 72rpx;
+  background: #F6F6F6;
+  border-radius: 36rpx;
+  padding: 0 28rpx;
+  font-size: 28rpx;
+  color: #101828;
+}
+
+.input-placeholder {
+  color: #B0B0B0;
+  font-size: 28rpx;
+}
+
+.chat-send-btn {
+  width: 112rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  background: #E8E8E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.chat-send-btn--active {
+  background: #7C3AED;
+}
+
+.chat-send-btn--hover {
+  opacity: 0.8;
+}
+
+.chat-send-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+/* ========== 底部导航栏（来自 youMeOther） ========== */
 .tab-bar {
   width: 100%;
   height: 96rpx;

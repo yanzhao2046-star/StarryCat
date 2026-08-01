@@ -50,18 +50,18 @@
         </picker>
       </view>
 
-      <!-- ③ 专属图像 -->
+      <!-- ③ 专属图像 — 调用微信拍照/相册选择 -->
       <view class="form-group">
         <text class="form-label">你的专属图像</text>
         <view class="form-input picker-row" bindtap="onAvatarTap">
-          <text class="{{selectedAvatar >= 0 ? 'val' : 'ph'}}">{{selectedAvatar >= 0 ? '已选择' : '选择图像'}}</text>
+          <text class="{{selectedAvatarPath ? 'val' : 'ph'}}">{{selectedAvatarPath ? '已选择' : '选择图像'}}</text>
           <image class="picker-icon" src="/assets/2.svg" mode="aspectFit" />
         </view>
       </view>
 
       <!-- ④ 选中头像预览（bar 下方居中） -->
-      <view class="avatar-preview" wx:if="{{selectedAvatar >= 0}}">
-        <image class="avatar-preview-img" src="{{avatarList[selectedAvatar]}}" mode="aspectFit"></image>
+      <view class="avatar-preview" wx:if="{{selectedAvatarPath}}">
+        <image class="avatar-preview-img" src="{{selectedAvatarPath}}" mode="aspectFill"></image>
       </view>
 
     </view>
@@ -77,38 +77,5 @@
 
   <!-- ====== 右下角装饰图 ====== -->
   <image class="deco" src="/assets/3.png" mode="aspectFit" />
-
-  <!-- ==================================================================
-       头像选择弹窗（底部对话框 — Figma 18个专属头像）
-       ================================================================== -->
-  <view class="dialog-mask" wx:if="{{showAvatarDialog}}" catchtap="onCloseDialog">
-    <view class="dialog-panel" catchtap="">
-      <!-- 弹窗头部 -->
-      <view class="dialog-header">
-        <text class="dialog-title">选择你的专属图像</text>
-        <view class="dialog-close" bindtap="onCloseDialog">
-          <text class="dialog-close-icon">✕</text>
-        </view>
-      </view>
-
-      <!-- 6列头像网格（Figma 18 个 SVGs） -->
-      <scroll-view class="dialog-scroll" scroll-y show-scrollbar="{{false}}">
-        <view class="avatar-grid">
-          <view
-            class="avatar-cell {{tempAvatar === index ? 'avatar-cell-on' : ''}}"
-            wx:for="{{avatarList}}"
-            wx:key="index"
-            data-index="{{index}}"
-            bindtap="onTempSelect"
-          >
-            <image class="avatar-img" src="{{item}}" mode="aspectFit"></image>
-          </view>
-        </view>
-      </scroll-view>
-
-      <!-- 确认按钮 -->
-      <button class="dialog-confirm" bindtap="onConfirmTap">确 定</button>
-    </view>
-  </view>
 
 </view>

@@ -1,6 +1,6 @@
 /* ============================================================
    growUp.js — 星猫成长页
-   展示: 成长指标 / 等级 / 积分历史
+   Figma 313_1778 UI + 原有成长逻辑
    ============================================================ */
 
 const app = getApp()
@@ -25,12 +25,7 @@ Page({
 
     /* ---- 总计 ---- */
     totalScore: 0,
-
-    /* ---- 星星猫问候语 ---- */
-    catGreeting: '喵~ 我是星猫，正在努力了解你',
-
-    /* ---- 数字跳动效果 ---- */
-    animating: false
+    overallProgress: 0
   },
 
   /* ====== 生命周期 ====== */
@@ -39,7 +34,6 @@ Page({
   },
 
   onShow() {
-    // 每次切回页面都刷新数据
     this._loadData()
   },
 
@@ -58,6 +52,9 @@ Page({
     const maxScore = Math.max(growData.token, growData.wisdom, growData.understand)
     const overallLevel = app.getLevelTitle(maxScore)
 
+    // 总分进度：最大 1000 分
+    const overallProgress = Math.min(100, Math.round((totalScore / 1000) * 100))
+
     this.setData({
       growData,
       levelTitle: overallLevel.title,
@@ -65,49 +62,26 @@ Page({
       wisdomLevel,
       understandLevel,
       totalScore,
-      catGreeting: this._genGreeting()
+      overallProgress
     })
-  },
-
-  /* ====== 生成星星猫个性问候 ====== */
-  _genGreeting() {
-    const summary = app.getMoodSummary()
-    if (summary.total === 0) {
-      return '喵~ 我在这里等你好久啦，快来和我说说今天的心情吧'
-    }
-    if (summary.dominant === 'negative') {
-      return '你最近好像有点累哦，和我说说吧，我会一直陪着你的'
-    }
-    if (summary.dominant === 'positive') {
-      return '最近你的状态超棒的！继续保持这份好心情呀~'
-    }
-    return '喵~ 我在努力了解你，每一天都是新故事'
   },
 
   /* ====== 进入聊心事页 ====== */
   onChatTap() {
-    app.addGrowScore('chat')
     wx.navigateTo({
-      url: '/pages/chat/chat'
+      url: '/pages/catCare/catCare'
     })
   },
 
-  /* ====== Tab 切换 ====== */
+  /* ====== Tab 切换（对齐 youMeOther data-tab 值） ====== */
   onTabSwitch(e) {
     const tab = e.currentTarget.dataset.tab
     if (tab === 'starTalk') return
-    let url = ''
-    switch (tab) {
-      case 'moodIsland':
-        url = '/pages/moodAdd/moodAdd'
-        break
-      case 'moodLib':
-        url = '/pages/moodLib/moodLib'
-        break
-      case 'people':
-        url = '/pages/youMeOther/youMeOther'
-        break
+    const routes = {
+      moodIsland: '/pages/moodAdd/moodAdd',
+      moodLib: '/pages/moodLib/moodLib',
+      people: '/pages/youMeOther/youMeOther'
     }
-    if (url) wx.redirectTo({ url })
+    if (routes[tab]) wx.redirectTo({ url: routes[tab] })
   }
 })

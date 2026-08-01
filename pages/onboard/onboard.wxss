@@ -163,6 +163,7 @@ page {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
+  border: 2rpx solid #D9D9D9;
 }
 
 /* ============================================
@@ -209,118 +210,4 @@ page {
   width: 242rpx;
   height: 242rpx;
   pointer-events: none;
-}
-
-/* ============================================
-   头像选择弹窗（底部对话框）
-   ============================================ */
-.dialog-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.dialog-panel {
-  width: 100%;
-  background: #ffffff;
-  border-radius: 36rpx 36rpx 0 0;
-  padding: 48rpx 30rpx;
-  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ---- 弹窗头部 ---- */
-.dialog-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 40rpx;
-}
-
-.dialog-title {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #000000;
-}
-
-.dialog-close {
-  width: 48rpx;
-  height: 48rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #F3F4F6;
-}
-
-.dialog-close-icon {
-  font-size: 28rpx;
-  color: #6B7280;
-  line-height: 1;
-}
-
-/* ---- 可滚动区域（Figma 18个头像） ---- */
-.dialog-scroll {
-  width: 100%;
-  max-height: 520rpx;
-  margin-bottom: 48rpx;
-}
-
-/* ---- 6列头像网格 ---- */
-.avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16rpx;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.avatar-cell {
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 4rpx solid transparent;
-  box-sizing: border-box;
-  background: #F3F4F6;
-}
-
-.avatar-cell-on {
-  border-color: #6155F5;
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-}
-
-/* ---- 弹窗确认按钮 ---- */
-.dialog-confirm {
-  width: 100%;
-  height: 80rpx;
-  background: #6155F5;
-  border-radius: 18rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  box-sizing: border-box;
-  border: none;
-  line-height: 80rpx;
-}
-
-.dialog-confirm::after {
-  border: none;
 }

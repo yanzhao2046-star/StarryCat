@@ -1,27 +1,21 @@
 /* ============================================
    growUp.wxss — 星猫成长页
-   Figma 基准：375px → 750rpx (1px = 2rpx)
-   容器 padding: 0 30rpx
-   紫色系配色，卡片式布局
+   Figma 313_1778 基准：375px → 750rpx
+   对齐 youMeOther：padding 0 60rpx
    ============================================ */
 
-/* ---- 页面级 ---- */
-page {
-  background: #F8F7FF;
-  min-height: 100vh;
-}
-
+/* ---- 页面容器（对齐 youMeOther） ---- */
 .page {
   width: 100%;
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 0 30rpx;
+  padding: 0 60rpx;
   display: flex;
   flex-direction: column;
-  background: #F8F7FF;
+  background: #FFFFFF;
 }
 
-/* ---- 可滚动内容区 ---- */
+/* ---- 可滚动内容 ---- */
 .content {
   flex: 1;
   width: 100%;
@@ -29,393 +23,158 @@ page {
 }
 
 /* ============================================
-   头部：星星猫 + 标题
-   图例: 5.svg 头像 + 标题文字
-   渐变背景: #FFF1F2 → #FFFFFF
+   头部渐变区
+   Figma: 366×101px, top 11.46px
+   渐变: #FFF1F2 → white 70%
    ============================================ */
 .header {
-  position: relative;
   width: 100%;
-  margin-top: 32rpx;
-  min-height: 180rpx;
+  margin-top: 24rpx;
+  padding: 92rpx 38rpx 28rpx;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20rpx 24rpx;
+  background: linear-gradient(160deg, #FFF1F2 0%, #FFFFFF 70%);
   border-radius: 20rpx;
-  background: linear-gradient(160deg, #FFF1F2 0%, #FFFFFF 80%);
-}
-
-.header-avatar-wrap {
-  width: 140rpx;
-  height: 140rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.header-avatar {
-  width: 140rpx;
-  height: 140rpx;
-}
-
-.header-text {
-  margin-left: 16rpx;
-  display: flex;
-  flex-direction: column;
 }
 
 .header-title {
-  font-size: 34rpx;
+  display: block;
+  font-size: 38rpx;
   font-weight: 700;
-  color: #101828;
-}
-
-.header-subtitle {
-  font-size: 28rpx;
-  font-weight: 400;
-  color: #667085;
-  margin-top: 4rpx;
-}
-
-/* ============================================
-   AI 对话入口按钮
-   ============================================ */
-.chat-entry {
-  width: 100%;
-  margin-top: 20rpx;
-  padding: 24rpx 28rpx;
-  background: #FFFFFF;
-  border: 2rpx solid #E8E5FF;
-  border-radius: 16rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
-
-.chat-entry__text {
-  font-size: 28rpx;
-  font-weight: 500;
-  color: #6155F5;
-}
-
-.chat-entry__arrow {
-  font-size: 28rpx;
-  color: #6155F5;
-  font-weight: 600;
-}
-
-/* ============================================
-   整体等级徽章
-   ============================================ */
-.level-badge {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-  margin-bottom: 20rpx;
-}
-
-.level-badge__label {
-  font-size: 24rpx;
-  color: #98A2B3;
-}
-
-.level-badge__title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #6155F5;
-  background: linear-gradient(135deg, #6155F5, #F59E0B);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* ============================================
-   三大指标卡片区
-   ============================================ */
-.stats-section {
-  margin-top: 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-/* 单个指标卡片 */
-.stat-card {
-  width: 100%;
-  background: #FFFFFF;
-  border-radius: 20rpx;
-  padding: 24rpx 28rpx;
-  box-sizing: border-box;
-  box-shadow: 0 4rpx 16rpx rgba(97, 85, 245, 0.06);
-}
-
-.stat-card__header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-/* 图标 */
-.stat-card__icon {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-card__icon--token {
-  background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
-}
-
-.stat-card__icon--wisdom {
-  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-}
-
-.stat-card__icon--understand {
-  background: linear-gradient(135deg, #F3E5F5, #E1BEE7);
-}
-
-.stat-card__emoji {
-  font-size: 36rpx;
-}
-
-/* 数值信息 */
-.stat-card__info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-left: 16rpx;
-}
-
-.stat-card__name {
-  font-size: 26rpx;
-  font-weight: 500;
-  color: #344054;
-}
-
-.stat-card__value {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #101828;
-  line-height: 1.2;
-}
-
-/* 等级称号 */
-.stat-card__level {
-  flex-shrink: 0;
-}
-
-.stat-card__level-title {
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #6155F5;
-  background: rgba(97, 85, 245, 0.08);
-  border-radius: 8rpx;
-  padding: 6rpx 16rpx;
-}
-
-/* 进度条 */
-.stat-card__progress {
-  margin-top: 18rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.stat-card__progress-bar {
-  flex: 1;
-  height: 10rpx;
-  background: #F2F4F7;
-  border-radius: 5rpx;
-  overflow: hidden;
-}
-
-.stat-card__progress-fill {
-  height: 100%;
-  border-radius: 5rpx;
-  background: linear-gradient(90deg, #F59E0B, #F97316);
-  transition: width 0.4s ease;
-}
-
-.stat-card__progress-fill--wisdom {
-  background: linear-gradient(90deg, #34D399, #10B981);
-}
-
-.stat-card__progress-fill--understand {
-  background: linear-gradient(90deg, #A78BFA, #8B5CF6);
-}
-
-.stat-card__progress-text {
-  font-size: 20rpx;
-  color: #98A2B3;
-  flex-shrink: 0;
-}
-
-/* ============================================
-   星星猫形象卡片 + 个性化问候
-   ============================================ */
-.cat-card {
-  width: 100%;
-  margin-top: 24rpx;
-  background: linear-gradient(135deg, #EEF2FF, #F5F0FF);
-  border-radius: 20rpx;
-  padding: 28rpx 28rpx;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.cat-card__avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  background: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.cat-card__img {
-  width: 90rpx;
-  height: 90rpx;
-}
-
-.cat-card__body {
-  flex: 1;
-  margin-left: 20rpx;
-  display: flex;
-  flex-direction: column;
-}
-
-.cat-card__greeting {
-  font-size: 28rpx;
-  font-weight: 600;
   color: #101828;
   line-height: 1.4;
 }
 
-.cat-card__desc {
-  font-size: 22rpx;
-  color: #667085;
-  margin-top: 8rpx;
+.header-subtitle {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #101828;
+  margin-top: 6rpx;
+  line-height: 1.4;
 }
 
 /* ============================================
-   成长记录 / 积分历史
+   星猫状态区
+   Figma: 358×250px, top 137px, left 25px
    ============================================ */
-.records-section {
-  margin-top: 24rpx;
-}
-
-.records-header {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 16rpx;
-}
-
-.records-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #101828;
-}
-
-.records-count {
-  font-size: 22rpx;
-  color: #98A2B3;
-}
-
-.record-item {
+.cat-section {
   width: 100%;
-  background: #FFFFFF;
-  border-radius: 14rpx;
-  padding: 20rpx 24rpx;
-  box-sizing: border-box;
+  margin-top: 46rpx;
+}
+
+.cat-section-desc {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 300;
+  color: #000000;
+  line-height: 1.5;
+}
+
+.cat-section-main {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10rpx;
+  margin-top: 14rpx;
 }
 
-.record-item__left {
+/* 星猫头像圆 */
+.cat-avatar-wrap {
+  width: 260rpx;
+  height: 260rpx;
   display: flex;
-  flex-direction: column;
-  gap: 4rpx;
-}
-
-.record-item__desc {
-  font-size: 26rpx;
-  font-weight: 500;
-  color: #344054;
-}
-
-.record-item__time {
-  font-size: 20rpx;
-  color: #98A2B3;
-}
-
-.record-item__right {
-  display: flex;
-  flex-direction: row;
-  gap: 8rpx;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(97, 85, 245, 0.06);
 }
 
-.record-item__score {
-  font-size: 22rpx;
-  font-weight: 600;
-  color: #F59E0B;
-  background: rgba(245, 158, 11, 0.1);
-  border-radius: 6rpx;
-  padding: 4rpx 10rpx;
+.cat-avatar-img {
+  width: 200rpx;
+  height: 200rpx;
 }
 
-.record-item__score--wisdom {
-  color: #10B981;
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.record-item__score--understand {
-  color: #8B5CF6;
-  background: rgba(139, 92, 246, 0.1);
-}
-
-/* 空态 */
-.records-empty {
-  width: 100%;
-  background: #FFFFFF;
-  border-radius: 14rpx;
-  padding: 48rpx 24rpx;
-  box-sizing: border-box;
+/* 三项数据 */
+.cat-stats {
+  flex: 1;
+  margin-left: 20rpx;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8rpx;
 }
 
-.records-empty__text {
-  font-size: 26rpx;
-  color: #98A2B3;
+.cat-stats-text {
+  font-size: 28rpx;
+  font-weight: 300;
+  color: #000000;
+  line-height: 1.5;
 }
 
-.records-empty__hint {
-  font-size: 22rpx;
-  color: #D0D5DD;
+/* 总分进度条 */
+.cat-progress {
+  width: 100%;
+  margin-top: 10rpx;
+}
+
+.cat-progress-bar {
+  width: 100%;
+  height: 18rpx;
+  background: #EEEEEE;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.cat-progress-fill {
+  height: 100%;
+  border-radius: 20rpx;
+  background: linear-gradient(90deg, #D9D9D9 0%, #6155F5 100%);
+  transition: width 0.5s ease;
+}
+
+.cat-progress-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 300;
+  color: #000000;
+  text-align: right;
+  margin-top: 10rpx;
+}
+
+/* ============================================
+   成长规则区
+   Figma: 327×235px, top 419px, left 24px
+   ============================================ */
+.rules-section {
+  width: 100%;
+  margin-top: 48rpx;
+}
+
+.rules-header {
+  width: 100%;
+  height: 48rpx;
+  background: #BA99ED;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rules-title {
+  font-size: 24rpx;
+  font-weight: 300;
+  color: #000000;
+}
+
+.rules-body {
+  width: 100%;
+  margin-top: 12rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+
+.rules-img {
+  width: 100%;
+  display: block;
 }
 
 /* ============================================
@@ -426,7 +185,7 @@ page {
 }
 
 /* ============================================
-   底部导航栏
+   底部导航栏（对齐 youMeOther — 星猫说激活）
    ============================================ */
 .tab-bar {
   width: 100%;
@@ -438,8 +197,6 @@ page {
   align-items: center;
   justify-content: space-around;
   padding-bottom: env(safe-area-inset-bottom);
-  background: #FFFFFF;
-  border-top: 1rpx solid #F2F4F7;
 }
 
 .tab-item {
@@ -458,7 +215,7 @@ page {
 .tab-label {
   font-size: 24rpx;
   font-weight: 500;
-  color: #98A2B3;
+  color: #000000;
 }
 
 .tab-item.active .tab-label {

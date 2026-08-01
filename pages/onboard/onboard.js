@@ -1,42 +1,12 @@
 // pages/onboard/onboard.js
 
-/* =================================================================
-   avatarList — 18 个 Figma 专属头像
-   资源路径: /assets/CodeBuddyAssets/46_750/
-   Figma 6×3 网格，从左到右、从上到下排列
-   ================================================================= */
-const AVATAR_LIST = [
-  '/assets/CodeBuddyAssets/46_750/1.png',
-  '/assets/CodeBuddyAssets/46_750/2.png',
-  '/assets/CodeBuddyAssets/46_750/3.png',
-  '/assets/CodeBuddyAssets/46_750/4.png',
-  '/assets/CodeBuddyAssets/46_750/5.png',
-  '/assets/CodeBuddyAssets/46_750/9.png',
-  '/assets/CodeBuddyAssets/46_750/8.png',
-  '/assets/CodeBuddyAssets/46_750/10.png',
-  '/assets/CodeBuddyAssets/46_750/13.png',
-  '/assets/CodeBuddyAssets/46_750/6.png',
-  '/assets/CodeBuddyAssets/46_750/12.png',
-  '/assets/CodeBuddyAssets/46_750/7.png',
-  '/assets/CodeBuddyAssets/46_750/11.png',
-  '/assets/CodeBuddyAssets/46_750/14.png',
-  '/assets/CodeBuddyAssets/46_750/15.png',
-  '/assets/CodeBuddyAssets/46_750/16.png',
-  '/assets/CodeBuddyAssets/46_750/17.png',
-  '/assets/CodeBuddyAssets/46_750/18.png'
-]
-
 Page({
 
   data: {
     nickname: '',
     birthday: '',                // 出生日期
     today: '',                   // picker end 限制
-    avatarList: AVATAR_LIST,
-    selectedAvatar: -1,          // 已确认的头像索引（-1 表示未选）
-    selectedAvatarPath: '',      // 已确认的头像图片路径
-    tempAvatar: -1,              // 弹窗中临时选中的索引
-    showAvatarDialog: false
+    selectedAvatarPath: ''       // 已选头像本地临时路径
   },
 
   onLoad() {
@@ -68,51 +38,46 @@ Page({
     this.setData({ birthday: e.detail.value })
   },
 
-  /* ====== 打开头像弹窗 ====== */
+  /* ====== 打开头像选择 — 微信原生拍照/相册 ====== */
   onAvatarTap() {
-    this.setData({
-      showAvatarDialog: true,
-      tempAvatar: this.data.selectedAvatar
+    const that = this
+    wx.showActionSheet({
+      itemList: ['拍照', '从手机相册选择'],
+      success(res) {
+        if (res.tapIndex === 0) {
+          that._chooseMedia(['camera'])
+        } else if (res.tapIndex === 1) {
+          that._chooseMedia(['album'])
+        }
+      }
     })
   },
 
-  /* ====== 关闭弹窗（放弃选择） ====== */
-  onCloseDialog() {
-    this.setData({ showAvatarDialog: false })
-  },
-
-  /* ====== 弹窗内临时选中 ====== */
-  onTempSelect(e) {
-    const idx = Number(e.currentTarget.dataset.index)
-    this.setData({ tempAvatar: idx })
-  },
-
-  /* ====== 确认选择 ====== */
-  onConfirmTap() {
-    const idx = this.data.tempAvatar
-    if (idx < 0) {
-      wx.showToast({ title: '请先选择一个图像', icon: 'none' })
-      return
-    }
-    const path = AVATAR_LIST[idx] || ''
-    this.setData({
-      selectedAvatar: idx,
-      selectedAvatarPath: path,
-      showAvatarDialog: false
+  _chooseMedia(sourceType) {
+    const that = this
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: sourceType,
+      success(res) {
+        const path = res.tempFiles[0].tempFilePath
+        that.setData({ selectedAvatarPath: path })
+      },
+      fail() {
+        wx.showToast({ title: '选择失败，请重试', icon: 'none' })
+      }
     })
   },
 
   /* ====== 开启情绪旅程 ====== */
   onSubmit() {
     const name = this.data.nickname.trim() || 'Cyne'
-    const avatarIndex = this.data.selectedAvatar
     const avatarPath = this.data.selectedAvatarPath || ''
 
     /* 持久化用户资料 */
     wx.setStorageSync('userProfile', {
       nickname: name,
       birthday: this.data.birthday,
-      avatarIndex: avatarIndex,
       avatarPath: avatarPath
     })
 
