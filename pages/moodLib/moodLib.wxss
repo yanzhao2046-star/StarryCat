@@ -11,16 +11,20 @@ page {
 
 .page {
   width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 0 60rpx;
-  display: flex;
-  flex-direction: column;
+  height: 100vh;
+  position: relative;
   background: #ffffff;
 }
 
-.scroll-main {
-  flex: 1;
+.page-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 60rpx;
+  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 /* ============================================
@@ -152,7 +156,6 @@ page {
   width: 100%;
   padding-top: 16rpx;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* ---- 紧凑列表条目 ---- */
@@ -376,15 +379,21 @@ page {
    底部导航栏
    ============================================ */
 .tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: #ffffff;
   width: 100%;
   height: 96rpx;
-  flex-shrink: 0;
-  margin-top: auto;
+  padding: 0 60rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .tab-item {

@@ -6,6 +6,8 @@
 
 <view class="page">
 
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+
   <!-- =================== 顶部日期 & 问候 =================== -->
   <view class="header">
     <view class="header-date">2026年07月25日</view>
@@ -16,7 +18,7 @@
   </view>
 
   <!-- =================== 主内容区域（可滚动） =================== -->
-  <scroll-view class="content" scroll-y show-scrollbar="{{false}}">
+  <view class="content">
 
     <!-- ---- 此刻发生了什么 ---- -->
     <view class="event-section">
@@ -119,9 +121,7 @@
       <text class="energy-info__level" wx:if="{{selectedScoreLevel}}">档位：{{selectedScoreLevel}}</text>
     </view>
 
-  </scroll-view>
-
-  <!-- ---- 操作按钮（在scroll-view外，避免touch事件冲突） ---- -->
+  <!-- ---- 操作按钮 ---- -->
   <view class="action-bar">
     <view class="diy-btn" bindtap="onDiyTap" hover-class="diy-hover">
       <image class="diy-icon" src="/assets/CodeBuddyAssets/313_336/1.svg" mode="aspectFit"></image>
@@ -129,6 +129,10 @@
     </view>
     <view class="save-btn" bindtap="onSaveMood" hover-class="save-hover">保存心情</view>
   </view>
+
+  </view>
+
+  </scroll-view>
 
   <!-- =================== 底部导航栏（情绪岛激活） =================== -->
   <view class="tab-bar">

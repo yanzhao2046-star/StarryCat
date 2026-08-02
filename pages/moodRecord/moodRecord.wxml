@@ -5,7 +5,9 @@
   数据来源: app.globalData.currentMoodRecord
   ============================================ -->
 
-<scroll-view class="page" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+<view class="page">
+
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
 
   <!-- =================== 顶部：标题 + 统计卡片 =================== -->
   <view class="header">
@@ -28,17 +30,8 @@
     </view>
   </view>
 
-  <!-- ====== 12 心情按钮网格 ====== -->
-  <view class="mood-section">
-    <view class="mood-grid">
-      <view class="mood-cell" wx:for="{{MOODS}}" wx:key="name" data-mood="{{item.name}}" bindtap="onMoodTap">
-        <view class="mood-icon-border"><image class="mood-icon" src="{{item.icon}}" mode="aspectFit"></image></view>
-        <text class="mood-name">{{item.name}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- =================== 主卡片：火苗分享卡 =================== -->
+  <!-- =================== 可滚动内容区 =================== -->
+  <view class="scroll-body">
   <view class="main-card">
     <view class="card-inner">
 
@@ -47,7 +40,7 @@
         <image class="card-avatar" src="/assets/moodRecord/5.png" mode="aspectFit"></image>
         <view class="card-user-info">
           <text class="card-user-name">{{nickname}}火苗卡</text>
-          <text class="card-date">2026.07.16</text>
+          <text class="card-date">{{recordTime}}</text>
         </view>
       </view>
 
@@ -77,6 +70,10 @@
     </view>
   </view>
 
+  </view>
+
+  </scroll-view>
+
   <!-- =================== 底部导航栏（心情库激活） =================== -->
   <view class="tab-bar">
     <view class="tab-item" data-tab="moodIsland" bindtap="onTabSwitch">
@@ -97,4 +94,4 @@
     </view>
   </view>
 
-</scroll-view>
+</view>

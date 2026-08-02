@@ -22,6 +22,8 @@ module.exports = function(mood) {
 
 <view class="page">
 
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+
   <!-- =================== 顶部标题区 =================== -->
   <view class="header">
     <text class="header-title">心情你我他</text>
@@ -52,7 +54,7 @@ module.exports = function(mood) {
   </view>
 
   <!-- =================== 动态列表 =================== -->
-  <scroll-view class="feed-scroll" wx:if="{{displayList.length > 0}}" scroll-y show-scrollbar="{{false}}">
+  <view class="feed-scroll" wx:if="{{displayList.length > 0}}">
 
     <block wx:for="{{displayList}}" wx:key="id">
 
@@ -127,6 +129,8 @@ module.exports = function(mood) {
       </view>
 
     </block>
+
+  </view>
 
   </scroll-view>
 

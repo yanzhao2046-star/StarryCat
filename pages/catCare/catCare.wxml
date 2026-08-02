@@ -1,4 +1,7 @@
 <view class="page" bindtap="onPageTap">
+
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+
   <!-- ====== 上半区：头部 + 聊天消息 ====== -->
   <view class="chat-area">
     <view class="chat-header">
@@ -70,7 +73,9 @@
     </view>
   </view>
 
-  <!-- 底部导航栏（来自 youMeOther — inline flex + margin-top:auto） -->
+  </scroll-view>
+
+  <!-- 底部导航栏（fixed 悬浮） -->
   <view class="tab-bar">
     <view class="tab-item" data-tab="moodIsland" bindtap="onTabTap">
       <image class="tab-icon" src="/assets/moodLib/4.svg" mode="aspectFit"></image>

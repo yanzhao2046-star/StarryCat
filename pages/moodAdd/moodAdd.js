@@ -272,7 +272,8 @@ Page({
       eventText,
       scoreLevel: selectedScoreLevel,
       shareText: moodText,
-      shareTip: moodTip
+      shareTip: moodTip,
+      recordTime: timeStr
     }
 
     const nick = encodeURIComponent(nickname)

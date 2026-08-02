@@ -21,6 +21,8 @@ module.exports = function(mood) {
 
 <view class="page">
 
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+
   <!-- =================== 顶部：标题 + 统计卡片 =================== -->
   <view class="header">
     <view class="header-top-row">
@@ -56,8 +58,8 @@ module.exports = function(mood) {
     <text class="empty-sub">去情绪岛记录你的心情吧</text>
   </view>
 
-  <!-- =================== 记录列表（可滚动） =================== -->
-  <scroll-view class="list-scroll" wx:if="{{!isEmpty}}" scroll-y show-scrollbar="{{false}}">
+  <!-- =================== 记录列表 =================== -->
+  <view class="list-scroll" wx:if="{{!isEmpty}}">
 
     <block wx:for="{{displayList}}" wx:key="id">
 
@@ -115,6 +117,8 @@ module.exports = function(mood) {
       </view>
 
     </block>
+
+  </view>
 
   </scroll-view>
 

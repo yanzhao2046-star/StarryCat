@@ -11,16 +11,24 @@ page {
   height: 100vh;
 }
 
-/* ---- 外层容器（强制样式） ---- */
+/* ---- 外层容器 ---- */
 .page {
   width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 0 60rpx;
-  padding-bottom: 200rpx;
-  display: flex;
-  flex-direction: column;
+  height: 100vh;
+  position: relative;
   background: #ffffff;
+}
+
+/* ---- 滚��主体区域 ---- */
+.page-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 60rpx;
+  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 /* ============================================
@@ -68,9 +76,7 @@ page {
    主内容区域
    ============================================ */
 .content {
-  flex: 1;
   width: 100%;
-  height: 1rpx;
   padding-top: 0;
 }
 
@@ -303,18 +309,17 @@ page {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff;
   z-index: 100;
+  background: #ffffff;
   width: 100%;
   height: 96rpx;
-  flex-shrink: 0;
-  margin-top: auto;
+  padding: 0 60rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom);
-  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
 }
 
 .tab-item {

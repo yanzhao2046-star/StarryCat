@@ -1,17 +1,21 @@
 /* ========== 页面容器（对齐 youMeOther — 左右 60rpx） ========== */
 .page {
   width: 100%;
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 0 60rpx;
+  height: 100vh;
+  position: relative;
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
 }
 
+.page-body {
+  flex: 1;
+  padding: 0 60rpx;
+  box-sizing: border-box;
+}
+
 /* ========== 上半区容器：头部 + 聊天 ========== */
 .chat-area {
-  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -242,15 +246,22 @@
 
 /* ========== 底部导航栏（来自 youMeOther） ========== */
 .tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: #ffffff;
   width: 100%;
   height: 96rpx;
   flex-shrink: 0;
-  margin-top: auto;
+  padding: 0 60rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .tab-item {
