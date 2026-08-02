@@ -5,7 +5,7 @@
   数据来源: app.globalData.currentMoodRecord
   ============================================ -->
 
-<view class="page">
+<scroll-view class="page" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
 
   <!-- =================== 顶部：标题 + 统计卡片 =================== -->
   <view class="header">
@@ -24,6 +24,16 @@
       <view class="stat-card stat-green">
         <text class="stat-label">记录总数</text>
         <text class="stat-value stat-value-green">{{recordCount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ====== 12 心情按钮网格 ====== -->
+  <view class="mood-section">
+    <view class="mood-grid">
+      <view class="mood-cell" wx:for="{{MOODS}}" wx:key="name" data-mood="{{item.name}}" bindtap="onMoodTap">
+        <view class="mood-icon-border"><image class="mood-icon" src="{{item.icon}}" mode="aspectFit"></image></view>
+        <text class="mood-name">{{item.name}}</text>
       </view>
     </view>
   </view>
@@ -87,4 +97,4 @@
     </view>
   </view>
 
-</view>
+</scroll-view>

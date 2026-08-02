@@ -11,14 +11,16 @@ Page({
 
   onLoad() {
     /* 已有用户资料 → 跳过登录页，直接进情绪岛 */
-    const profile = wx.getStorageSync('userProfile')
-    if (profile) {
-      const nick = profile.nickname ? encodeURIComponent(profile.nickname) : ''
-      wx.redirectTo({
-        url: '/pages/moodAdd/moodAdd?nickname=' + nick
-      })
-      return
-    }
+    try {
+      const profile = wx.getStorageSync('userProfile')
+      if (profile && profile.nickname) {
+        wx.redirectTo({
+          url: '/pages/moodAdd/moodAdd?nickname=' + encodeURIComponent(profile.nickname),
+          fail() { /* redirect fail — stay on onboard */ }
+        })
+        return
+      }
+    } catch (e) { /* ignore */ }
 
     /* 今天的日期（picker end 限制） */
     const d = new Date()

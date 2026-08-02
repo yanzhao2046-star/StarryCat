@@ -1,10 +1,27 @@
 // pages/moodRecord/moodRecord.js
 const app = getApp()
 
+/* ---- 12 种心情 ---- */
+const MOODS = [
+  { name: '超开心', icon: '/assets/moodAdd/5.png' },
+  { name: '偷偷小得意', icon: '/assets/moodAdd/6.png' },
+  { name: '充满干劲', icon: '/assets/moodAdd/7.png' },
+  { name: '有点迷糊', icon: '/assets/moodAdd/8.png' },
+  { name: '认真专注', icon: '/assets/moodAdd/9.png' },
+  { name: '有点沮丧', icon: '/assets/moodAdd/10.png' },
+  { name: '想歇一会', icon: '/assets/moodAdd/11.png' },
+  { name: '烦躁生气', icon: '/assets/moodAdd/12.png' },
+  { name: '感恩', icon: '/assets/moodAdd/tkgiving.png' },
+  { name: '热爱劳动', icon: '/assets/moodAdd/labor.png' },
+  { name: '团队合作', icon: '/assets/moodAdd/team.png' },
+  { name: '平和放松', icon: '/assets/moodAdd/peace.png' }
+]
+
 Page({
 
   data: {
     nickname: 'Cyne',
+    MOODS: MOODS,
 
     /* ---- 火苗记录数据（来自 moodAdd globalData） ---- */
     moodEnergy: 0,
@@ -34,6 +51,15 @@ Page({
         shareTip: record.shareTip
       })
     }
+  },
+
+  /* ====== 心情按钮点击 → 跳转 moodAdd ====== */
+  onMoodTap(e) {
+    const mood = e.currentTarget.dataset.mood
+    const name = this.data.nickname
+    wx.redirectTo({
+      url: '/pages/moodAdd/moodAdd?nickname=' + encodeURIComponent(name) + '&mood=' + encodeURIComponent(mood)
+    })
   },
 
   /* ====== 保存 ====== */
