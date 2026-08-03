@@ -9,18 +9,23 @@ Page({
     selectedAvatarPath: ''       // 已选头像本地临时路径
   },
 
-  onLoad() {
-    /* 已有用户资料 → 跳过登录页，直接进情绪岛 */
-    try {
-      const profile = wx.getStorageSync('userProfile')
-      if (profile && profile.nickname) {
-        wx.redirectTo({
-          url: '/pages/moodAdd/moodAdd?nickname=' + encodeURIComponent(profile.nickname),
-          fail() { /* redirect fail — stay on onboard */ }
-        })
-        return
-      }
-    } catch (e) { /* ignore */ }
+  onLoad(options) {
+    /* 扫码进入 → 强制展示欢迎页 */
+    const fromScan = options.from === 'qrcode'
+
+    /* 已有用户资料 且 非扫码 → 跳过登录页，直接进情绪岛 */
+    if (!fromScan) {
+      try {
+        const profile = wx.getStorageSync('userProfile')
+        if (profile && profile.nickname) {
+          wx.redirectTo({
+            url: '/pages/moodAdd/moodAdd?nickname=' + encodeURIComponent(profile.nickname),
+            fail() { /* redirect fail — stay on onboard */ }
+          })
+          return
+        }
+      } catch (e) { /* ignore */ }
+    }
 
     /* 今天的日期（picker end 限制） */
     const d = new Date()
