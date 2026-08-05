@@ -1,13 +1,13 @@
 <!-- ============================================
   moodRecord - 情绪岛 / 火苗分享卡片页
-  Figma 基准: 375 × 852 px → 750 × 1704 rpx
+  Figma 基准: 375 x 852 px -> 750 x 1704 rpx
   换算规则: 1 Figma px = 2 rpx
   数据来源: app.globalData.currentMoodRecord
   ============================================ -->
 
 <view class="page">
 
-  <!-- 隐藏 Canvas — 用于生成火苗卡片截图（保存到相册） -->
+  <!-- 隐藏 Canvas -- 用于生成火苗卡片截图（保存到相册） -->
   <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
 
   <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
@@ -35,21 +35,45 @@
 
   <!-- =================== 可滚动内容区 =================== -->
   <view class="scroll-body">
+
+  <!-- =================== 主卡片（分层渲染） =================== -->
   <view class="main-card">
+
+    <!-- 中层：星空纹理 -->
+    <image class="card-starfield" src="/assets/moodRecord/starfield.png" mode="aspectFill"></image>
+
+    <!-- 上层：卡牌紫色外发光遮罩 -->
+    <view class="card-glow-overlay"></view>
+
+    <!-- 头像行背景带 -->
+    <view class="card-header-bg"></view>
+
+    <!-- 内容层 -->
     <view class="card-inner">
 
-      <!-- ---- 用户 + 日期行 ---- -->
+      <!-- ---- 用户 + 日期行 + 条码 ---- -->
       <view class="card-user-row">
         <image class="card-avatar" src="{{userAvatar || '/assets/moodRecord/5.png'}}" mode="aspectFill"></image>
         <view class="card-user-info">
           <text class="card-user-name">{{nickname}}火苗卡</text>
           <text class="card-date">{{recordTime}}</text>
         </view>
+        <!-- 条码 — 同行最右端 -->
+        <view class="card-barcode-inline">
+          <canvas type="2d" id="barcodeCanvas" class="barcode-canvas-inline"></canvas>
+          <text class="barcode-id-inline">{{barcodeText}}</text>
+        </view>
       </view>
 
-      <!-- ---- Emoji + 情绪统计 ---- -->
+      <!-- ---- 火焰图标 + 情绪统计（含闪光效果） ---- -->
       <view class="card-emoji-section">
-        <text class="card-emoji">🔥</text>
+        <view class="flame-wrapper">
+          <image class="card-emoji-img" src="/assets/moodRecord/fire.png" mode="aspectFit" style="filter: {{flameGlowFilter}};"></image>
+          <view class="flame-spark s1"></view>
+          <view class="flame-spark s2"></view>
+          <view class="flame-spark s3"></view>
+          <view class="flame-spark s4"></view>
+        </view>
         <text class="card-heat">情绪热度 {{moodEnergy}}%</text>
         <text class="card-mood">{{currentMoodType || '超开心'}}</text>
         <text class="card-memo" wx:if="{{shareText}}">{{shareText}}</text>
@@ -64,10 +88,10 @@
         <text class="advice-text">{{shareTip}}</text>
       </view>
 
-      <!-- ---- 操作按钮 ---- -->
+      <!-- ---- 操作按钮（紫/橙发光 + 扫光） ---- -->
       <view class="card-actions">
-        <button class="btn-action" bindtap="onSave">保 存</button>
-        <button class="btn-action" open-type="share">分 享</button>
+        <button class="btn-action btn-save" bindtap="onSave">保 存</button>
+        <button class="btn-action btn-share" open-type="share">分 享</button>
       </view>
 
     </view>

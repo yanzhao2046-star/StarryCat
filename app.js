@@ -9,6 +9,10 @@ App({
     // 初始化 CloudBase 云开发
     this._initCloud()
     this._initGrowData()
+
+    // ===== 模拟数据注入（测试用，正式上线前删除此行） =====
+    require('./utils/mockGenerator').injectMockData()
+    // ===== 模拟数据注入 END =====
   },
 
   globalData: {},

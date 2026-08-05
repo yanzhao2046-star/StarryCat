@@ -22,7 +22,9 @@ page {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0 60rpx;
+  padding-left: 60rpx;
+  padding-right: 60rpx;
+  padding-top: 284rpx;
   padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
@@ -31,11 +33,19 @@ page {
    顶部标题 + 统计卡片
    ============================================ */
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: #ffffff;
   padding-top: 36rpx;
-  width: 100%;
-  flex-shrink: 0;
-  box-shadow: 0 2rpx 0 #F3F4F6;
+  padding-left: 60rpx;
+  padding-right: 60rpx;
   padding-bottom: 16rpx;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 0 #F3F4F6;
 }
 
 .header-title {
@@ -351,28 +361,46 @@ page {
 .exp-actions {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  gap: 32rpx;
+  align-items: center;
+  gap: 16rpx;
 }
 
-.btn-exp {
-  width: 170rpx;
+/* 分享至你我他 */
+.btn-exp--share {
+  padding: 0 24rpx;
   height: 48rpx;
-  background: rgba(97, 85, 245, 0.12);
+  background: rgba(139, 92, 246, 0.56);
   border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24rpx;
   font-weight: 600;
-  color: #6155F5;
+  color: #FFFFFF;
+  white-space: nowrap;
 }
 
-/* 分享至你我他宽按钮 */
-.btn-exp--wide {
-  width: 320rpx;
-  background: linear-gradient(135deg, #6155F5 0%, #8B7CFF 100%);
+.btn-exp--share:active {
+  opacity: 0.8;
+}
+
+/* 自言自语 */
+.btn-exp--mono {
+  padding: 0 24rpx;
+  height: 48rpx;
+  background: rgba(139, 92, 246, 0.56);
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 700;
   color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.btn-exp--mono:active {
+  opacity: 0.8;
 }
 
 /* ============================================
@@ -418,5 +446,124 @@ page {
 .tab-item.active .tab-label {
   color: #6155F5;
   font-weight: 700;
+}
+
+/* 自言自语有记录时高亮 */
+.btn-exp--mono--has {
+  background: rgba(139, 92, 246, 0.78);
+}
+
+/* ============================================
+   自言自语弹窗
+   ============================================ */
+.mono-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mono-popup {
+  width: 560rpx;
+  background: #FFFFFF;
+  border-radius: 36rpx;
+  padding: 32rpx;
+  box-sizing: border-box;
+  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  animation: monoPopIn 0.25s ease;
+}
+
+@keyframes monoPopIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.mono-count-tag {
+  font-size: 22rpx;
+  color: rgba(139, 92, 246, 0.65);
+  text-align: center;
+  display: block;
+}
+
+.mono-history-empty {
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.mono-history {
+  max-height: 200rpx;
+  background: rgba(183, 156, 250, 0.16);
+  border-radius: 18rpx;
+  padding: 16rpx 24rpx;
+}
+
+.mono-history-item {
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid rgba(139, 92, 246, 0.12);
+}
+
+.mono-history-item:last-child {
+  border-bottom: none; padding-bottom: 0;
+}
+
+.mono-history-time {
+  font-size: 22rpx;
+  color: rgba(139, 92, 246, 0.65);
+  margin-bottom: 6rpx;
+}
+
+.mono-history-text {
+  font-size: 26rpx;
+  color: rgba(0, 0, 0, 0.72);
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.mono-body {
+  background: rgba(183, 156, 250, 0.31);
+  border-radius: 18rpx;
+  padding: 20rpx 24rpx;
+  min-height: 200rpx;
+}
+
+.mono-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  max-height: 320rpx;
+  font-size: 26rpx;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.mono-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  height: 64rpx;
+  background: rgba(183, 156, 250, 0.42);
+  border-radius: 22rpx;
+  padding: 0 16rpx;
+}
+
+.mono-tool {
+  width: 48rpx; height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mono-tool:active { opacity: 0.6; }
+
+.mono-tool-icon {
+  width: 48rpx; height: 48rpx;
 }
 

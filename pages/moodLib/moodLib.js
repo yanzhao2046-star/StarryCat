@@ -49,17 +49,6 @@ const SHARE_FALLBACK = {
   '团队合作': { shareText: '和队友并肩作战', shareTip: '一个人走得快，一群人走得远。' }
 }
 
-/* =================================================================
-   复用 moodAdd 中 getScoreLevel（禁止重写）
-   ================================================================= */
-function getScoreLevel(score) {
-  if (score <= 20) return 's20'
-  if (score <= 40) return 's40'
-  if (score <= 60) return 's60'
-  if (score <= 80) return 's80'
-  return 's100'
-}
-
 Page({
 
   data: {
@@ -67,6 +56,13 @@ Page({
     recordList: [],       // 全部记录（含 hidden）
     displayList: [],      // 过滤 hidden 后的展示列表
     expandedId: null,     // 当前展开的记录 id，null=全部折叠
+
+    /* ---- 自言自语弹窗 ---- */
+    showMonoPopup: false,
+    monoRecordId: null,   // 当前弹窗对应的记录 id
+    monoContent: '',
+    monoHistory: [],      // 历史自言自语列表（用于展示）
+    monoCountMap: {},     // { recordId: count } 自言自语计数
 
     /* ---- 统计卡片 ---- */
     happyAvg: 0,
@@ -93,6 +89,14 @@ Page({
      ================================================================= */
   _loadRecords() {
     let records = wx.getStorageSync('moodRecords') || []
+
+    // 开发期兜底：存储为空时直接生成模拟数据
+    if (records.length === 0) {
+      var mockGen = require('../../utils/mockGenerator')
+      records = mockGen.generateMockRecords()
+      wx.setStorageSync('moodRecords', records)
+    }
+
     let dirty = false
 
     // 自动补全旧记录缺失的 shareText / shareTip
@@ -117,8 +121,46 @@ Page({
       expandedId: null,
       isEmpty: displayList.length === 0,
       recordCount: displayList.length,
+      monoCountMap: this._getMonoCountMap(),
       ...this._calcStats(displayList)
     })
+  },
+
+  /* =================================================================
+     计算每条记录的自言自语数量（每次保存累加）
+     ================================================================= */
+  _getMonoCountMap() {
+    const monoList = wx.getStorageSync('monologueList') || []
+    const map = {}
+    monoList.forEach(m => {
+      if (m.originId) {
+        map[m.originId] = (map[m.originId] || 0) + 1
+      }
+    })
+    return map
+  },
+
+  /* =================================================================
+     获取某条记录的所有自言自语（按时间正序）
+     ================================================================= */
+  _getAllMonosForRecord(originId) {
+    const monoList = wx.getStorageSync('monologueList') || []
+    return monoList
+      .filter(m => m.originId === originId)
+      .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
+  },
+
+  /* =================================================================
+     格式化时间显示
+     ================================================================= */
+  _fmtTime(ts) {
+    const d = new Date(ts)
+    const Y = d.getFullYear()
+    const M = ('0' + (d.getMonth() + 1)).slice(-2)
+    const D = ('0' + d.getDate()).slice(-2)
+    const h = ('0' + d.getHours()).slice(-2)
+    const m = ('0' + d.getMinutes()).slice(-2)
+    return `${Y}-${M}-${D} ${h}:${m}`
   },
 
   /* =================================================================
@@ -204,6 +246,183 @@ Page({
 
     wx.showToast({ title: '已分享至你我他', icon: 'success' })
     getApp().addGrowScore('share_post')
+  },
+
+  /* =================================================================
+     展开面板 → 自言自语 → 打开弹窗（加载历史，新内容区为空）
+     ================================================================= */
+  onMonologueOpen(e) {
+    const id = e.currentTarget.dataset.id
+    const history = this._getAllMonosForRecord(id)
+
+    // 给每条历史加上格式化时间
+    const formattedHistory = history.map(m => ({
+      ...m,
+      _fmtTime: this._fmtTime(m.timestamp)
+    }))
+
+    this.setData({
+      showMonoPopup: true,
+      monoRecordId: id,
+      monoContent: '',
+      monoHistory: formattedHistory
+    })
+  },
+
+  /* =================================================================
+     弹窗 → 关闭（无操作占位）
+     ================================================================= */
+  noop() {},
+
+  /* =================================================================
+     弹窗 → 点击遮罩关闭
+     ================================================================= */
+  onMonoClose() {
+    this.setData({
+      showMonoPopup: false,
+      monoRecordId: null,
+      monoContent: ''
+    })
+  },
+
+  /* =================================================================
+     弹窗 → 内容输入
+     ================================================================= */
+  onMonoContentInput(e) {
+    this.setData({ monoContent: e.detail.value })
+  },
+
+  /* =================================================================
+     弹窗 → 对勾保存（每次新建一条，带时间戳，计数递增）
+     ================================================================= */
+  onMonoSave() {
+    const { monoRecordId, monoContent } = this.data
+    if (!monoRecordId) return
+    if (!monoContent.trim()) {
+      wx.showToast({ title: '请输入内容', icon: 'none' })
+      return
+    }
+
+    const now = Date.now()
+    const newId = 'mono_' + monoRecordId + '_' + now
+    const fmtTime = this._fmtTime(now)
+
+    const records = wx.getStorageSync('moodRecords') || []
+    const record = records.find(r => r.id === monoRecordId)
+
+    // 新记录
+    const newMono = {
+      id: newId,
+      originId: monoRecordId,
+      content: monoContent || '',
+      emotionName: record ? (record.currentMoodType || '') : '',
+      emotionSlang: record ? (record.shareText || '') : '',
+      emotionScore: record ? (record.moodEnergy || 0) : 0,
+      time: record ? (record.time || '') : '',
+      selfNote: record ? (record.eventText || '') : '',
+      starCatAdvice: record ? (record.shareTip || '') : '',
+      timestamp: now
+    }
+
+    // 持久化
+    const monologueList = wx.getStorageSync('monologueList') || []
+    monologueList.push(newMono)
+    wx.setStorageSync('monologueList', monologueList)
+
+    // 内存追加到 history（避免 storage 回读不稳定的问题）
+    const monoHistory = this.data.monoHistory.concat([{
+      ...newMono,
+      _fmtTime: fmtTime
+    }])
+
+    // 计数
+    const map = this._getMonoCountMap()
+
+    this.setData({
+      monoContent: '',
+      monoHistory: monoHistory,
+      monoCountMap: map
+    })
+
+    wx.showToast({ title: '已保存自言自语', icon: 'success' })
+  },
+
+  /* =================================================================
+     弹窗 → 语音输入
+     ================================================================= */
+  onMonoVoice() {
+    const recorderManager = wx.getRecorderManager()
+    wx.showModal({
+      title: '语音输入',
+      content: '点击确定开始录音，录音结束后自动识别为文字',
+      success: (res) => {
+        if (!res.confirm) return
+        wx.showToast({ title: '录音中...', icon: 'none', duration: 5000 })
+        recorderManager.start({
+          duration: 30000,
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          encodeBitRate: 48000,
+          format: 'mp3'
+        })
+        recorderManager.onStop(() => {
+          wx.hideToast()
+          // 录音文件路径：res.tempFilePath
+          // 微信小程序语音识别需使用插件或云服务，
+          // 此处将语音文件路径暂存，可扩展接入语音识别 API
+          wx.showToast({ title: '语音已录制', icon: 'none' })
+        })
+        // 5秒后自动停止
+        setTimeout(() => {
+          recorderManager.stop()
+        }, 5000)
+      }
+    })
+  },
+
+  /* =================================================================
+     弹窗 → 附加图片
+     ================================================================= */
+  onMonoAttach() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      success: () => {
+        // 将图片路径追加到内容中，预留扩展
+        // res.tempFiles[0].tempFilePath
+        const current = this.data.monoContent
+        const append = '[图片]'
+        this.setData({
+          monoContent: current + (current ? '\n' : '') + append
+        })
+        wx.showToast({ title: '图片已添加', icon: 'success' })
+        // TODO: 图片可上传至云存储并替换为云文件 ID
+      }
+    })
+  },
+
+  /* =================================================================
+     弹窗 → 垃圾桶删除（删除存储数据并关闭）
+     ================================================================= */
+  onMonoDelete() {
+    const { monoRecordId } = this.data
+    if (monoRecordId) {
+      const monologueList = wx.getStorageSync('monologueList') || []
+      const filtered = monologueList.filter(m => m.originId !== monoRecordId)
+      wx.setStorageSync('monologueList', filtered)
+    }
+
+    const map = this._getMonoCountMap()
+
+    this.setData({
+      showMonoPopup: false,
+      monoRecordId: null,
+      monoContent: '',
+      monoHistory: [],
+      monoCountMap: map
+    })
+    wx.showToast({ title: '已删除', icon: 'none' })
   },
 
   /* =================================================================

@@ -20,7 +20,11 @@ Page({
     avgHeat: '61',
 
     /* ---- 分享溯源标识 ---- */
-    shareFrom: ''
+    shareFrom: '',
+
+    /* ---- 视觉层 ---- */
+    flameGlowFilter: '',   // 火焰发光 CSS filter
+    barcodeText: ''        // 条码文字 ID
   },
 
   onLoad(options) {
@@ -77,10 +81,84 @@ Page({
         recordTime: n.getFullYear() + '.' + pad(n.getMonth() + 1) + '.' + pad(n.getDate()) + '.' + pad(n.getHours()) + ':' + pad(n.getMinutes())
       })
     }
+
+    /* ---- 计算火焰发光强度 ---- */
+    this._computeFlameGlow()
+
+    /* ---- 生成二维条码 ---- */
+    this._generateBarcode()
   },
 
   /* ==============================================================
-     保存 — 相册授权 → Canvas绘制 → 保存到手机相册
+     计算火焰发光 CSS filter（根据 moodEnergy 动态调整）
+     ============================================================== */
+  _computeFlameGlow() {
+    const energy = this.data.moodEnergy || 0
+    const radius = 4 + energy * 0.24   // 4 ~ 28 rpx
+    const opacity = 0.2 + energy * 0.005 // 0.2 ~ 0.7
+    this.setData({
+      flameGlowFilter: `drop-shadow(0 0 ${radius}rpx rgba(255, 140, 0, ${opacity}))`
+    })
+  },
+
+  /* ==============================================================
+     生成二维条码（页面展示 + 数据标识）
+     ============================================================== */
+  _generateBarcode() {
+    const seed = (this.data.recordTime || '') + (this.data.nickname || '') + (this.data.moodEnergy || 0)
+    let hash = 0
+    for (let i = 0; i < seed.length; i++) {
+      hash = ((hash << 5) - hash) + seed.charCodeAt(i)
+      hash |= 0
+    }
+    const rng = () => {
+      hash = (hash * 9301 + 49297) % 233280
+      return hash / 233280
+    }
+
+    // 生成条码文字 ID: MOOD-XXXX-XXXX
+    const hexChars = []
+    for (let i = 0; i < 8; i++) {
+      hexChars.push(Math.floor(rng() * 16).toString(16).toUpperCase())
+    }
+    const barcodeText = 'MOOD-' + hexChars.slice(0, 4).join('') + '-' + hexChars.slice(4).join('')
+    this.setData({ barcodeText })
+
+    // 在 barcodeCanvas 上绘制条码图案（行内尺寸）
+    wx.nextTick(() => {
+      const query = wx.createSelectorQuery()
+      query.select('#barcodeCanvas')
+        .fields({ node: true, size: true })
+        .exec(res => {
+          if (!res || !res[0] || !res[0].node) return
+          const canvas = res[0].node
+          const ctx = canvas.getContext('2d')
+          const W = 140
+          const H = 36
+          const dpr = wx.getSystemInfoSync().pixelRatio
+          canvas.width = W * dpr
+          canvas.height = H * dpr
+          ctx.scale(dpr, dpr)
+
+          // 透明底
+          ctx.clearRect(0, 0, W, H)
+
+          // 绘制白色条码竖线
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+          let x = 4
+          while (x < W - 4) {
+            const w = 1 + Math.floor(rng() * 3)
+            if (rng() > 0.3) {
+              ctx.fillRect(x, 5, w, H - 10)
+            }
+            x += w + 1 + Math.floor(rng() * 2)
+          }
+        })
+    })
+  },
+
+  /* ==============================================================
+     保存 — 相册授权 -> Canvas绘制 -> 保存到手机相册
      ============================================================== */
   async onSave() {
     wx.showLoading({ title: '生成中...', mask: true })
@@ -93,7 +171,7 @@ Page({
         return
       }
 
-      /* ② Canvas 渲染火苗卡片 → 导出临时图片 */
+      /* ② Canvas 渲染火苗卡片 -> 导出临时图片 */
       const tempPath = await this._renderCardToImage()
 
       /* ③ 保存到系统相册 */
@@ -165,18 +243,10 @@ Page({
   },
 
   /* ==============================================================
-     Canvas 绘制火苗卡片 → 导出临时文件路径
-     Figma 卡面基准: 304 × 432 px (50_6634)
-     WXSS 换算: 1 Figma px = 2 rpx → Canvas px = rpx / 2
-     固定坐标系 304×432，DPR 缩放保证输出清晰度
-
-     【改动标注】完全重写坐标体系，严格对齐 Figma 50_6634 设计稿：
-       - (A) 卡片背景改为直角矩形（外层无圆角）
-       - (B) 火焰 y: 85→69  |  语录 y: 151→205（居中）
-       - (C) 按钮宽: 70→85，坐标重算
-       - (D) 日期使用完整 recordTime 对齐页面
-       - (E) _wrapText 新增 align 参数
-       - (F) 图片加载完成后再绘制
+     Canvas 绘制火苗卡片 -> 导出临时文件路径
+     Figma 卡面基准: 304 x 432 px (50_6634)
+     WXSS 换算: 1 Figma px = 2 rpx -> Canvas px = rpx / 2
+     固定坐标系 304x432，DPR 缩放保证输出清晰度
      ============================================================== */
   _renderCardToImage() {
     const CARD_W = 304  // Figma px
@@ -199,7 +269,7 @@ Page({
             const ctx = canvas.getContext('2d')
             const dpr = wx.getSystemInfoSync().pixelRatio
 
-            // canvas 物理像素 = 设计尺寸 × DPR，保证高清输出
+            // canvas 物理像素 = 设计尺寸 x DPR，保证高清输出
             canvas.width = CARD_W * dpr
             canvas.height = CARD_H * dpr
             ctx.scale(dpr, dpr)
@@ -212,37 +282,61 @@ Page({
               img.src = src
             })
 
-            // (F) 图片加载与数据读取提前完成，确保后续绘制时所有资源就绪
-            let avatarImg = null, catImg = null
+            let avatarImg = null, catImg = null, fireImg = null
             try {
-              [avatarImg, catImg] = await Promise.all([
+              [avatarImg, catImg, fireImg] = await Promise.all([
                 loadImg(this.data.userAvatar || '/assets/moodRecord/5.png'),
-                loadImg('/assets/moodRecord/6.png')
+                loadImg('/assets/moodRecord/6.png'),
+                loadImg('/assets/moodRecord/fire.png')
               ])
             } catch (e) { /* 图片失败不阻塞，对应元素留空 */ }
 
             /* ---- 读取数据 ---- */
             const {
               nickname, moodEnergy, currentMoodType,
-              shareText, shareTip, eventText, recordTime
+              shareText, shareTip, eventText, recordTime, barcodeText
             } = this.data
-
-            // (D) 日期使用完整 recordTime，与页面 WXSM {{recordTime}} 对齐
-            //     格式: YYYY.MM.DD.HH:MM（如 "2026.08.04.14:30"）
 
             // 统一文字基线为 top（y = 顶部坐标）
             ctx.textBaseline = 'top'
 
             // =============================================
-            // ① 卡片背景 — FIGMA: 304×432, #302D54
-            // (A) 导出图片不需要圆角，整体为直角矩形
+            // ① 底层：深色卡牌背景 #302D54
             // =============================================
             ctx.fillStyle = '#302D54'
             ctx.fillRect(0, 0, CARD_W, CARD_H)
 
             // =============================================
-            // ② 顶部：圆形头像 + 昵称 + 日期
-            // FIGMA: 头像 40×40 @ (15,15), 文字 left=68, top=20/36
+            // ①b 头像行背景带 #260D34（星空之前）
+            // =============================================
+            ctx.fillStyle = '#260D34'
+            ctx.fillRect(0, 0, CARD_W, 55)
+
+            // =============================================
+            // ② 中层：星空纹理（简化版径向渐变模拟）
+            // =============================================
+            const starColors = ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.12)', 'rgba(203,179,255,0.06)']
+            for (let i = 0; i < 40; i++) {
+              const sx = Math.random() * CARD_W
+              const sy = Math.random() * CARD_H
+              const sr = 0.5 + Math.random() * 1.5
+              ctx.beginPath()
+              ctx.arc(sx, sy, sr, 0, 2 * Math.PI)
+              ctx.fillStyle = starColors[Math.floor(Math.random() * starColors.length)]
+              ctx.fill()
+            }
+
+            // =============================================
+            // ③ 上层：卡牌紫色外发光遮罩（径向渐变）
+            // =============================================
+            const glowGrad = ctx.createRadialGradient(CX, 80, 10, CX, 120, 200)
+            glowGrad.addColorStop(0, 'rgba(124, 58, 237, 0.12)')
+            glowGrad.addColorStop(1, 'transparent')
+            ctx.fillStyle = glowGrad
+            ctx.fillRect(0, 0, CARD_W, CARD_H)
+
+            // =============================================
+            // ④ 顶部：圆形头像 + 昵称 + 日期
             // =============================================
             if (avatarImg) {
               ctx.save()
@@ -256,66 +350,65 @@ Page({
             ctx.fillStyle = '#ffffff'
             ctx.font = '290 12px "Microsoft YaHei", sans-serif'
             ctx.textAlign = 'left'
-            // 昵称行 — FIGMA: left=68, top=20
             ctx.fillText(nickname + '火苗卡', 68, 20)
 
-            // 日期行 — FIGMA: left=68, top=36, opacity 0.6
             ctx.globalAlpha = 0.6
             ctx.fillText(recordTime, 68, 36)
             ctx.globalAlpha = 1.0
 
             // =============================================
-            // ③ Emoji 情绪核心区
-            // FIGMA: 235×151 容器 @ left=35, top=69
-            //   内部: 140×120 火焰+文字框 @ left=47.5 (居中), top=0
-            //   🔥 火焰: 43px center, top=0  → 绝对 y=69
-            //   热度文字: 12px, top=57       → 绝对 y=126
-            //   情绪类型: 20px bold, top=81  → 绝对 y=150 (top=57+24)
-            //   情绪黑话: 12px, top=105     → 绝对 y=174 (top=57+48)
+            // ⑤ 火焰图标 + 情绪核心区
+            //    发光强度根据 moodEnergy 动态计算
             // =============================================
+            const energy = moodEnergy || 0
+            const glowR = 4 + energy * 0.24   // 4 ~ 28 px
+            const glowA = 0.2 + energy * 0.005 // 0.2 ~ 0.7
 
-            // (B) 🔥 火焰 — FIGMA: y=15(内边距)+54(区块top)+0=69, center=152
             ctx.textAlign = 'center'
-            ctx.font = '400 43px "Microsoft YaHei", sans-serif'
-            ctx.fillText('🔥', CX, 69)
 
-            // 情绪热度 — FIGMA: y=15+54+57=126
+            // 绘制火焰图片（带发光 shadow）
+            if (fireImg) {
+              ctx.save()
+              ctx.shadowColor = `rgba(255, 140, 0, ${glowA})`
+              ctx.shadowBlur = glowR
+              ctx.shadowOffsetX = 0
+              ctx.shadowOffsetY = 0
+              const fSize = 48
+              ctx.drawImage(fireImg, CX - fSize / 2, 58, fSize, fSize)
+              ctx.restore()
+            }
+
+            // 情绪热度
             ctx.font = '290 12px "Microsoft YaHei", sans-serif'
-            ctx.fillText('情绪热度 ' + moodEnergy + '%', CX, 126)
+            ctx.fillStyle = '#ffffff'
+            ctx.shadowBlur = 0
+            ctx.fillText('情绪热度 ' + moodEnergy + '%', CX, 118)
 
-            // 情绪类型 — FIGMA: y=15+54+57+24=150
+            // 情绪类型
             ctx.font = '700 20px "Microsoft YaHei", sans-serif'
-            ctx.fillText(currentMoodType || '超开心', CX, 150)
+            ctx.fillText(currentMoodType || '超开心', CX, 142)
 
-            // 情绪黑话 — FIGMA: y=15+54+57+48=174
+            // 情绪黑话
             if (shareText) {
               ctx.font = '290 12px "Microsoft YaHei", sans-serif'
-              ctx.fillText(shareText, CX, 174)
+              ctx.fillText(shareText, CX, 166)
             }
 
             // =============================================
-            // ④ 语录 — FIGMA: y=15+54+136=205
-            //   24px, weight 290, 居中对齐（匹配 WXSS .card-quote）
+            // ⑥ 语录
             // =============================================
-            // (B) 原坐标 y=151 与情绪文字重叠 → 修正为 y=205
-            // (E) 传入 align='center' 匹配 WXSS text-align:center
             if (eventText) {
               ctx.font = '290 24px "Microsoft YaHei", sans-serif'
-              this._wrapText(ctx, '"' + eventText + '"', CX, 205, 254, 30, 'center')
+              this._wrapText(ctx, '"' + eventText + '"', CX, 200, 254, 30, 'center')
             }
 
             ctx.textAlign = 'left'
 
             // =============================================
-            // ⑤ 星猫寄语卡片 274×121
-            // FIGMA: left=15, top=254, r=24
-            //   bg rgba(203,179,255,0.33), border 1px rgba(255,255,255,0.38)
-            //   星猫 61×61 @ left=24, top=281  (相对卡片: left=9, top=27)
-            //   文字 16px @ left=87, top=289   (相对卡片: left=72, top=35, maxW=190)
+            // ⑦ 星猫寄语卡片
             // =============================================
-            const aX = PAD, aY = 254, aW = CARD_W - 2 * PAD, aH = 121
+            const aX = PAD, aY = 250, aW = CARD_W - 2 * PAD, aH = 116
 
-            // 紫色背景 + 裁切圆角
             ctx.save()
             this._roundRect(ctx, aX, aY, aW, aH, 24)
             ctx.clip()
@@ -323,7 +416,6 @@ Page({
             ctx.fillRect(aX, aY, aW, aH)
             ctx.restore()
 
-            // 白色半透明描边
             ctx.save()
             this._roundRect(ctx, aX, aY, aW, aH, 24)
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.38)'
@@ -331,21 +423,58 @@ Page({
             ctx.stroke()
             ctx.restore()
 
-            // 星猫插画 — FIGMA: (24, 281), 61×61
             if (catImg) {
-              ctx.drawImage(catImg, aX + 9, aY + 27, 61, 61)
+              ctx.drawImage(catImg, aX + 9, aY + 24, 58, 58)
             }
 
-            // 星猫建议文字 — FIGMA: (87, 289), 16px, maxWidth=190
             if (shareTip) {
               ctx.fillStyle = '#ffffff'
               ctx.font = '400 16px "Microsoft YaHei", sans-serif'
-              this._wrapText(ctx, shareTip, aX + 72, aY + 35, 190, 24)
+              this._wrapText(ctx, shareTip, aX + 72, aY + 32, 190, 24)
             }
 
             // =============================================
-            // ⑥ 导出临时图片
-            //    注: 导出相册图片不含"保存/分享"按钮，页面 WXSS 弹窗按钮不受影响
+            // ⑧ 二维条码（头像同行最右端，白色线条无底图）
+            // =============================================
+            const bW = 78
+            const bH = 18
+            const bX = CARD_W - PAD - bW - 4
+            const bY = PAD + 2
+
+            // 透明底（不绘制背景）
+
+            // 白色条码竖线
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
+            let seedHash = 0
+            const bSeed = (recordTime || '') + (nickname || '') + (moodEnergy || 0)
+            for (let i = 0; i < bSeed.length; i++) {
+              seedHash = ((seedHash << 5) - seedHash) + bSeed.charCodeAt(i)
+              seedHash |= 0
+            }
+            const bRng = () => {
+              seedHash = (seedHash * 9301 + 49297) % 233280
+              return seedHash / 233280
+            }
+            let bx = bX + 3
+            while (bx < bX + bW - 3) {
+              const bw = 1 + Math.floor(bRng() * 3)
+              if (bRng() > 0.3) {
+                ctx.fillRect(bx, bY + 3, bw, bH - 6)
+              }
+              bx += bw + 1 + Math.floor(bRng() * 2)
+            }
+
+            // 条码文字（条码下方）
+            if (barcodeText) {
+              ctx.font = '400 7px monospace'
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.45)'
+              ctx.textAlign = 'right'
+              ctx.fillText(barcodeText, CARD_W - PAD - 2, bY + bH + 7)
+              ctx.textAlign = 'left'
+            }
+
+            // =============================================
+            // ⑨ 导出临时图片
             // =============================================
             wx.canvasToTempFilePath({
               canvas: canvas,
@@ -379,10 +508,7 @@ Page({
     ctx.closePath()
   },
 
-  /* ------ 辅助：Canvas 自动换行绘制文本（textBaseline='top'）
-     (E) 新增 align 参数，支持 'left' | 'center' | 'right'
-          语录区域传入 'center' 以匹配 WXSS .card-quote { text-align: center; }
-     ------ */
+  /* ------ 辅助：Canvas 自动换行绘制文本（textBaseline='top'） ------ */
   _wrapText(ctx, text, x, y, maxWidth, lineHeight, align = 'left') {
     const lines = []
     let current = ''
@@ -399,7 +525,6 @@ Page({
     if (current) lines.push(current)
 
     const savedAlign = ctx.textAlign
-    // (E) 按传入参数设置对齐方式
     ctx.textAlign = align
 
     lines.forEach((line, idx) => {

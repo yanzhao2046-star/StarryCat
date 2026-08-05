@@ -202,7 +202,7 @@ page {
 
 /* ---- 时间范围切换 tabs (Figma: 286×32px → 572×64rpx) ---- */
 .ts-tabs {
-  width: 346rpx;
+  width: 572rpx;
   height: 64rpx;
   background: #F0EEF0;
   border-radius: 24rpx;
@@ -259,76 +259,57 @@ page {
   line-height: 46rpx;
 }
 
-/* ---- 日期区间进度条 (Figma: 299×27px → 598×54rpx) ---- */
-.ts-pb-wrap {
-  width: 598rpx;
-  height: 54rpx;
+/* ---- 天数选择条 (Figma: 336×32px → 672×64rpx) ---- */
+.ts-day-strip {
+  width: 672rpx;
+  height: 64rpx;
   margin-top: 36rpx;
-  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* 日期胶囊: 16×16px → 32×32rpx */
-.ts-pb-pill {
-  width: 32rpx;
-  height: 32rpx;
-  background: #965ED7;
-  border-radius: 18rpx 18rpx 4rpx 18rpx;
-  position: absolute;
-  top: 0;
+.ts-day-label {
+  width: 67rpx;
+  height: 52rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: 2rpx solid rgba(0, 0, 0, 0.22);
+  outline-offset: -1rpx;
 }
 
-.ts-pb-pill--start {
-  left: 66rpx;
-}
-
-.ts-pb-pill--end {
-  left: 288rpx;
-}
-
-.ts-pb-pill text {
-  font-size: 20rpx;
+.ts-day-label-text {
+  font-size: 24rpx;
+  font-family: Microsoft YaHei, sans-serif;
   font-weight: 400;
-  font-family: Inter, sans-serif;
-  color: #FFFFFF;
+  color: #99A1AF;
 }
 
-/* 轨道: 299×4px → 598×8rpx */
-.ts-pb-track {
-  position: absolute;
-  left: 0;
-  top: 46rpx;
-  width: 598rpx;
-  height: 8rpx;
-  background: rgba(97, 85, 245, 0.28);
-  border-radius: 40rpx;
-}
-
-.ts-pb-fill {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  background: #6155F5;
-  border-radius: 40rpx;
-}
-
-/* 拖拽手柄容器: 与 fill 位置对齐，竖直居中于轨道 */
-.ts-pb-handles {
-  position: absolute;
-  top: 38rpx;
-  height: 24rpx;
+.ts-day-cell {
+  width: 67rpx;
+  height: 52rpx;
+  background: #FFFFFF;
+  border-radius: 16rpx;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  pointer-events: none;
+  justify-content: center;
+  outline: 2rpx solid rgba(0, 0, 0, 0.22);
+  outline-offset: -1rpx;
 }
 
-.ts-pb-handle-dot {
-  width: 24rpx;
-  height: 24rpx;
+.ts-day-cell--active {
+  outline-color: rgba(0, 0, 0, 0.8);
+}
+
+.ts-day-num {
+  font-size: 28rpx;
+  font-family: Microsoft YaHei, sans-serif;
+  font-weight: 400;
+  color: #000000;
 }
 
 /* ---- 情绪能量变化图 (Figma: 332×329px → 664×658rpx) ---- */

@@ -21,9 +21,7 @@ module.exports = function(mood) {
 
 <view class="page">
 
-  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
-
-  <!-- =================== 顶部：标题 + 统计卡片 =================== -->
+  <!-- =================== 顶部：标题 + 统计卡片（固定） =================== -->
   <view class="header">
     <view class="header-top-row">
       <view>
@@ -50,6 +48,8 @@ module.exports = function(mood) {
       </view>
     </view>
   </view>
+
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
 
   <!-- =================== 空状态占位 =================== -->
   <view class="empty-state" wx:if="{{isEmpty}}">
@@ -110,7 +110,8 @@ module.exports = function(mood) {
 
           <!-- 操作按钮 -->
           <view class="exp-actions">
-            <view class="btn-exp btn-exp--wide" catchtap="onShareToYouMe" data-id="{{item.id}}">分享至你我他</view>
+            <view class="btn-exp--share" catchtap="onShareToYouMe" data-id="{{item.id}}">分享至你我他</view>
+            <view class="btn-exp--mono {{monoCountMap[item.id] ? 'btn-exp--mono--has' : ''}}" catchtap="onMonologueOpen" data-id="{{item.id}}">自言自语<text wx:if="{{monoCountMap[item.id]}}">+{{monoCountMap[item.id]}}</text></view>
           </view>
 
         </view>
@@ -139,6 +140,44 @@ module.exports = function(mood) {
     <view class="tab-item" data-tab="people" bindtap="onTabSwitch">
       <image class="tab-icon" src="/assets/moodLib/1.svg" mode="aspectFit"></image>
       <text class="tab-label">你我他</text>
+    </view>
+  </view>
+
+  <!-- =================== 自言自语弹窗 =================== -->
+  <view class="mono-overlay" wx:if="{{showMonoPopup}}" catchtap="onMonoClose">
+    <view class="mono-popup" catchtap="noop">
+      <!-- 记录计数 -->
+      <text class="mono-count-tag" wx:if="{{monoHistory.length > 0}}">共{{monoHistory.length}}条自言自语</text>
+
+      <!-- 历史记录区（E区） -->
+      <view wx:if="{{monoHistory.length === 0}}" class="mono-history-empty">暂无历史记录</view>
+      <scroll-view wx:else class="mono-history" scroll-y="true">
+        <view class="mono-history-item" wx:for="{{monoHistory}}" wx:key="id">
+          <view class="mono-history-time">{{item._fmtTime || ''}}</view>
+          <view class="mono-history-text">{{item.content}}</view>
+        </view>
+      </scroll-view>
+
+      <!-- 内容区 -->
+      <view class="mono-body">
+        <textarea class="mono-textarea" placeholder="在这里自言自语" placeholder-style="color:rgba(0,0,0,0.18)" value="{{monoContent}}" bindinput="onMonoContentInput" maxlength="500" auto-height="{{false}}"/>
+      </view>
+
+      <!-- 工具栏 -->
+      <view class="mono-toolbar">
+        <view class="mono-tool mono-tool--check" catchtap="onMonoSave">
+          <image class="mono-tool-icon" src="/assets/moodLib/mono_check.svg" mode="aspectFit"></image>
+        </view>
+        <view class="mono-tool mono-tool--mic" catchtap="onMonoVoice">
+          <image class="mono-tool-icon" src="/assets/moodLib/mono_mic.svg" mode="aspectFit"></image>
+        </view>
+        <view class="mono-tool mono-tool--clip" catchtap="onMonoAttach">
+          <image class="mono-tool-icon" src="/assets/moodLib/mono_clip.svg" mode="aspectFit"></image>
+        </view>
+        <view class="mono-tool mono-tool--trash" catchtap="onMonoDelete">
+          <image class="mono-tool-icon" src="/assets/moodLib/mono_trash.svg" mode="aspectFit"></image>
+        </view>
+      </view>
     </view>
   </view>
 
