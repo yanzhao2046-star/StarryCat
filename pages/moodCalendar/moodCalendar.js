@@ -9,6 +9,7 @@ Page({
     // 顶部日期展示 & 日历标题（动态，由第一条记录决定）
     topDate: '',
     calendarMonthText: '',
+    chartTitleText: '',          // 轨迹图标题，月/年模式自适应
 
     // 31 天假数据数组
     days: [
@@ -34,17 +35,25 @@ Page({
     ],
 
     // ====== 情绪轨迹图数据 ======
-    timeRange: 'day',         // day | week | month | year
-    selectedDay: 1,            // 1-7
-    trackDays: [1, 2, 3, 4, 5, 6, 7],
+    timeRange: 'month',       // month | year
+    selectedDay: 1,
     chartYear: 2026,
-    chartMonth: 7,
+    chartMonth: 8,
     yLabels: ['100', '80', '60', '40', '20', '0'],
-    xLabels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+    xLabels: ['1', '5', '10', '15', '20', '25', '30'],
     // 水平虚线：对齐 Y 轴标签 80/60/40/20 (618÷5=123.6 rpx/格)
     dashLinesH: [124, 247, 371, 494],
-    // 垂直虚线：对齐整点 4/8/12/16/20 时 (618÷6=103 rpx/格)
+    // 垂直虚线 (618÷6=103 rpx/格)
     dashLinesV: [103, 206, 309, 412, 515],
+    // 日期区间进度条 (天数→百分比映射: day→(day-1)/30*100%)
+    progressStart: '04',
+    progressEnd: '15',
+    progressLeft: 10,         // day 04 → (4-1)/30*100 = 10%
+    progressWidth: 36.67,    // day 04~15 → 11天 → 11/30*100 ≈ 36.67%
+    pillStartLeft: 44,       // 10%*598rpx - 16(半胶囊宽) ≈ 44rpx
+    pillEndLeft: 263,        // 46.67%*598rpx - 16 ≈ 263rpx
+    pbStartDay: 4,           // 进度条区间起始日期 (数值)
+    pbEndDay: 15,            // 进度条区间结束日期 (数值)
     moodLegend: [
       [
         { text: '平和放松', icon: '/assets/CodeBuddyAssets/1142_422/3.svg' },
@@ -111,11 +120,127 @@ Page({
       chartMonth: m,
       selectedDay: day,
       topDate: y + '年' + m + '月' + dd + '日',
-      calendarMonthText: y + '年 ' + m + '月'
+      calendarMonthText: y + '年 ' + m + '月',
+      chartTitleText: y + '年 ' + m + '月'
     })
 
     // 调试期：为当前选中的日期自动注入模拟数据
     this._injectMockData()
+  },
+
+  /**
+   * 月模式：注入跨天模拟记录 (2~30号每4天一条)，确保月视图有可散布的数据
+   */
+  _ensureMonthMockData() {
+    var records = wx.getStorageSync('moodRecords') || []
+    var y = this.data.chartYear
+    var m = this.data.chartMonth
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n }
+    var monthPrefix = y + '.' + pad(m) + '.'
+
+    var hasMonthData = records.some(function (r) {
+      return r.time && r.time.indexOf(monthPrefix) === 0
+    })
+    if (hasMonthData) return
+
+    var addEmotionCat = {
+      '平和放松': 'positive', '超开心': 'positive', '充满干劲': 'positive', '认真专注': 'positive',
+      '想歇一会': 'negative', '有点沮丧': 'negative', '有点迷糊': 'negative', '烦躁生气': 'negative',
+      '偷偷小得意': 'neutral', '感恩': 'neutral', '热爱劳动': 'neutral', '团队合作': 'neutral'
+    }
+
+    var dayMocks = [
+      { day: 2,  mood: '平和放松',   energy: 42, hour: 10, min: 30, event: '安静的一天开始',   shareText: '今天稳稳的',      shareTip: '平静是最有力量的状态' },
+      { day: 4,  mood: '热爱劳动',   energy: 72, hour: 14, min: 0,  event: '今天干了好多事',    shareText: '劳模附体！',      shareTip: '努力这件事，从来不会被辜负' },
+      { day: 4,  mood: '偷偷小得意', energy: 55, hour: 17, min: 45, event: '顺利完成一件事',    shareText: '这波操作稳了！',     shareTip: '稳住，你能赢' },
+      { day: 8,  mood: '专注沉浸',   energy: 65, hour: 15, min: 10, event: '认真完成工作',      shareText: '沉浸式专注',      shareTip: '专注本身就是奖励' },
+      { day: 12, mood: '愉悦开心',   energy: 78, hour: 16, min: 20, event: '被温柔稳稳接住了',  shareText: '被世界温柔以待',  shareTip: '感恩不是示弱，是你看见了光' },
+      { day: 16, mood: '平和放松',   energy: 38, hour: 18, min: 30, event: '舒适地看着夕阳',    shareText: '有点松弛感在的',  shareTip: '松弛不是懒，是你允许自己慢下来' },
+      { day: 20, mood: '想歇一会',   energy: 48, hour: 13, min: 0,  event: '有点累了',          shareText: '歇一歇',          shareTip: '累了就停一停，不需要理由' },
+      { day: 24, mood: '愉悦开心',   energy: 85, hour: 9,  min: 0,  event: '美好的一天开始了',  shareText: '今天元气满满！',   shareTip: '每一个早晨都是全新的开始' },
+      { day: 28, mood: '平和放松',   energy: 44, hour: 20, min: 30, event: '安静地结束这一天',  shareText: '晚安世界',        shareTip: '今天已经足够好了' },
+      { day: 30, mood: '感恩',       energy: 62, hour: 17, min: 0,  event: '回顾这个月',        shareText: '这个月不赖',      shareTip: '你比上个月又成长了一点点' }
+    ]
+
+    dayMocks.forEach(function (item, idx) {
+      var timeStr = monthPrefix + pad(item.day) + '.' + pad(item.hour) + ':' + pad(item.min)
+      var ts = new Date(y, m - 1, item.day, item.hour, item.min).getTime()
+      var level = item.energy >= 60 ? 'high' : item.energy >= 30 ? 'medium' : 'low'
+
+      records.push({
+        id: 'mood_month_mock_' + idx,
+        time: timeStr,
+        timestamp: ts,
+        moodEnergy: item.energy,
+        currentMoodType: item.mood,
+        emotionCategory: addEmotionCat[item.mood] || 'neutral',
+        eventText: item.event,
+        shareText: item.shareText,
+        shareTip: item.shareTip,
+        scoreLevel: level,
+        hidden: false
+      })
+    })
+
+    wx.setStorageSync('moodRecords', records)
+    console.log('[_ensureMonthMockData] 已注入', dayMocks.length, '条跨天记录到', monthPrefix)
+  },
+
+  /**
+   * 年模式：注入12个月跨月模拟记录，确保年视图有可散布的数据
+   */
+  _ensureYearMockData() {
+    var records = wx.getStorageSync('moodRecords') || []
+    var y = this.data.chartYear
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n }
+
+    // 已有年 mock 数据则跳过
+    var hasMock = records.some(function (r) { return r.id && r.id.indexOf('mood_year_mock_') === 0 })
+    if (hasMock) return
+
+    var addEmotionCat = {
+      '平和放松': 'positive', '超开心': 'positive', '充满干劲': 'positive', '认真专注': 'positive',
+      '想歇一会': 'negative', '有点沮丧': 'negative', '有点迷糊': 'negative', '烦躁生气': 'negative',
+      '偷偷小得意': 'neutral', '感恩': 'neutral', '热爱劳动': 'neutral', '团队合作': 'neutral'
+    }
+
+    var monthMocks = [
+      { m: 1,  mood: '平和放松',   energy: 42, event: '新年伊始',          shareText: '新的一年',      shareTip: '每一天都值得被记住' },
+      { m: 2,  mood: '愉悦开心',   energy: 68, event: '春暖花开',          shareText: '温暖治愈',      shareTip: '你值得所有的美好' },
+      { m: 3,  mood: '充满干劲',   energy: 75, event: '干劲满满的春天',    shareText: '活力来袭',      shareTip: '行动是治愈焦虑的良药' },
+      { m: 4,  mood: '专注沉浸',   energy: 55, event: '静心工作的一个月',  shareText: '专注力MAX',     shareTip: '专注本身就是奖励' },
+      { m: 5,  mood: '热爱劳动',   energy: 72, event: '充实忙碌的五月',    shareText: '劳模附体',      shareTip: '努力从来不会被辜负' },
+      { m: 6,  mood: '偷偷小得意', energy: 60, event: '半年小结有收获',    shareText: '小得意一下',    shareTip: '你已经做得很好了' },
+      { m: 7,  mood: '愉悦开心',   energy: 80, event: '盛夏好时光',        shareText: '夏天真美好',    shareTip: '快乐是可以传染的' },
+      { m: 8,  mood: '想歇一会',   energy: 38, event: '酷暑有点累',        shareText: '休息一下',      shareTip: '累了就停一停' },
+      { m: 9,  mood: '平和放松',   energy: 48, event: '金秋渐凉',          shareText: '秋高气爽',      shareTip: '松弛不是懒，是允许自己慢下来' },
+      { m: 10, mood: '感恩',       energy: 55, event: '感恩收获的季节',    shareText: '心怀感恩',      shareTip: '感恩让你看见更多的光' },
+      { m: 11, mood: '专注沉浸',   energy: 62, event: '年末冲刺',          shareText: '全力以赴',      shareTip: '坚持到最后就是胜利' },
+      { m: 12, mood: '平和放松',   energy: 45, event: '年末回顾',          shareText: '这一年辛苦了',  shareTip: '你比一年前又成长了很多' }
+    ]
+
+    monthMocks.forEach(function (item, idx) {
+      var timeStr = y + '.' + pad(item.m) + '.15.12:00'
+      var ts = new Date(y, item.m - 1, 15, 12, 0).getTime()
+      var level = item.energy >= 60 ? 'high' : item.energy >= 30 ? 'medium' : 'low'
+
+      records.push({
+        id: 'mood_year_mock_' + idx,
+        time: timeStr,
+        timestamp: ts,
+        moodEnergy: item.energy,
+        currentMoodType: item.mood,
+        emotionCategory: addEmotionCat[item.mood] || 'neutral',
+        eventText: item.event,
+        shareText: item.shareText,
+        shareTip: item.shareTip,
+        scoreLevel: level,
+        hidden: false
+      })
+    })
+
+    wx.setStorageSync('moodRecords', records)
+    console.log('[_ensureYearMockData] 已注入', monthMocks.length, '条跨月记录到', y)
   },
 
   /**
@@ -218,7 +343,9 @@ Page({
     var dd = day < 10 ? '0' + day : '' + day
     this.setData({
       selectedDay: day,
-      topDate: y + '年' + m + '月' + dd + '日'
+      timeRange: 'day',
+      topDate: y + '年' + m + '月' + dd + '日',
+      xLabels: ['0', '4', '8', '12', '16', '20', '24']
     })
     this.drawScatterPlot()
   },
@@ -228,53 +355,58 @@ Page({
      ================================================================ */
   onTimeRangeTap(e) {
     const range = e.currentTarget.dataset.range
-    this.setData({ timeRange: range })
+    var _a = this.data, chartYear = _a.chartYear, chartMonth = _a.chartMonth
+    if (range === 'month') {
+      this.setData({
+        timeRange: range,
+        xLabels: ['1', '5', '10', '15', '20', '25', '30'],
+        chartTitleText: chartYear + '年 ' + chartMonth + '月'
+      })
+      this._pbApplyRange(4, 15)
+    } else if (range === 'year') {
+      this.setData({
+        timeRange: range,
+        xLabels: ['1月', '3月', '5月', '7月', '9月', '11月', '12月'],
+        chartTitleText: chartYear + '年'
+      })
+      this._pbApplyRange(3, 8)
+    }
     this.drawScatterPlot()
   },
 
   /* ================================================================
-     情绪轨迹图 - 天数选择
-     ================================================================ */
-  onDaySelect(e) {
-    const day = e.currentTarget.dataset.day
-    var _a = this.data, y = _a.chartYear, m = _a.chartMonth
-    var dd = day < 10 ? '0' + day : '' + day
-    this.setData({
-      selectedDay: day,
-      topDate: y + '年' + m + '月' + dd + '日'
-    })
-    this.drawScatterPlot()
-  },
-
-  /* ================================================================
-     情绪轨迹图 - 月份切换
+     情绪轨迹图 - 月/年切换（根据 timeRange 自适应）
      ================================================================ */
   onChartPrevMonth() {
-    let { chartYear, chartMonth } = this.data
-    if (chartMonth === 1) {
-      chartMonth = 12
+    let { chartYear, chartMonth, timeRange } = this.data
+    var titleText
+    if (timeRange === 'year') {
       chartYear -= 1
+      titleText = chartYear + '年'
     } else {
-      chartMonth -= 1
+      if (chartMonth === 1) { chartMonth = 12; chartYear -= 1 } else { chartMonth -= 1 }
+      titleText = chartYear + '年 ' + chartMonth + '月'
     }
     this.setData({
       chartYear, chartMonth,
-      calendarMonthText: chartYear + '年 ' + chartMonth + '月'
+      chartTitleText: titleText
     })
     this.drawScatterPlot()
   },
 
   onChartNextMonth() {
-    let { chartYear, chartMonth } = this.data
-    if (chartMonth === 12) {
-      chartMonth = 1
+    let { chartYear, chartMonth, timeRange } = this.data
+    var titleText
+    if (timeRange === 'year') {
       chartYear += 1
+      titleText = chartYear + '年'
     } else {
-      chartMonth += 1
+      if (chartMonth === 12) { chartMonth = 1; chartYear += 1 } else { chartMonth += 1 }
+      titleText = chartYear + '年 ' + chartMonth + '月'
     }
     this.setData({
       chartYear, chartMonth,
-      calendarMonthText: chartYear + '年 ' + chartMonth + '月'
+      chartTitleText: titleText
     })
     this.drawScatterPlot()
   },
@@ -383,6 +515,151 @@ Page({
   },
 
   /**
+   * 月模式：按 chartYear + chartMonth 拉整月所有记录
+   * 提取 day → xRatio = (day-1)/30，供 _drawGlowDot 映射 X 轴
+   */
+  _getMonthRecords() {
+    var records = wx.getStorageSync('moodRecords') || []
+    var _a = this.data, chartYear = _a.chartYear, chartMonth = _a.chartMonth
+
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n }
+    var monthPrefix = chartYear + '.' + pad(chartMonth) + '.'
+
+    var MOOD_TYPE_MAP = {
+      '平和放松': '平和放松', '超开心': '愉悦开心', '充满干劲': '活力充沛', '认真专注': '专注沉浸',
+      '想歇一会': '疲惫倦怠', '有点沮丧': '低落忧郁', '有点迷糊': '犹豫不决', '烦躁生气': '烦躁挫败',
+      '偷偷小得意': '接纳', '感恩': '观望', '热爱劳动': '放空', '团队合作': '无聊'
+    }
+    var EMOTION_COLORS = {
+      '平和放松': '#37C08C', '愉悦开心': '#FBA85F', '活力充沛': '#98CCFF', '专注沉浸': '#76BBF8',
+      '疲惫倦怠': '#B38CE6', '低落忧郁': '#965ED7', '犹豫不决': '#918BDC', '烦躁挫败': '#FFCC00',
+      '接纳': '#AC7F5E', '观望': '#DBD096', '放空': '#D2CAA5', '无聊': '#C89600'
+    }
+
+    var monthRecords = records.filter(function (r) {
+      if (!r || r.hidden) return false
+      if (r.time && typeof r.time === 'string') {
+        return r.time.indexOf(monthPrefix) === 0
+      }
+      if (r.timestamp) {
+        var d = new Date(r.timestamp)
+        return d.getFullYear() === chartYear && (d.getMonth() + 1) === chartMonth
+      }
+      return false
+    })
+
+    var dots = monthRecords.map(function (r) {
+      var day = 1
+      var hour = 12
+      if (r.time && typeof r.time === 'string') {
+        var parts = r.time.split('.')
+        if (parts.length >= 3) day = parseInt(parts[2], 10) || 1
+        if (parts.length >= 4) hour = parseInt(parts[3], 10) || 12
+      } else if (r.timestamp) {
+        var d2 = new Date(r.timestamp)
+        day = d2.getDate()
+        hour = d2.getHours()
+      }
+
+      var rawMood = r.currentMoodType || r.moodTag || ''
+      var emotion = MOOD_TYPE_MAP[rawMood] || '平和放松'
+      var color = EMOTION_COLORS[emotion] || '#37C08C'
+
+      return {
+        day: day,
+        hour: hour,
+        energy: r.moodEnergy != null ? r.moodEnergy : 50,
+        emotion: emotion,
+        color: color,
+        xRatio: (day - 1) / 30,
+        record: r
+      }
+    })
+
+    // 按进度条区间 [pbStartDay, pbEndDay] 过滤
+    var startDay = this.data.pbStartDay
+    var endDay = this.data.pbEndDay
+    if (startDay != null && endDay != null) {
+      dots = dots.filter(function (dot) {
+        return dot.day >= startDay && dot.day <= endDay
+      })
+    }
+
+    return dots
+  },
+
+  /**
+   * 年模式：按 chartYear 拉整年所有记录
+   * 提取 month → xRatio = (month-1)/11，供 _drawGlowDot 映射 X 轴
+   */
+  _getYearRecords() {
+    var records = wx.getStorageSync('moodRecords') || []
+    var chartYear = this.data.chartYear
+
+    var MOOD_TYPE_MAP = {
+      '平和放松': '平和放松', '超开心': '愉悦开心', '充满干劲': '活力充沛', '认真专注': '专注沉浸',
+      '想歇一会': '疲惫倦怠', '有点沮丧': '低落忧郁', '有点迷糊': '犹豫不决', '烦躁生气': '烦躁挫败',
+      '偷偷小得意': '接纳', '感恩': '观望', '热爱劳动': '放空', '团队合作': '无聊'
+    }
+    var EMOTION_COLORS = {
+      '平和放松': '#37C08C', '愉悦开心': '#FBA85F', '活力充沛': '#98CCFF', '专注沉浸': '#76BBF8',
+      '疲惫倦怠': '#B38CE6', '低落忧郁': '#965ED7', '犹豫不决': '#918BDC', '烦躁挫败': '#FFCC00',
+      '接纳': '#AC7F5E', '观望': '#DBD096', '放空': '#D2CAA5', '无聊': '#C89600'
+    }
+
+    var yearRecords = records.filter(function (r) {
+      if (!r || r.hidden) return false
+      if (r.time && typeof r.time === 'string') {
+        var parts = r.time.split('.')
+        return parts.length >= 1 && parseInt(parts[0], 10) === chartYear
+      }
+      if (r.timestamp) {
+        return new Date(r.timestamp).getFullYear() === chartYear
+      }
+      return false
+    })
+
+    var dots = yearRecords.map(function (r) {
+      var month = 1
+      var day = 1
+      if (r.time && typeof r.time === 'string') {
+        var parts = r.time.split('.')
+        if (parts.length >= 2) month = parseInt(parts[1], 10) || 1
+        if (parts.length >= 3) day = parseInt(parts[2], 10) || 1
+      } else if (r.timestamp) {
+        var d2 = new Date(r.timestamp)
+        month = d2.getMonth() + 1
+        day = d2.getDate()
+      }
+
+      var rawMood = r.currentMoodType || r.moodTag || ''
+      var emotion = MOOD_TYPE_MAP[rawMood] || '平和放松'
+      var color = EMOTION_COLORS[emotion] || '#37C08C'
+
+      return {
+        month: month,
+        day: day,
+        energy: r.moodEnergy != null ? r.moodEnergy : 50,
+        emotion: emotion,
+        color: color,
+        xRatio: (month - 1) / 11,
+        record: r
+      }
+    })
+
+    // 按进度条区间 [pbStartDay, pbEndDay] 过滤（年模式下表示月份区间）
+    var startMonth = this.data.pbStartDay
+    var endMonth = this.data.pbEndDay
+    if (startMonth != null && endMonth != null) {
+      dots = dots.filter(function (dot) {
+        return dot.month >= startMonth && dot.month <= endMonth
+      })
+    }
+
+    return dots
+  },
+
+  /**
    * 从本地存储获取当前选中日期的火苗记录
    * @returns {Array<{hour:number, energy:number, emotion:string, color:string, record:object}>}
    */
@@ -465,18 +742,32 @@ Page({
    */
   drawScatterPlot() {
     var self = this
-
-    // 调试期：当前日期无记录时自动注入模拟数据
-    this._injectMockData()
+    var timeRange = this.data.timeRange
 
     // 关闭可能存在的浮层
     if (this.data.showDotTooltip) {
       this.setData({ showDotTooltip: false })
     }
 
-    var dots = this._getDayRecords()
+    // 数据获取：月/日/年三路分支
+    var dots
+    if (timeRange === 'month' || timeRange === 'year') {
+      if (timeRange === 'month') {
+        this._ensureMonthMockData()
+        dots = this._getMonthRecords()
+      } else {
+        this._ensureYearMockData()
+        dots = this._getYearRecords()
+      }
+      this._scatterMode = timeRange
+    } else {
+      // day 或其它 → 日视图 24h
+      this._injectMockData()
+      dots = this._getDayRecords()
+      this._scatterMode = 'day'
+    }
     this.scatterDots = dots
-    console.log('[drawScatterPlot] dots count:', dots.length)
+    console.log('[drawScatterPlot] timeRange:', timeRange, ' dots count:', dots.length)
 
     var retry = (self._canvasRetryCount || 0) + 1
     self._canvasRetryCount = retry
@@ -518,17 +809,17 @@ Page({
           return
         }
 
-        // 排序：小圆点后绘 (在上层)，方便触控优先命中
+        // 排序：大圆点先绘，小圆点后绘 (在上层)，方便触控优先命中
         var sorted = dots.slice().sort(function (a, b) {
           return b.energy - a.energy
         })
 
         // 存储排序后的绘制数据供触摸检测
         self._sortedDots = sorted
-        console.log('[drawScatterPlot] 开始绘制', sorted.length, '个圆点')
+        console.log('[drawScatterPlot] 开始绘制', sorted.length, '个圆点, mode:', self._scatterMode)
 
         for (var i = 0; i < sorted.length; i++) {
-          self._drawGlowDot(ctx, sorted[i], cw, ch)
+          self._drawGlowDot(ctx, sorted[i], cw, ch, self._scatterMode)
         }
       })
   },
@@ -536,20 +827,27 @@ Page({
   /**
    * 绘制单个发光圆点
    * @param {CanvasRenderingContext2D} ctx
-   * @param {object} dot  {hour, energy, color}
-   * @param {number} cw  画布逻辑宽度
-   * @param {number} ch  画布逻辑高度
+   * @param {object} dot  日: {hour, energy, color}  月/年: {xRatio, energy, color}
+   * @param {number} cw   画布逻辑宽度
+   * @param {number} ch   画布逻辑高度
+   * @param {string} mode 'day' | 'month' | 'year'
    */
-  _drawGlowDot(ctx, dot, cw, ch) {
-    var hour = dot.hour, energy = dot.energy, color = dot.color
+  _drawGlowDot(ctx, dot, cw, ch, mode) {
+    var energy = dot.energy, color = dot.color
 
-    // ---- 坐标映射 ----
-    var x = (hour / 24) * cw
+    // ---- 坐标映射：日→hour/24, 月→xRatio=(day-1)/30 ----
+    var x
+    if (dot.xRatio != null) {
+      x = dot.xRatio * cw
+    } else {
+      x = (dot.hour / 24) * cw
+    }
     var y = (1 - energy / 100) * ch   // 0→底部, 100→顶部
 
-    // ---- 半径：放大到 8-22px ----
-    var minR = 8
-    var maxR = 22
+    // ---- 半径：日 8-22px, 月/年 4-12px ----
+    var oversized = mode === 'month' || mode === 'year'
+    var minR = oversized ? 4 : 8
+    var maxR = oversized ? 12 : 22
     var r = minR + (energy / 100) * (maxR - minR)
 
     // ---- 边界保护 ----
@@ -664,5 +962,161 @@ Page({
    */
   onCloseDotTooltip() {
     this.setData({ showDotTooltip: false })
+  },
+
+  /* ================================================================
+     进度条 - 双滑块区间选择
+     ================================================================ */
+
+  /**
+   * 触摸开始：获取轨道像素尺寸，判断拖拽左/右手柄
+   */
+  onPbTouchStart(e) {
+    const query = wx.createSelectorQuery()
+    query.select('.ts-pb-track').boundingClientRect()
+    query.exec((res) => {
+      if (!res || !res[0]) return
+      this._pbTrackRect = res[0] // { left, width, top, height }
+
+      const touchX = e.touches[0].pageX
+      const percent = this._pbPxToPercent(touchX)
+      if (percent === null) return
+      const touchDay = this._percentToDay(percent)
+
+      const startDay = this._pbStartDay()
+      const endDay   = this._pbEndDay()
+
+      // 判断操作目标手柄 (阈值: 4天半径)
+      const THR = 4
+      const dS = Math.abs(touchDay - startDay)
+      const dE = Math.abs(touchDay - endDay)
+
+      if (touchDay <= startDay) {
+        this._pbDragging = 'start'
+      } else if (touchDay >= endDay) {
+        this._pbDragging = 'end'
+      } else if (dS <= THR && dS < dE) {
+        this._pbDragging = 'start'
+      } else if (dE <= THR && dE < dS) {
+        this._pbDragging = 'end'
+      } else {
+        this._pbDragging = dS <= dE ? 'start' : 'end'
+      }
+
+      // 立即吸附到触摸点
+      this._pbMoveToTouch(e)
+    })
+  },
+
+  /**
+   * 触摸移动：更新滑块位置
+   */
+  onPbTouchMove(e) {
+    if (!this._pbDragging || !this._pbTrackRect) return
+    this._pbMoveToTouch(e)
+  },
+
+  /**
+   * 触摸结束：清除拖拽状态，触发情绪气泡重绘
+   */
+  onPbTouchEnd() {
+    this._pbDragging = null
+    this.drawScatterPlot()
+  },
+
+  /* ---- 内部辅助 ---- */
+
+  /** 触摸 pageX → 轨道百分比 */
+  _pbPxToPercent(pageX) {
+    const r = this._pbTrackRect
+    if (!r || r.width <= 0) return null
+    const rel = pageX - r.left
+    return Math.max(0, Math.min(100, rel / r.width * 100))
+  },
+
+  /** 轨道百分比 → 天数 */
+  _percentToDay(pct) {
+    return Math.round(pct / 100 * this._pbDivisor()) + 1
+  },
+
+  /** 天数 → 轨道百分比 */
+  _dayToPercent(day) {
+    return (day - 1) / this._pbDivisor() * 100
+  },
+
+  /** 当前区间最大值 (月=31, 年=12) */
+  _pbMaxDay() {
+    return this.data.timeRange === 'year' ? 12 : 31
+  },
+
+  /** 天数间隔除数 (月=30, 年=11) */
+  _pbDivisor() {
+    return this.data.timeRange === 'year' ? 11 : 30
+  },
+
+  /** 当前左侧手柄天数 */
+  _pbStartDay() {
+    return this._percentToDay(this.data.progressLeft)
+  },
+
+  /** 当前右侧手柄天数 */
+  _pbEndDay() {
+    return this._percentToDay(this.data.progressLeft + this.data.progressWidth)
+  },
+
+  /**
+   * 格式化滑块标签 (月: "04" 年: "3月")
+   */
+  _formatPbLabel(day) {
+    if (this.data.timeRange === 'year') return day + '月'
+    return (day < 10 ? '0' : '') + day
+  },
+
+  /**
+   * 根据触摸位置更新手柄
+   */
+  _pbMoveToTouch(e) {
+    const touchX = e.touches[0].pageX
+    const percent = this._pbPxToPercent(touchX)
+    if (percent === null) return
+    let day = this._percentToDay(percent)
+
+    const startDay = this._pbStartDay()
+    const endDay   = this._pbEndDay()
+    const maxDay   = this._pbMaxDay()
+
+    // 约束：左 ≤ endDay-1, 右 ≥ startDay+1, 范围 [1, maxDay]
+    if (this._pbDragging === 'start') {
+      day = Math.max(1, Math.min(endDay - 1, day))
+      this._pbApplyRange(day, endDay)
+    } else {
+      day = Math.max(startDay + 1, Math.min(maxDay, day))
+      this._pbApplyRange(startDay, day)
+    }
+  },
+
+  /**
+   * 应用区间，统一刷新进度条 UI
+   */
+  _pbApplyRange(startDay, endDay) {
+    const TRACK_RPX = 598    // 轨道设计宽度 (rpx)
+    const leftPct  = this._dayToPercent(startDay)
+    const rightPct = this._dayToPercent(endDay)
+    const widthPct = rightPct - leftPct
+
+    // 胶囊居中于手柄位置 (32rpx 宽 / 2 = 16rpx)
+    const pillStart = Math.round(leftPct * TRACK_RPX / 100 - 16)
+    const pillEnd   = Math.round(rightPct * TRACK_RPX / 100 - 16)
+
+    this.setData({
+      progressStart: this._formatPbLabel(startDay),
+      progressEnd:   this._formatPbLabel(endDay),
+      progressLeft:  Math.round(leftPct * 100) / 100,
+      progressWidth: Math.round(widthPct * 100) / 100,
+      pillStartLeft: pillStart,
+      pillEndLeft:   pillEnd,
+      pbStartDay:    startDay,
+      pbEndDay:      endDay
+    })
   }
 })

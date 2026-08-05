@@ -80,14 +80,8 @@
 
     <!-- ==================== 情绪轨迹图 ==================== -->
     <view class="track-section">
-      <!-- 时间范围切换: 日/周/月/年 -->
+      <!-- 时间范围切换: 月/年 -->
       <view class="ts-tabs">
-        <view class="ts-tab {{timeRange === 'day' ? 'ts-tab--active' : ''}}" data-range="day" bindtap="onTimeRangeTap">
-          <text>日</text>
-        </view>
-        <view class="ts-tab {{timeRange === 'week' ? 'ts-tab--active' : ''}}" data-range="week" bindtap="onTimeRangeTap">
-          <text>周</text>
-        </view>
         <view class="ts-tab {{timeRange === 'month' ? 'ts-tab--active' : ''}}" data-range="month" bindtap="onTimeRangeTap">
           <text>月</text>
         </view>
@@ -96,25 +90,27 @@
         </view>
       </view>
 
-      <!-- 月份标题 -->
+      <!-- 月/年标题 -->
       <view class="ts-month-header">
-        <image class="ts-arrow ts-arrow--left" src="/assets/CodeBuddyAssets/1142_422/2.svg" mode="aspectFit" bindtap="onChartPrevMonth"></image>
-        <text class="ts-month-title">{{chartYear}}年 {{chartMonth}}月</text>
-        <image class="ts-arrow ts-arrow--right" src="/assets/CodeBuddyAssets/1142_422/1.svg" mode="aspectFit" bindtap="onChartNextMonth"></image>
+        <image class="ts-arrow ts-arrow--left" src="/assets/CodeBuddyAssets/1233_500/1.svg" mode="aspectFit" bindtap="onChartPrevMonth"></image>
+        <text class="ts-month-title">{{chartTitleText}}</text>
+        <image class="ts-arrow ts-arrow--right" src="/assets/CodeBuddyAssets/1233_500/2.svg" mode="aspectFit" bindtap="onChartNextMonth"></image>
       </view>
 
-      <!-- 天数选择条 -->
-      <view class="ts-day-strip">
-        <view class="ts-day-label">
-          <text class="ts-day-label-text">天数</text>
+      <!-- 日期区间进度条 -->
+      <view class="ts-pb-wrap" bindtouchstart="onPbTouchStart" catchtouchmove="onPbTouchMove" bindtouchend="onPbTouchEnd">
+        <view class="ts-pb-pill ts-pb-pill--start" style="left: {{pillStartLeft}}rpx;">
+          <text>{{progressStart}}</text>
         </view>
-        <view
-          wx:for="{{trackDays}}" wx:key="*this"
-          class="ts-day-cell {{selectedDay === item ? 'ts-day-cell--active' : ''}}"
-          data-day="{{item}}"
-          bindtap="onDaySelect"
-        >
-          <text class="ts-day-num">{{item}}</text>
+        <view class="ts-pb-pill ts-pb-pill--end" style="left: {{pillEndLeft}}rpx;">
+          <text>{{progressEnd}}</text>
+        </view>
+        <view class="ts-pb-track">
+          <view class="ts-pb-fill" style="left: {{progressLeft}}%; width: {{progressWidth}}%;"></view>
+        </view>
+        <view class="ts-pb-handles" style="left: {{progressLeft}}%; width: {{progressWidth}}%;">
+          <image class="ts-pb-handle-dot" src="/assets/CodeBuddyAssets/1233_500/4.svg" mode="aspectFit"></image>
+          <image class="ts-pb-handle-dot" src="/assets/CodeBuddyAssets/1233_500/4.svg" mode="aspectFit"></image>
         </view>
       </view>
 
