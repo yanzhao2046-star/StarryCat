@@ -20,71 +20,137 @@
 
 <view class="page">
 
-  <!-- =================== 顶部区域 =================== -->
-  <view class="top-area">
-    <text class="ta-date">2026年07月25日</text>
+  <view class="page-body">
 
-    <view class="ta-row">
-      <!-- 标题 + 小字 -->
-      <view class="ta-title-wrap">
-        <text class="ta-title">早上好，Cyne，</text>
-        <text class="ta-title ta-title-l2">这里是你的情绪日历</text>
-        <text class="ta-sub">最近 7 天</text>
-      </view>
+    <!-- =================== 顶部区域 =================== -->
+    <view class="top-area">
+      <text class="ta-date">{{topDate}}</text>
 
-      <!-- 右上角紫色按钮【心情小发现】 -->
-      <view class="ta-btn" bindtap="onReportTap">
-        <text class="ta-btn-text">心情小发现</text>
-      </view>
-    </view>
-  </view>
+      <view class="ta-row">
+        <!-- 标题 + 小字 -->
+        <view class="ta-title-wrap">
+          <text class="ta-title">早上好，Cyne，</text>
+          <text class="ta-title ta-title-l2">这里是你的情绪日历</text>
+          <text class="ta-sub">最近 7 天</text>
+        </view>
 
-  <!-- =================== 日历区域 =================== -->
-  <view class="calendar-wrap">
-
-    <!-- ---- 日历头部：左右箭头 + 年月标题 ---- -->
-    <view class="cal-header">
-      <image class="cal-arrow" src="/assets/CodeBuddyAssets/269_322/5.svg" mode="aspectFit" bindtap="onPrevMonth"></image>
-      <text class="cal-month">2026年 7月</text>
-      <image class="cal-arrow" src="/assets/CodeBuddyAssets/269_322/6.svg" mode="aspectFit" bindtap="onNextMonth"></image>
-    </view>
-
-    <!-- ---- 星期栏 ---- -->
-    <view class="cal-week">
-      <text class="cw-item">Sun</text>
-      <text class="cw-item">Mon</text>
-      <text class="cw-item">Tue</text>
-      <text class="cw-item">Wed</text>
-      <text class="cw-item">Thu</text>
-      <text class="cw-item">Fri</text>
-      <text class="cw-item">Sat</text>
-    </view>
-
-    <!-- ---- 日期格子（31天假数据） ---- -->
-    <view class="cal-grid">
-      <view
-        wx:for="{{days}}"
-        wx:key="*this"
-        class="cal-cell"
-        style="background: {{dayBg(item)}};"
-        data-day="{{item}}"
-        bindtap="onDayTap"
-      >
-        <text class="cal-cell-num">{{item}}</text>
+        <!-- 右上角紫色按钮【心情小发现】 -->
+        <view class="ta-btn" bindtap="onReportTap">
+          <text class="ta-btn-text">心情小发现</text>
+        </view>
       </view>
     </view>
 
-  </view>
+    <!-- =================== 日历区域 =================== -->
+    <view class="calendar-wrap">
 
-  <!-- =================== 情绪报告区 =================== -->
-  <view class="report-section">
-    <text class="rs-title">情绪报告</text>
-    <text class="rs-desc">情绪数据越多，情绪色盘越丰富</text>
+      <!-- ---- 日历头部：左右箭头 + 年月标题 ---- -->
+      <view class="cal-header">
+        <image class="cal-arrow" src="/assets/CodeBuddyAssets/269_322/5.svg" mode="aspectFit" bindtap="onPrevMonth"></image>
+        <text class="cal-month">{{calendarMonthText}}</text>
+        <image class="cal-arrow" src="/assets/CodeBuddyAssets/269_322/6.svg" mode="aspectFit" bindtap="onNextMonth"></image>
+      </view>
 
-    <!-- 渐变色轮预览图 -->
-    <view class="rs-wheel">
-      <image class="rs-wheel-img" src="/assets/CodeBuddyAssets/269_322/7.png" mode="aspectFit"></image>
+      <!-- ---- 星期栏 ---- -->
+      <view class="cal-week">
+        <text class="cw-item">Sun</text>
+        <text class="cw-item">Mon</text>
+        <text class="cw-item">Tue</text>
+        <text class="cw-item">Wed</text>
+        <text class="cw-item">Thu</text>
+        <text class="cw-item">Fri</text>
+        <text class="cw-item">Sat</text>
+      </view>
+
+      <!-- ---- 日期格子（31天假数据） ---- -->
+      <view class="cal-grid">
+        <view
+          wx:for="{{days}}"
+          wx:key="*this"
+          class="cal-cell"
+          style="background: {{dayBg(item)}};"
+          data-day="{{item}}"
+          bindtap="onDayTap"
+        >
+          <text class="cal-cell-num">{{item}}</text>
+        </view>
+      </view>
+
     </view>
+
+    <!-- ==================== 情绪轨迹图 ==================== -->
+    <view class="track-section">
+      <!-- 时间范围切换: 月/年 -->
+      <view class="ts-tabs">
+        <view class="ts-tab {{timeRange === 'month' ? 'ts-tab--active' : ''}}" data-range="month" bindtap="onTimeRangeTap">
+          <text>月</text>
+        </view>
+        <view class="ts-tab {{timeRange === 'year' ? 'ts-tab--active' : ''}}" data-range="year" bindtap="onTimeRangeTap">
+          <text>年</text>
+        </view>
+      </view>
+
+      <!-- 月/年标题 -->
+      <view class="ts-month-header">
+        <image class="ts-arrow ts-arrow--left" src="/assets/CodeBuddyAssets/1233_500/1.svg" mode="aspectFit" bindtap="onChartPrevMonth"></image>
+        <text class="ts-month-title">{{chartTitleText}}</text>
+        <image class="ts-arrow ts-arrow--right" src="/assets/CodeBuddyAssets/1233_500/2.svg" mode="aspectFit" bindtap="onChartNextMonth"></image>
+      </view>
+
+      <!-- 日期区间进度条 -->
+      <view class="ts-pb-wrap" bindtouchstart="onPbTouchStart" catchtouchmove="onPbTouchMove" bindtouchend="onPbTouchEnd">
+        <view class="ts-pb-pill ts-pb-pill--start" style="left: {{pillStartLeft}}rpx;">
+          <text>{{progressStart}}</text>
+        </view>
+        <view class="ts-pb-pill ts-pb-pill--end" style="left: {{pillEndLeft}}rpx;">
+          <text>{{progressEnd}}</text>
+        </view>
+        <view class="ts-pb-track">
+          <view class="ts-pb-fill" style="left: {{progressLeft}}%; width: {{progressWidth}}%;"></view>
+        </view>
+        <view class="ts-pb-handles" style="left: {{progressLeft}}%; width: {{progressWidth}}%;">
+          <image class="ts-pb-handle-dot" src="/assets/CodeBuddyAssets/1233_500/4.svg" mode="aspectFit"></image>
+          <image class="ts-pb-handle-dot" src="/assets/CodeBuddyAssets/1233_500/4.svg" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <!-- 情绪能量变化图 -->
+      <view class="ts-chart-wrap">
+        <!-- Y轴 -->
+        <view class="ts-y-axis">
+          <text class="ts-y-label" wx:for="{{yLabels}}" wx:key="*this">{{item}}</text>
+        </view>
+
+        <!-- 图表 -->
+        <view class="ts-chart-area">
+          <view class="ts-grid-bg"></view>
+          <view class="ts-dash-h" wx:for="{{dashLinesH}}" wx:key="*this" style="top: {{item}}rpx;"></view>
+          <view class="ts-dash-v" wx:for="{{dashLinesV}}" wx:key="*this" style="left: {{item}}rpx;"></view>
+          <canvas type="2d" id="scatterCanvas" class="scatter-canvas" bindtouchstart="onCanvasTouch"></canvas>
+          <view class="ts-chart-border"></view>
+        </view>
+
+        <!-- X轴 -->
+        <view class="ts-x-axis">
+          <text class="ts-x-label" wx:for="{{xLabels}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 情绪类型图例 -->
+      <view class="ts-legend">
+        <view class="ts-legend-row" wx:for="{{moodLegend}}" wx:key="*this" wx:for-item="row">
+          <view class="ts-legend-tag" wx:for="{{row}}" wx:key="text" wx:for-item="tag">
+            <image class="ts-legend-icon" src="{{tag.icon}}" mode="aspectFit"></image>
+            <text class="ts-legend-text">{{tag.text}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- ==================== 情绪轨迹图结束 ==================== -->
+
+    <!-- 底部安全间距 -->
+    <view class="page-bottom-spacer"></view>
+
   </view>
 
   <!-- =================== 星猫心情报告弹窗 =================== -->
@@ -163,6 +229,21 @@
         </view>
       </view>
 
+    </view>
+  </view>
+
+  <!-- =================== Canvas 散点图 点击浮层 =================== -->
+  <view class="dot-tooltip-overlay" wx:if="{{showDotTooltip}}" catchtap="onCloseDotTooltip">
+    <view class="dot-tooltip-card"
+      style="top: {{tooltipY}}px; left: {{tooltipX}}px; border-left-color: {{tooltipRecord.color}};">
+      <view class="dot-tooltip-emoji">
+        <text>{{tooltipRecord.moodType}}</text>
+      </view>
+      <view class="dot-tooltip-info">
+        <text class="dot-tooltip-energy">火苗值 {{tooltipRecord.energy}}</text>
+        <text class="dot-tooltip-time" wx:if="{{tooltipRecord.time}}">{{tooltipRecord.time}}</text>
+        <text class="dot-tooltip-event" wx:if="{{tooltipRecord.eventText}}">{{tooltipRecord.eventText}}</text>
+      </view>
     </view>
   </view>
 

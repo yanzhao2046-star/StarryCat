@@ -7,6 +7,9 @@
 
 <view class="page">
 
+  <!-- 隐藏 Canvas — 用于生成火苗卡片截图（保存到相册） -->
+  <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+
   <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
 
   <!-- =================== 顶部：标题 + 统计卡片 =================== -->
@@ -37,7 +40,7 @@
 
       <!-- ---- 用户 + 日期行 ---- -->
       <view class="card-user-row">
-        <image class="card-avatar" src="/assets/moodRecord/5.png" mode="aspectFit"></image>
+        <image class="card-avatar" src="{{userAvatar || '/assets/moodRecord/5.png'}}" mode="aspectFill"></image>
         <view class="card-user-info">
           <text class="card-user-name">{{nickname}}火苗卡</text>
           <text class="card-date">{{recordTime}}</text>
@@ -63,8 +66,8 @@
 
       <!-- ---- 操作按钮 ---- -->
       <view class="card-actions">
-        <view class="btn-action" bindtap="onSave">保 存</view>
-        <view class="btn-action" bindtap="onShare">分 享</view>
+        <button class="btn-action" bindtap="onSave">保 存</button>
+        <button class="btn-action" open-type="share">分 享</button>
       </view>
 
     </view>

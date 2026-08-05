@@ -44,6 +44,8 @@
     "disableSWC": true
   },
   "compileType": "miniprogram",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "cloud": true,
   "libVersion": "3.17.0",
   "appid": "wx9dc21ed1c7badf51",
   "projectname": "star-cat-universe",

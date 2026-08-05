@@ -1,14 +1,32 @@
 /* ============================================================
    app.js — 星星猫全局入口
+   CloudBase 云开发环境: bbubird-d4gczn6fs8d2e2ae3
    ============================================================ */
 
 App({
 
   onLaunch() {
+    // 初始化 CloudBase 云开发
+    this._initCloud()
     this._initGrowData()
   },
 
   globalData: {},
+
+  /* ------ 初始化云开发环境 ------ */
+  _initCloud() {
+    if (!wx.cloud) {
+      console.error('CloudBase SDK 未加载，请使用 2.2.3 或以上基础库')
+      return
+    }
+    wx.cloud.init({
+      env: 'bbubird-d4gczn6fs8d2e2ae3',
+      traceUser: true
+    })
+    const db = wx.cloud.database()
+    this.globalData.db = db
+    this.globalData.cloudEnv = 'bbubird-d4gczn6fs8d2e2ae3'
+  },
 
   /* ================================================================
      addGrowScore(type) — 全域统一加分函数

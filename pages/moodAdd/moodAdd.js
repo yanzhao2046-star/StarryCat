@@ -110,6 +110,8 @@ Page({
   data: {
     nickname: 'Cyne',
     userAvatar: '',        // 从 onboard 选择的专属头像
+    dateString: '',        // YYYY年MM月DD日 当前日期
+    greeting: '',          // 早上好/下午好/晚上好
     eventText: '',
 
     /* ---- 情绪蓄力 ---- */
@@ -125,15 +127,62 @@ Page({
     moodTip: ''             // 星星猫建议 tip
   },
 
-  onLoad(options) {
-    if (options.nickname) {
-      this.setData({ nickname: decodeURIComponent(options.nickname) })
+  /* ====== 问候语（按系统小时） ====== */
+  _getGreeting(hour) {
+    if (hour >= 5 && hour < 12) return '早上好'
+    if (hour >= 12 && hour < 18) return '下午好'
+    return '晚上好'
+  },
+
+  /* ====== 日期 → YYYY年MM月DD日 ====== */
+  _formatDate(date) {
+    const Y = date.getFullYear()
+    const M = String(date.getMonth() + 1).padStart(2, '0')
+    const D = String(date.getDate()).padStart(2, '0')
+    return Y + '年' + M + '月' + D + '日'
+  },
+
+  /* ====== 云端拉取用户资料（预留接口） ====== */
+  async _fetchCloudProfile() {
+    try {
+      /* TODO: 接入云端 API，返回 { nickname, avatarPath, birthday } */
+      // const res = await wx.cloud.callFunction({ name: 'getUserProfile' })
+      // return res.result
+      return null
+    } catch (e) {
+      return null
     }
-    /* 读取用户专属头像 */
-    const profile = wx.getStorageSync('userProfile')
+  },
+
+  async onLoad(options) {
+    /* ① 日期 & 问候语（系统时间） */
+    const now = new Date()
+    this.setData({
+      dateString: this._formatDate(now),
+      greeting: this._getGreeting(now.getHours())
+    })
+
+    /* ② 优先级：云端 > 本地 Storage > URL参数 > 默认值 */
+    let profile = await this._fetchCloudProfile()
+    if (!profile || !profile.nickname) {
+      profile = wx.getStorageSync('userProfile')
+    }
+
+    let nick = 'Cyne'
+    let avatar = ''
+
+    if (profile && profile.nickname) {
+      nick = profile.nickname
+    }
     if (profile && profile.avatarPath) {
-      this.setData({ userAvatar: profile.avatarPath })
+      avatar = profile.avatarPath
     }
+    /* URL 参数可作为二次补充（tab 切换时携带） */
+    if (options.nickname && (!profile || !profile.nickname)) {
+      nick = decodeURIComponent(options.nickname)
+    }
+
+    this.setData({ nickname: nick, userAvatar: avatar })
   },
 
   /* ====== 事件输入 ====== */
@@ -243,12 +292,20 @@ Page({
       pad(now.getMonth() + 1) + '.' + pad(now.getDate()) + '.' +
       pad(now.getHours()) + ':' + pad(now.getMinutes())
 
+    // 情绪分类映射：正向 / 负向 / 中性
+    const EMOTION_CATEGORY = {
+      '平和放松': 'positive', '超开心': 'positive', '充满干劲': 'positive', '认真专注': 'positive',
+      '想歇一会': 'negative', '有点沮丧': 'negative', '有点迷糊': 'negative', '烦躁生气': 'negative',
+      '偷偷小得意': 'neutral', '感恩': 'neutral', '热爱劳动': 'neutral', '团队合作': 'neutral'
+    }
+
     const record = {
       id: 'mood_' + Date.now(),
       time: timeStr,
       timestamp: now.getTime(),
       moodEnergy: moodEnergy,
       currentMoodType: currentMoodType,
+      emotionCategory: EMOTION_CATEGORY[currentMoodType] || 'neutral',
       eventText: eventText,
       shareText: moodText,
       shareTip: moodTip,
@@ -269,6 +326,7 @@ Page({
     app.globalData.currentMoodRecord = {
       moodEnergy,
       currentMoodType,
+      emotionCategory: EMOTION_CATEGORY[currentMoodType] || 'neutral',
       eventText,
       scoreLevel: selectedScoreLevel,
       shareText: moodText,

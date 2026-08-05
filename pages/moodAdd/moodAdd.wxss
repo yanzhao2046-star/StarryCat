@@ -47,29 +47,31 @@ page {
   color: #000000;
 }
 
-/* ---- 18.svg 分隔装饰 ---- */
-.header-deco {
-  width: 80rpx;
-  height: auto;
-  display: block;
-  margin: 0;
+/* ---- 头像 + 问候语 横向排列 ---- */
+.header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 20rpx;
 }
 
-/* ---- 用户专属头像（onboard 选择） ---- */
+/* ---- 用户专属头像（onboard 选择，圆形裁剪） ---- */
 .header-avatar {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  margin-top: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* ---- 问候语 ---- */
 .header-greeting {
   font-size: 40rpx;
   font-weight: 700;
-  color: #F59E0B;
+  color: #6155F5;
   line-height: 1.35;
   white-space: pre-line;
+  margin-left: 24rpx;
 }
 
 /* ============================================
@@ -133,7 +135,7 @@ page {
 .mood-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 38rpx 12rpx;
+  gap: 18rpx 12rpx;
   width: 100%;
 }
 
@@ -224,13 +226,7 @@ page {
 .energy-info__score {
   font-size: 28rpx;
   font-weight: 600;
-  color: #F59E0B;
-}
-
-.energy-info__level {
-  font-size: 22rpx;
-  font-weight: 400;
-  color: #99A1AF;
+  color: #6155F5;
 }
 
 /* ---- 操作按钮区（在scroll-view外部） ---- */

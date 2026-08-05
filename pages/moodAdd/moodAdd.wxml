@@ -10,11 +10,12 @@
 
   <!-- =================== 顶部日期 & 问候 =================== -->
   <view class="header">
-    <view class="header-date">2026年07月25日</view>
-    <image class="header-deco" src="/assets/moodAdd/18.png" mode="widthFix"></image>
-    <!-- 用户专属头像（来自 onboard 选择） -->
-    <image wx:if="{{userAvatar}}" class="header-avatar" src="{{userAvatar}}" mode="aspectFit"></image>
-    <view class="header-greeting">早上好，{{nickname}}\n此刻的心情怎样</view>
+    <view class="header-date">{{dateString}}</view>
+    <view class="header-row">
+      <!-- 用户专属头像（来自 onboard 选择，圆形裁剪） -->
+      <image wx:if="{{userAvatar}}" class="header-avatar" src="{{userAvatar}}" mode="aspectFill"></image>
+      <view class="header-greeting">{{greeting}}，{{nickname}}\n此刻的心情怎样</view>
+    </view>
   </view>
 
   <!-- =================== 主内容区域（可滚动） =================== -->
@@ -118,7 +119,6 @@
     <!-- ---- 当前蓄力状态 ---- -->
     <view class="energy-info" wx:if="{{currentMoodType}}">
       <text class="energy-info__score">🔥 {{currentMoodType}} · {{moodEnergy}} 分</text>
-      <text class="energy-info__level" wx:if="{{selectedScoreLevel}}">档位：{{selectedScoreLevel}}</text>
     </view>
 
   <!-- ---- 操作按钮 ---- -->
