@@ -27,12 +27,18 @@
         <block wx:for="{{messages}}" wx:key="id">
           <view class="msg-time" wx:if="{{item.showTime}}">{{item.timeText}}</view>
           <view class="msg-row msg-row--ai" wx:if="{{item.role === 'ai'}}">
-          <image class="msg-avatar" src="/assets/3.png" mode="aspectFill"></image>
-          <view class="msg-bubble msg-bubble--ai">{{item.content}}</view>
+            <image class="msg-avatar" src="/assets/3.png" mode="aspectFill"></image>
+            <view class="msg-bubble msg-bubble--ai">
+              <text>{{item.content}}</text>
+              <view class="bubble-tail bubble-tail--ai"></view>
+            </view>
           </view>
           <view class="msg-row msg-row--user" wx:if="{{item.role === 'user'}}">
-            <view class="msg-bubble msg-bubble--user">{{item.content}}</view>
-            <image class="msg-avatar" src="/assets/moodAdd/{{item.avatar || '5'}}.png" mode="aspectFill"></image>
+            <image class="msg-avatar" src="{{userAvatar}}" mode="aspectFill"></image>
+            <view class="msg-bubble msg-bubble--user">
+              <text>{{item.content}}</text>
+              <view class="bubble-tail bubble-tail--user"></view>
+            </view>
           </view>
         </block>
       </view>
@@ -43,11 +49,12 @@
       </view>
 
       <view class="msg-row msg-row--ai" wx:if="{{isTyping}}">
-      <image class="msg-avatar" src="/assets/3.png" mode="aspectFill"></image>
-      <view class="msg-bubble msg-bubble--ai msg-bubble--typing">
+        <image class="msg-avatar" src="/assets/3.png" mode="aspectFill"></image>
+        <view class="msg-bubble msg-bubble--ai msg-bubble--typing">
           <view class="typing-dot"></view>
           <view class="typing-dot"></view>
           <view class="typing-dot"></view>
+          <view class="bubble-tail bubble-tail--ai"></view>
         </view>
       </view>
 
@@ -55,9 +62,44 @@
     </scroll-view>
   </view>
 
-  <!-- 输入区域 -->
+  </scroll-view>
+
+  <!-- ========== 表情面板 ========== -->
+  <view class="panel emoji-panel {{showEmojiPanel ? 'panel--show' : ''}}">
+    <scroll-view class="emoji-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="emoji-grid">
+        <view class="emoji-item" wx:for="{{emojiList}}" wx:key="*this" bindtap="onEmojiPick" data-emoji="{{item}}">
+          <text class="emoji-char">{{item}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ========== 更多功能面板 ========== -->
+  <view class="panel more-panel {{showMorePanel ? 'panel--show' : ''}}">
+    <view class="more-grid">
+      <view class="more-item" bindtap="onChooseImage">
+        <view class="more-icon-box more-icon-box--photo">🖼️</view>
+        <text class="more-label">相册</text>
+      </view>
+      <view class="more-item" bindtap="onTakePhoto">
+        <view class="more-icon-box more-icon-box--camera">📸</view>
+        <text class="more-label">拍照</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ========== 输入区域 ========== -->
   <view class="chat-input-bar">
+    <!-- 语音 / 键盘切换 -->
+    <view class="input-tool-btn" bindtap="onVoiceToggle" hover-class="input-tool-btn--hover">
+      <image class="input-tool-icon" src="/assets/CodeBuddyAssets/313_1509/4.svg" mode="aspectFit" wx:if="{{!voiceMode}}"></image>
+      <image class="input-tool-icon" src="/assets/moodLib/mono_mic.svg" mode="aspectFit" wx:if="{{voiceMode}}"></image>
+    </view>
+
+    <!-- 文本输入 / 语音录制 -->
     <input
+      wx:if="{{!voiceMode}}"
       class="chat-input"
       value="{{inputText}}"
       placeholder="和猫猫说点什么..."
@@ -67,13 +109,29 @@
       bindconfirm="onSend"
       adjust-position="{{true}}"
       maxlength="500"
+      focus="{{inputFocus}}"
     />
-    <view class="chat-send-btn {{inputText ? 'chat-send-btn--active' : ''}}" bindtap="onSend" hover-class="chat-send-btn--hover">
-      <text class="chat-send-text">发送</text>
+    <view
+      wx:if="{{voiceMode}}"
+      class="voice-hold-btn {{isRecording ? 'voice-hold-btn--active' : ''}}"
+      bindtouchstart="onVoiceStart"
+      bindtouchend="onVoiceEnd"
+      bindtouchcancel="onVoiceCancel"
+      hover-class="voice-hold-btn--hover"
+    >
+      <text class="voice-hold-text">{{isRecording ? '松开 发送' : '按住 说话'}}</text>
+    </view>
+
+    <!-- 表情按钮 -->
+    <view class="input-tool-btn" bindtap="onEmojiTap" hover-class="input-tool-btn--hover">
+      <image class="input-tool-icon" src="/assets/CodeBuddyAssets/313_1509/3.svg" mode="aspectFit"></image>
+    </view>
+
+    <!-- + 更多按钮 -->
+    <view class="input-tool-btn" bindtap="onMoreTap" hover-class="input-tool-btn--hover">
+      <image class="input-tool-icon" src="/assets/CodeBuddyAssets/313_1509/2.svg" mode="aspectFit"></image>
     </view>
   </view>
-
-  </scroll-view>
 
   <!-- 底部导航栏（fixed 悬浮） -->
   <view class="tab-bar">

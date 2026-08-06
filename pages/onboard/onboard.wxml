@@ -73,10 +73,13 @@
       bindtap="onSubmit"
     >开启情绪旅程</button>
 
-    <!-- ****** 跳过按钮 — 用户先体验，不强制填写资料 ****** -->
-    <view class="skip-btn" bindtap="onSkip">
-      <text class="skip-text">跳过，先体验</text>
-    </view>
+    <!-- ****** 跳过按钮 — 无需填写资料，直接进入体验 ****** -->
+    <button
+      class="skip-btn"
+      hover-class="skip-btn-hover"
+      bindtap="onSkip"
+    >暂不填写，直接体验</button>
+    <text class="skip-hint">无需注册，可随时补填资料</text>
 
   </view>
 

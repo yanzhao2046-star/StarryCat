@@ -135,34 +135,54 @@
 }
 
 .msg-row--ai .msg-avatar {
-  margin-right: 16rpx;
+  margin-right: 30rpx;
 }
 
 .msg-row--user .msg-avatar {
-  margin-left: 16rpx;
+  margin-left: 30rpx;
 }
 
 /* 消息气泡 */
 .msg-bubble {
   max-width: 470rpx;
-  padding: 18rpx 24rpx;
-  border-radius: 20rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 10rpx;
   font-size: 28rpx;
-  line-height: 1.6;
-  color: #101828;
+  line-height: 1.55;
   word-break: break-all;
   position: relative;
 }
 
 .msg-bubble--ai {
   background: #FFFFFF;
-  border-top-left-radius: 6rpx;
+  color: #2F2F2F;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
 }
 
 .msg-bubble--user {
-  background: #7C3AED;
+  background: #965ED7;
   color: #FFFFFF;
-  border-top-right-radius: 6rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+}
+
+/* 气泡尾巴（CSS 三角形，颜色与气泡一致） */
+.bubble-tail {
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: 14rpx;
+  border-top: 8rpx solid transparent;
+  border-bottom: 8rpx solid transparent;
+}
+
+.bubble-tail--ai {
+  left: -10rpx;
+  border-right: 10rpx solid #FFFFFF;
+}
+
+.bubble-tail--user {
+  right: -10rpx;
+  border-left: 10rpx solid #965ED7;
 }
 
 /* 输入中动画 */
@@ -195,20 +215,42 @@
 .chat-input-bar {
   display: flex;
   align-items: center;
-  padding: 14rpx 0;
-  padding-bottom: calc(14rpx + env(safe-area-inset-bottom));
-  background: #FFFFFF;
-  border-top: 1rpx solid #EEEEEE;
-  gap: 16rpx;
+  padding: 12rpx 60rpx;
+  padding-bottom: calc(12rpx + 96rpx + env(safe-area-inset-bottom));
+  background: #F5F5F5;
+  border-top: 1rpx solid #E5E5E5;
+  gap: 12rpx;
   flex-shrink: 0;
 }
 
+/* 工具按钮（语音 / 表情 / +） */
+.input-tool-btn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.input-tool-btn--hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.input-tool-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 文本输入框 */
 .chat-input {
   flex: 1;
-  height: 72rpx;
-  background: #F6F6F6;
-  border-radius: 36rpx;
-  padding: 0 28rpx;
+  height: 68rpx;
+  background: #FFFFFF;
+  border-radius: 8rpx;
+  padding: 0 22rpx;
   font-size: 28rpx;
   color: #101828;
 }
@@ -218,30 +260,124 @@
   font-size: 28rpx;
 }
 
-.chat-send-btn {
-  width: 112rpx;
-  height: 72rpx;
-  border-radius: 36rpx;
-  background: #E8E8E8;
+/* 语音录制按钮 */
+.voice-hold-btn {
+  flex: 1;
+  height: 68rpx;
+  background: #FFFFFF;
+  border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
-  flex-shrink: 0;
+  border: 2rpx solid #E5E5E5;
+  transition: all 0.15s;
 }
 
-.chat-send-btn--active {
+.voice-hold-btn--active {
   background: #7C3AED;
+  border-color: #7C3AED;
 }
 
-.chat-send-btn--hover {
-  opacity: 0.8;
+.voice-hold-btn--hover {
+  background: #F0E6FF;
 }
 
-.chat-send-text {
+.voice-hold-btn--active.voice-hold-btn--hover {
+  background: #6D28D9;
+}
+
+.voice-hold-text {
   font-size: 28rpx;
+  color: #666;
   font-weight: 500;
+}
+
+.voice-hold-btn--active .voice-hold-text {
   color: #FFFFFF;
+}
+
+/* ========== 面板通用 ========== */
+.panel {
+  background: #F5F5F5;
+  border-top: 1rpx solid #E5E5E5;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.25s ease;
+  flex-shrink: 0;
+  padding: 0 60rpx;
+}
+
+.panel--show {
+  max-height: 440rpx;
+}
+
+/* ========== 表情面板 ========== */
+.emoji-scroll {
+  height: 400rpx;
+}
+
+.emoji-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 16rpx 12rpx;
+}
+
+.emoji-item {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  transition: background 0.1s;
+}
+
+.emoji-item:active {
+  background: rgba(0,0,0,0.08);
+}
+
+.emoji-char {
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+/* ========== 更多功能面板 ========== */
+.more-panel.panel--show {
+  max-height: 280rpx;
+}
+
+.more-grid {
+  display: flex;
+  padding: 28rpx 24rpx;
+  gap: 40rpx;
+}
+
+.more-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.more-icon-box {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 20rpx;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  transition: background 0.15s;
+}
+
+.more-icon-box:active {
+  background: #E8E8E8;
+}
+
+.more-label {
+  font-size: 24rpx;
+  color: #666;
 }
 
 /* ========== 底部导航栏（来自 youMeOther） ========== */
