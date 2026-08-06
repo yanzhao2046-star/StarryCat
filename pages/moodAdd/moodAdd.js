@@ -318,7 +318,10 @@ Page({
     records.push(record)
     wx.setStorageSync('moodRecords', records)
 
-    /* ---- 触发成长积分 ---- */
+    /* ---- 同步云数据库 → 调用 moodOperations.addMood ---- */
+    this._syncToCloud(record)
+
+    /* ---- 触发成长积分（本地） ---- */
     const app = getApp()
     app.addGrowScore('mood_record')
 
@@ -338,6 +341,38 @@ Page({
     wx.redirectTo({
       url: '/pages/moodRecord/moodRecord?nickname=' + nick
     })
+  },
+
+  /* =================================================================
+     同步云数据库 → 调用 moodOperations 云函数
+     ================================================================= */
+  async _syncToCloud(record) {
+    try {
+      const moodCategoryMap = {
+        '平和放松': '平和', '超开心': '开心', '充满干劲': '开心', '认真专注': '专注',
+        '想歇一会': '疲惫', '有点沮丧': '难过', '有点迷糊': '烦躁', '烦躁生气': '烦躁',
+        '偷偷小得意': '得意', '感恩': '感恩', '热爱劳动': '热爱', '团队合作': '热爱'
+      }
+      await wx.cloud.callFunction({
+        name: 'moodOperations',
+        data: {
+          action: 'addMood',
+          data: {
+            moodEnergy: record.moodEnergy,
+            currentMoodType: record.currentMoodType,
+            moodType: moodCategoryMap[record.currentMoodType] || record.currentMoodType,
+            shareText: record.shareText,
+            shareTip: record.shareTip,
+            eventText: record.eventText,
+            recordTime: record.time,
+            timestamp: record.timestamp
+          }
+        }
+      })
+      console.log('[Cloud] moodRecords synced:', record.id)
+    } catch (err) {
+      console.warn('[Cloud] moodOperations.addMood failed, data kept local:', err)
+    }
   },
 
   /* =================================================================

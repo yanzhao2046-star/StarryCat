@@ -1,7 +1,20 @@
 {
   "description": "星星猫宇宙 - 小程序",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": ".codebuddy"
+      },
+      {
+        "type": "folder",
+        "value": ".git"
+      },
+      {
+        "type": "file",
+        "value": "*.ps1"
+      }
+    ],
     "include": []
   },
   "setting": {

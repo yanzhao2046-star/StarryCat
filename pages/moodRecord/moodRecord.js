@@ -398,8 +398,8 @@ Page({
             // ⑥ 语录
             // =============================================
             if (eventText) {
-              ctx.font = '290 24px "Microsoft YaHei", sans-serif'
-              this._wrapText(ctx, '"' + eventText + '"', CX, 200, 254, 30, 'center')
+              ctx.font = '290 18px "Microsoft YaHei", sans-serif'
+              this._wrapText(ctx, '"' + eventText + '"', CX, 200, 254, 28, 'center')
             }
 
             ctx.textAlign = 'left'
@@ -407,7 +407,7 @@ Page({
             // =============================================
             // ⑦ 星猫寄语卡片
             // =============================================
-            const aX = PAD, aY = 250, aW = CARD_W - 2 * PAD, aH = 116
+            const aX = PAD, aY = 260, aW = CARD_W - 2 * PAD, aH = 90
 
             ctx.save()
             this._roundRect(ctx, aX, aY, aW, aH, 24)
@@ -436,7 +436,7 @@ Page({
             // =============================================
             // ⑧ 二维条码（头像同行最右端，白色线条无底图）
             // =============================================
-            const bW = 78
+            const bW = 70
             const bH = 18
             const bX = CARD_W - PAD - bW - 4
             const bY = PAD + 2
@@ -466,10 +466,10 @@ Page({
 
             // 条码文字（条码下方）
             if (barcodeText) {
-              ctx.font = '400 7px monospace'
+              ctx.font = '400 8px monospace'
               ctx.fillStyle = 'rgba(255, 255, 255, 0.45)'
               ctx.textAlign = 'right'
-              ctx.fillText(barcodeText, CARD_W - PAD - 2, bY + bH + 7)
+              ctx.fillText(barcodeText, CARD_W - PAD - 2, bY + bH + 2)
               ctx.textAlign = 'left'
             }
 

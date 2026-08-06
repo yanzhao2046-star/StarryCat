@@ -18,6 +18,29 @@ module.exports = function(mood) {
   return '/assets/moodLib/' + num + ext;
 }
 </wxs>
+<wxs module="fmt">
+// 时间格式化 → "MM.DD HH:mm"（去掉年份）
+//   兼容格式A: "2026-08-06 14:30"（横杠+空格）
+//   兼容格式B: "2026.08.06.14:30"（全点号）
+module.exports.t = function(timeStr) {
+  if (!timeStr) return '';
+  var d, t;
+  if (timeStr.indexOf(' ') !== -1) {
+    // 格式A: "2026-08-06 14:30"
+    var arr = timeStr.split(' ');
+    d = arr[0].split('-');
+    t = arr[1].split(':');
+  } else {
+    // 格式B: "2026.08.06.14:30"
+    var parts = timeStr.split('.');
+    if (parts.length < 4) return timeStr;
+    d = [parts[0], parts[1], parts[2]];
+    t = parts[3].split(':');
+  }
+  if (d.length < 3 || t.length < 2) return timeStr;
+  return d[1] + '.' + d[2] + ' ' + t[0] + ':' + t[1];
+};
+</wxs>
 
 <view class="page">
 
@@ -63,57 +86,44 @@ module.exports = function(mood) {
 
     <block wx:for="{{displayList}}" wx:key="id">
 
-      <!-- ====== 紧凑列表条目 ====== -->
+      <!-- ====== 紧凑列表条目 (三行布局) ====== -->
       <view class="record-card {{expandedId === item.id ? 'record-card--expanded' : ''}}">
         <!-- 左侧情绪头像 -->
         <image class="rc-icon" src="{{iconMap(item.currentMoodType)}}" mode="aspectFit"></image>
 
-        <!-- 中间内容 -->
+        <!-- 中间内容：三行 -->
         <view class="rc-body">
-          <text class="rc-mood">{{item.currentMoodType}}</text>
-          <view class="rc-note">
-            <text class="rc-note-txt">{{item.shareText || '—'}}</text>
+          <!-- 第一行：记录时间 + 分数 -->
+          <view class="rc-row-time">
+            <text class="rc-time">{{fmt.t(item.time)}}</text>
             <text class="rc-score">{{item.moodEnergy}}</text>
           </view>
+          <!-- 第二行：情绪名称 + 黑话 -->
+          <view class="rc-row-info">
+            <text class="rc-mood">{{item.currentMoodType}}</text>
+            <text class="rc-note-txt">{{item.shareText || '—'}}</text>
+          </view>
+          <!-- 第三行：语录 -->
+          <text class="rc-quote" wx:if="{{item.eventText}}">{{nickname}}：{{item.eventText}}</text>
         </view>
 
-        <!-- 右侧粉色+按钮 -->
+        <!-- 右侧+按钮 -->
         <view class="rc-btn" catchtap="onExpandToggle" data-id="{{item.id}}">
           <image class="rc-btn-icon" src="/assets/moodLib/6.svg" mode="aspectFit"></image>
         </view>
       </view>
 
-      <!-- ====== 展开详情面板 ====== -->
+      <!-- ====== 展开详情面板 (Frame 2147224327) ====== -->
       <view class="expand-panel" wx:if="{{expandedId === item.id}}">
-        <view class="expand-inner">
+        <view class="expand-outer">
+          <view class="expand-inner">
+            <text class="exp-quote-text" wx:if="{{item.shareTip}}">星星猫："{{item.shareTip}}"</text>
 
-          <!-- 记录时间 -->
-          <text class="exp-time">{{item.time}}</text>
-
-          <!-- 心情行 -->
-          <view class="exp-mood-row">
-            <image class="exp-mood-icon" src="{{iconMap(item.currentMoodType)}}" mode="aspectFit"></image>
-            <view class="exp-mood-body">
-              <text class="exp-mood-name">{{item.currentMoodType}}</text>
-              <view class="exp-mood-note-row">
-                <text class="exp-mood-note">{{item.shareText || '—'}}</text>
-                <text class="exp-mood-score">{{item.moodEnergy}}</text>
-              </view>
+            <view class="exp-actions">
+              <view class="btn-exp--share" catchtap="onShareToYouMe" data-id="{{item.id}}">分享至你我他</view>
+              <view class="btn-exp--mono {{monoCountMap[item.id] ? 'btn-exp--mono--has' : ''}}" catchtap="onMonologueOpen" data-id="{{item.id}}">自言自语<text wx:if="{{monoCountMap[item.id]}}">+{{monoCountMap[item.id]}}</text></view>
             </view>
           </view>
-
-          <!-- 用户语录 + 星星猫建议 -->
-          <view class="exp-quote" wx:if="{{item.eventText || item.shareTip}}">
-            <text class="exp-quote-text" wx:if="{{item.eventText}}">{{nickname}}：{{item.eventText}}</text>
-            <text class="exp-quote-text" wx:if="{{item.shareTip}}">星星猫："{{item.shareTip}}"</text>
-          </view>
-
-          <!-- 操作按钮 -->
-          <view class="exp-actions">
-            <view class="btn-exp--share" catchtap="onShareToYouMe" data-id="{{item.id}}">分享至你我他</view>
-            <view class="btn-exp--mono {{monoCountMap[item.id] ? 'btn-exp--mono--has' : ''}}" catchtap="onMonologueOpen" data-id="{{item.id}}">自言自语<text wx:if="{{monoCountMap[item.id]}}">+{{monoCountMap[item.id]}}</text></view>
-          </view>
-
         </view>
       </view>
 
@@ -154,12 +164,32 @@ module.exports = function(mood) {
       <scroll-view wx:else class="mono-history" scroll-y="true">
         <view class="mono-history-item" wx:for="{{monoHistory}}" wx:key="id">
           <view class="mono-history-time">{{item._fmtTime || ''}}</view>
-          <view class="mono-history-text">{{item.content}}</view>
+          <view class="mono-history-text" wx:if="{{item.content}}">{{item.content}}</view>
+          <!-- 历史图片缩略图 -->
+          <view class="mono-history-imgs" wx:if="{{item.images && item.images.length > 0}}">
+            <image
+              wx:for="{{item.images}}"
+              wx:key="index"
+              class="mono-history-thumb"
+              src="{{item}}"
+              mode="aspectFill"
+              catchtap="onMonoPreviewImage"
+              data-url="{{item}}"
+              data-urls="{{item.images.join('||')}}"
+            ></image>
+          </view>
         </view>
       </scroll-view>
 
       <!-- 内容区 -->
       <view class="mono-body">
+        <!-- 待发送图片预览 -->
+        <view class="mono-img-preview" wx:if="{{monoImages.length > 0}}">
+          <view class="mono-img-preview-item" wx:for="{{monoImages}}" wx:key="index">
+            <image class="mono-img-preview-thumb" src="{{item}}" mode="aspectFill"></image>
+            <view class="mono-img-preview-del" catchtap="onMonoRemoveImage" data-index="{{index}}">✕</view>
+          </view>
+        </view>
         <textarea class="mono-textarea" placeholder="在这里自言自语" placeholder-style="color:rgba(0,0,0,0.18)" value="{{monoContent}}" bindinput="onMonoContentInput" maxlength="500" auto-height="{{false}}"/>
       </view>
 

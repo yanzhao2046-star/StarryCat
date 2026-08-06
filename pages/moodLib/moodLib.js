@@ -61,6 +61,7 @@ Page({
     showMonoPopup: false,
     monoRecordId: null,   // 当前弹窗对应的记录 id
     monoContent: '',
+    monoImages: [],       // 待发送的图片临时路径
     monoHistory: [],      // 历史自言自语列表（用于展示）
     monoCountMap: {},     // { recordId: count } 自言自语计数
 
@@ -265,6 +266,7 @@ Page({
       showMonoPopup: true,
       monoRecordId: id,
       monoContent: '',
+      monoImages: [],
       monoHistory: formattedHistory
     })
   },
@@ -281,7 +283,8 @@ Page({
     this.setData({
       showMonoPopup: false,
       monoRecordId: null,
-      monoContent: ''
+      monoContent: '',
+      monoImages: []
     })
   },
 
@@ -296,10 +299,10 @@ Page({
      弹窗 → 对勾保存（每次新建一条，带时间戳，计数递增）
      ================================================================= */
   onMonoSave() {
-    const { monoRecordId, monoContent } = this.data
+    const { monoRecordId, monoContent, monoImages } = this.data
     if (!monoRecordId) return
-    if (!monoContent.trim()) {
-      wx.showToast({ title: '请输入内容', icon: 'none' })
+    if (!monoContent.trim() && (!monoImages || monoImages.length === 0)) {
+      wx.showToast({ title: '请输入内容或选择图片', icon: 'none' })
       return
     }
 
@@ -310,11 +313,12 @@ Page({
     const records = wx.getStorageSync('moodRecords') || []
     const record = records.find(r => r.id === monoRecordId)
 
-    // 新记录
+    // 新记录（含图片路径数组）
     const newMono = {
       id: newId,
       originId: monoRecordId,
       content: monoContent || '',
+      images: monoImages || [],
       emotionName: record ? (record.currentMoodType || '') : '',
       emotionSlang: record ? (record.shareText || '') : '',
       emotionScore: record ? (record.moodEnergy || 0) : 0,
@@ -329,7 +333,7 @@ Page({
     monologueList.push(newMono)
     wx.setStorageSync('monologueList', monologueList)
 
-    // 内存追加到 history（避免 storage 回读不稳定的问题）
+    // 内存追加到 history
     const monoHistory = this.data.monoHistory.concat([{
       ...newMono,
       _fmtTime: fmtTime
@@ -340,6 +344,7 @@ Page({
 
     this.setData({
       monoContent: '',
+      monoImages: [],
       monoHistory: monoHistory,
       monoCountMap: map
     })
@@ -381,24 +386,47 @@ Page({
   },
 
   /* =================================================================
-     弹窗 → 附加图片
+     弹窗 → 附加图片（从手机相册选取）
      ================================================================= */
   onMonoAttach() {
+    const that = this
+    const currentImages = this.data.monoImages || []
+    const remain = Math.max(1, 9 - currentImages.length)
+
     wx.chooseMedia({
-      count: 1,
+      count: remain,
       mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      success: () => {
-        // 将图片路径追加到内容中，预留扩展
-        // res.tempFiles[0].tempFilePath
-        const current = this.data.monoContent
-        const append = '[图片]'
-        this.setData({
-          monoContent: current + (current ? '\n' : '') + append
-        })
-        wx.showToast({ title: '图片已添加', icon: 'success' })
-        // TODO: 图片可上传至云存储并替换为云文件 ID
+      sourceType: ['album'],
+      sizeType: ['compressed'],
+      success(res) {
+        const newImgs = res.tempFiles.map(f => f.tempFilePath)
+        const merged = currentImages.concat(newImgs).slice(0, 9)
+        that.setData({ monoImages: merged })
       }
+    })
+  },
+
+  /* =================================================================
+     弹窗 → 图片预览区 - 删除待发送图片
+     ================================================================= */
+  onMonoRemoveImage(e) {
+    const idx = parseInt(e.currentTarget.dataset.index)
+    const images = this.data.monoImages.slice()
+    if (idx >= 0 && idx < images.length) {
+      images.splice(idx, 1)
+      this.setData({ monoImages: images })
+    }
+  },
+
+  /* =================================================================
+     弹窗 → 历史记录区 - 点击图片全屏预览
+     ================================================================= */
+  onMonoPreviewImage(e) {
+    const urls = e.currentTarget.dataset.urls || ''
+    const current = e.currentTarget.dataset.url
+    wx.previewImage({
+      urls: urls ? urls.split('||') : [current],
+      current: current
     })
   },
 
@@ -419,6 +447,7 @@ Page({
       showMonoPopup: false,
       monoRecordId: null,
       monoContent: '',
+      monoImages: [],
       monoHistory: [],
       monoCountMap: map
     })

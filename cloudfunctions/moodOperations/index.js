@@ -1,7 +1,7 @@
 /* ============================================================
    moodOperations — 情绪记录云函数
    功能: 心情记录增删改查、成长数据同步
-   CloudBase Env: bbubird-d4gczn6fs8d2e2ae3
+   CloudBase Env: cloudbase-d8gwx8su1d600bb46
    ============================================================ */
 
 const cloud = require('wx-server-sdk')

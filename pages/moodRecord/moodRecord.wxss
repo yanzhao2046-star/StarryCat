@@ -365,7 +365,7 @@ page {
 
 /* ---- 语录 ---- */
 .card-quote {
-  font-size: 48rpx;
+  font-size: 36rpx;
   font-weight: 290;
   color: #ffffff;
   text-align: center;
@@ -381,7 +381,7 @@ page {
   background: rgba(203, 179, 255, 0.33);
   border-radius: 48rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.38);
-  padding: 30rpx 20rpx;
+  padding: 20rpx 20rpx;
   margin-top: 30rpx;
   gap: 14rpx;
 }

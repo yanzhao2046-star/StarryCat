@@ -153,7 +153,6 @@ page {
   width: 136rpx;
   height: 136rpx;
   border-radius: 16rpx;
-  border: 3rpx solid #D9D9D9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,19 +162,14 @@ page {
   transition: border-color 0.15s ease;
 }
 
-/* ---- 激活态：边框高亮 ---- */
-.mood-cell--active .mood-icon-border {
-  border-color: #6155F5;
-}
-
 /* ---- 激活态：图标轻微放大 ---- */
 .mood-cell--active .mood-icon {
   transform: scale(1.12);
 }
 
 .mood-icon {
-  width: 98rpx;
-  height: 98rpx;
+  width: 122rpx;
+  height: 122rpx;
   transition: transform 0.15s ease;
 }
 

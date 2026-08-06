@@ -198,6 +198,26 @@ page {
 }
 
 /* ============================================
+   跳过按钮 — 不强制填写资料，先体验
+   ============================================ */
+.skip-btn {
+  margin-top: 36rpx;
+  width: 390rpx;
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skip-text {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #9CA3AF;
+  border-bottom: 2rpx solid #D1D5DB;
+  line-height: 1.2;
+}
+
+/* ============================================
    右下角装饰图（相对定位容器内绝对放置）
    Figma: 121px × 121px
    → 242rpx × 242rpx

@@ -21,11 +21,11 @@ Mood Recording,Spiritual Perception
 
 | 资源 | 名称 | 说明 |
 |------|------|------|
-| 环境 ID | `bbubird-d4gczn6fs8d2e2ae3` | 体验版，ap-shanghai |
+| 环境 ID | `cloudbase-d8gwx8su1d600bb46` | 正式版 |
 | 云函数 | `moodOperations` | Nodejs18.15, 情绪记录+成长数据 CRUD |
 | 数据库集合 | `moodRecords` | 心情记录（PRIVATE 权限） |
 | 数据库集合 | `growData` | 成长积分数据（PRIVATE 权限） |
-| 静态托管 | `bbubird-d4gczn6fs8d2e2ae3-1453760982.tcloudbaseapp.com` | 已启用 |
+| 静态托管 | `cloudbase-d8gwx8su1d600bb46.tcloudbaseapp.com` | 已启用 |
 
 ### 云函数 API
 

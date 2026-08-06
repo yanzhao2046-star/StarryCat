@@ -67,9 +67,9 @@ Page({
         starCatAdvice: '星星猫："快乐是会传染的，分享给朋友吧"',
         likeCount: 3, boostCount: 0, isLiked: false, isBoosted: false,
         commentList: [
-          { _id:'c1', moodId:'friend_001', uid:'u2', nickname:'佳琪',  avatar:'/assets/CodeBuddyAssets/275_972/1.png', content:'你是作业很顺畅吗',   createTime:'2026.07.15 14:15', replyTo:'' },
-          { _id:'c2', moodId:'friend_001', uid:'u1', nickname:'Cyne',  avatar:'/assets/CodeBuddyAssets/275_972/2.png', content:'哈哈哈必须的',       createTime:'2026.07.15 15:18', replyTo:'c1', replyToNick:'佳琪' },
-          { _id:'c3', moodId:'friend_001', uid:'u2', nickname:'佳琪',  avatar:'/assets/CodeBuddyAssets/275_972/1.png', content:'看你得意的',         createTime:'2026.07.15 15:30', replyTo:'c1', replyToNick:'佳琪' }
+          { _id:'c1', moodId:'friend_001', uid:'u2', nickname:'佳琪',  avatar:'/assets/default-avatar.svg', content:'你是作业很顺畅吗',   createTime:'2026.07.15 14:15', replyTo:'' },
+          { _id:'c2', moodId:'friend_001', uid:'u1', nickname:'Cyne',  avatar:'/assets/default-avatar.svg', content:'哈哈哈必须的',       createTime:'2026.07.15 15:18', replyTo:'c1', replyToNick:'佳琪' },
+          { _id:'c3', moodId:'friend_001', uid:'u2', nickname:'佳琪',  avatar:'/assets/default-avatar.svg', content:'看你得意的',         createTime:'2026.07.15 15:30', replyTo:'c1', replyToNick:'佳琪' }
         ]
       },
       {
@@ -80,9 +80,9 @@ Page({
         starCatAdvice: '星星猫："抱抱你，一杯热奶茶或许能治愈今天"',
         likeCount: 1, boostCount: 2, isLiked: true, isBoosted: false,
         commentList: [
-          { _id:'c4', moodId:'friend_002', uid:'u3', nickname:'又有',  avatar:'/assets/CodeBuddyAssets/275_972/2.png', content:'星星猫又能长大了',     createTime:'2026.07.16 14:15', replyTo:'' },
-          { _id:'c5', moodId:'friend_002', uid:'u1', nickname:'Cyne',  avatar:'/assets/CodeBuddyAssets/275_972/3.png', content:'我要把它养的肥肥的',   createTime:'2026.07.16 14:30', replyTo:'c4', replyToNick:'又有' },
-          { _id:'c6', moodId:'friend_002', uid:'u3', nickname:'又有',  avatar:'/assets/CodeBuddyAssets/275_972/2.png', content:'回头送你个减肥神器',   createTime:'2026.07.16 14:32', replyTo:'c4', replyToNick:'又有' }
+          { _id:'c4', moodId:'friend_002', uid:'u3', nickname:'又有',  avatar:'/assets/default-avatar.svg', content:'星星猫又能长大了',     createTime:'2026.07.16 14:15', replyTo:'' },
+          { _id:'c5', moodId:'friend_002', uid:'u1', nickname:'Cyne',  avatar:'/assets/default-avatar.svg', content:'我要把它养的肥肥的',   createTime:'2026.07.16 14:30', replyTo:'c4', replyToNick:'又有' },
+          { _id:'c6', moodId:'friend_002', uid:'u3', nickname:'又有',  avatar:'/assets/default-avatar.svg', content:'回头送你个减肥神器',   createTime:'2026.07.16 14:32', replyTo:'c4', replyToNick:'又有' }
         ]
       },
       {
@@ -102,7 +102,7 @@ Page({
         starCatAdvice: '星星猫："深呼吸，星猫帮你把坏情绪赶跑~"',
         likeCount: 2, boostCount: 4, isLiked: false, isBoosted: true,
         commentList: [
-          { _id:'c7', moodId:'friend_004', uid:'u4', nickname:'补补',  avatar:'/assets/CodeBuddyAssets/275_972/3.png', content:'我还有超多作业，和我一起搞搞', createTime:'2026.07.17 14:15', replyTo:'' }
+          { _id:'c7', moodId:'friend_004', uid:'u4', nickname:'补补',  avatar:'/assets/default-avatar.svg', content:'我还有超多作业，和我一起搞搞', createTime:'2026.07.17 14:15', replyTo:'' }
         ]
       },
       {
@@ -225,7 +225,7 @@ Page({
       moodId,
       uid: this.data.selfOpenId,
       nickname: '我',
-      avatar: '/assets/CodeBuddyAssets/275_972/3.png',
+      avatar: '/assets/default-avatar.svg',
       content,
       createTime: this._now(),
       replyTo: replyTo || '',

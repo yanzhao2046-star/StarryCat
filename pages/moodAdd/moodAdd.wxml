@@ -40,75 +40,75 @@
 
         <!-- 行1 -->
         <view class="mood-cell {{pressingMood === '超开心' && showProgress ? 'mood-cell--active' : ''}}" data-mood="超开心" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/5.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/1.svg" mode="aspectFit"></image></view>
           <text class="mood-name">超开心</text>
           <view class="progress-bar" wx:if="{{pressingMood === '超开心' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '偷偷小得意' && showProgress ? 'mood-cell--active' : ''}}" data-mood="偷偷小得意" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/6.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/2.svg" mode="aspectFit"></image></view>
           <text class="mood-name">偷偷小得意</text>
           <view class="progress-bar" wx:if="{{pressingMood === '偷偷小得意' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '充满干劲' && showProgress ? 'mood-cell--active' : ''}}" data-mood="充满干劲" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/7.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/3.svg" mode="aspectFit"></image></view>
           <text class="mood-name">充满干劲</text>
           <view class="progress-bar" wx:if="{{pressingMood === '充满干劲' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '有点迷糊' && showProgress ? 'mood-cell--active' : ''}}" data-mood="有点迷糊" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/8.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/4.svg" mode="aspectFit"></image></view>
           <text class="mood-name">有点迷糊</text>
           <view class="progress-bar" wx:if="{{pressingMood === '有点迷糊' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <!-- 行2 -->
         <view class="mood-cell {{pressingMood === '认真专注' && showProgress ? 'mood-cell--active' : ''}}" data-mood="认真专注" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/9.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/5.svg" mode="aspectFit"></image></view>
           <text class="mood-name">认真专注</text>
           <view class="progress-bar" wx:if="{{pressingMood === '认真专注' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '有点沮丧' && showProgress ? 'mood-cell--active' : ''}}" data-mood="有点沮丧" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/10.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/6.svg" mode="aspectFit"></image></view>
           <text class="mood-name">有点沮丧</text>
           <view class="progress-bar" wx:if="{{pressingMood === '有点沮丧' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '想歇一会' && showProgress ? 'mood-cell--active' : ''}}" data-mood="想歇一会" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/11.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/7.svg" mode="aspectFit"></image></view>
           <text class="mood-name">想歇一会</text>
           <view class="progress-bar" wx:if="{{pressingMood === '想歇一会' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '烦躁生气' && showProgress ? 'mood-cell--active' : ''}}" data-mood="烦躁生气" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/12.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/8.svg" mode="aspectFit"></image></view>
           <text class="mood-name">烦躁生气</text>
           <view class="progress-bar" wx:if="{{pressingMood === '烦躁生气' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <!-- 行3 -->
         <view class="mood-cell {{pressingMood === '感恩' && showProgress ? 'mood-cell--active' : ''}}" data-mood="感恩" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/tkgiving.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/9.svg" mode="aspectFit"></image></view>
           <text class="mood-name">感恩</text>
           <view class="progress-bar" wx:if="{{pressingMood === '感恩' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '热爱劳动' && showProgress ? 'mood-cell--active' : ''}}" data-mood="热爱劳动" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/labor.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/10.svg" mode="aspectFit"></image></view>
           <text class="mood-name">热爱劳动</text>
           <view class="progress-bar" wx:if="{{pressingMood === '热爱劳动' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '团队合作' && showProgress ? 'mood-cell--active' : ''}}" data-mood="团队合作" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/team.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/11.svg" mode="aspectFit"></image></view>
           <text class="mood-name">团队合作</text>
           <view class="progress-bar" wx:if="{{pressingMood === '团队合作' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>
 
         <view class="mood-cell {{pressingMood === '平和放松' && showProgress ? 'mood-cell--active' : ''}}" data-mood="平和放松" bindtouchstart="onMoodTouchStart" bindtouchend="onMoodTouchEnd" bindtouchcancel="onMoodTouchCancel">
-          <view class="mood-icon-border"><image class="mood-icon" src="/assets/moodAdd/peace.png" mode="aspectFit"></image></view>
+          <view class="mood-icon-border"><image class="mood-icon" src="/assets/CodeBuddyAssets/1385_465/12.svg" mode="aspectFit"></image></view>
           <text class="mood-name">平和放松</text>
           <view class="progress-bar" wx:if="{{pressingMood === '平和放松' && showProgress}}"><view class="progress-bar__fill" style="width: {{progressPercent}}%;"></view></view>
         </view>

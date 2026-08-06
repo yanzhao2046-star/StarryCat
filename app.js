@@ -1,6 +1,6 @@
 /* ============================================================
    app.js — 星星猫全局入口
-   CloudBase 云开发环境: bbubird-d4gczn6fs8d2e2ae3
+   CloudBase 云开发环境: cloudbase-d8gwx8su1d600bb46
    ============================================================ */
 
 App({
@@ -24,12 +24,12 @@ App({
       return
     }
     wx.cloud.init({
-      env: 'bbubird-d4gczn6fs8d2e2ae3',
+      env: "cloudbase-d8gwx8su1d600bb46",
       traceUser: true
     })
     const db = wx.cloud.database()
     this.globalData.db = db
-    this.globalData.cloudEnv = 'bbubird-d4gczn6fs8d2e2ae3'
+    this.globalData.cloudEnv = 'cloudbase-d8gwx8su1d600bb46'
   },
 
   /* ================================================================
