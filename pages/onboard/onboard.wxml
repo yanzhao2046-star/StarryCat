@@ -78,7 +78,7 @@
       class="skip-btn"
       hover-class="skip-btn-hover"
       bindtap="onSkip"
-    >暂不填写，直接体验</button>
+    >直接体验</button>
     <text class="skip-hint">无需注册，可随时补填资料</text>
 
   </view>

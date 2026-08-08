@@ -256,87 +256,13 @@ page {
   white-space: nowrap;
 }
 
-/* ---- 火焰图标 + 情绪区 ---- */
+/* ---- 情绪统计区 ---- */
 .card-emoji-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 0;
-}
-
-/* 火焰包裹容器（用于闪光定位） */
-.flame-wrapper {
-  position: relative;
-  width: 96rpx;
-  height: 96rpx;
-}
-
-.card-emoji-img {
-  width: 96rpx;
-  height: 96rpx;
-  display: block;
-}
-
-/* ---- 火焰闪光 ---- */
-.flame-spark {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 200, 50, 0.6) 30%, transparent 70%);
-  pointer-events: none;
-  opacity: 0;
-}
-
-.flame-spark.s1 {
-  width: 12rpx;
-  height: 12rpx;
-  top: 6rpx;
-  right: 10rpx;
-  animation: sparkFloat1 1.8s ease-in-out infinite;
-}
-
-.flame-spark.s2 {
-  width: 10rpx;
-  height: 10rpx;
-  top: 20rpx;
-  left: 4rpx;
-  animation: sparkFloat2 2.2s ease-in-out 0.4s infinite;
-}
-
-.flame-spark.s3 {
-  width: 8rpx;
-  height: 8rpx;
-  bottom: 14rpx;
-  right: 8rpx;
-  animation: sparkFloat3 1.5s ease-in-out 0.8s infinite;
-}
-
-.flame-spark.s4 {
-  width: 14rpx;
-  height: 14rpx;
-  top: -4rpx;
-  left: 20rpx;
-  animation: sparkFloat1 2.0s ease-in-out 1.2s infinite;
-}
-
-@keyframes sparkFloat1 {
-  0%   { opacity: 0; transform: scale(0.3) translateY(0); }
-  30%  { opacity: 0.9; transform: scale(1.0) translateY(-8rpx); }
-  60%  { opacity: 0.3; transform: scale(0.6) translateY(-14rpx); }
-  100% { opacity: 0; transform: scale(0.1) translateY(-22rpx); }
-}
-
-@keyframes sparkFloat2 {
-  0%   { opacity: 0; transform: scale(0.2) translateY(0) translateX(0); }
-  25%  { opacity: 0.85; transform: scale(1.1) translateY(-6rpx) translateX(6rpx); }
-  50%  { opacity: 0.4; transform: scale(0.7) translateY(-10rpx) translateX(10rpx); }
-  100% { opacity: 0; transform: scale(0.1) translateY(-20rpx) translateX(16rpx); }
-}
-
-@keyframes sparkFloat3 {
-  0%   { opacity: 0; transform: scale(0.4) translateY(0); }
-  35%  { opacity: 0.8; transform: scale(0.9) translateY(-10rpx); }
-  70%  { opacity: 0.2; transform: scale(0.5) translateY(-16rpx); }
-  100% { opacity: 0; transform: scale(0.1) translateY(-24rpx); }
+  padding-top: 24rpx;
 }
 
 .card-heat {

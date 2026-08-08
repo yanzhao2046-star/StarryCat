@@ -10,8 +10,10 @@ App({
     this._initCloud()
     this._initGrowData()
 
-    // ===== 模拟数据注入（测试用，正式上线前删除此行） =====
+    // ===== 模拟数据注入（测试用，正式上线前删除此区域） =====
     require('./utils/mockGenerator').injectMockData()
+    // 开发期：清除 userProfile，确保每次启动都走 onboard 欢迎页
+    try { wx.removeStorageSync('userProfile') } catch (e) { /* ignore */ }
     // ===== 模拟数据注入 END =====
   },
 

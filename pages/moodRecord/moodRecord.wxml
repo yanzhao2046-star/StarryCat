@@ -65,15 +65,8 @@
         </view>
       </view>
 
-      <!-- ---- 火焰图标 + 情绪统计（含闪光效果） ---- -->
+      <!-- ---- 情绪统计 ---- -->
       <view class="card-emoji-section">
-        <view class="flame-wrapper">
-          <image class="card-emoji-img" src="/assets/moodRecord/fire.png" mode="aspectFit" style="filter: {{flameGlowFilter}};"></image>
-          <view class="flame-spark s1"></view>
-          <view class="flame-spark s2"></view>
-          <view class="flame-spark s3"></view>
-          <view class="flame-spark s4"></view>
-        </view>
         <text class="card-heat">情绪热度 {{moodEnergy}}%</text>
         <text class="card-mood">{{currentMoodType || '超开心'}}</text>
         <text class="card-memo" wx:if="{{shareText}}">{{shareText}}</text>

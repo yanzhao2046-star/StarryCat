@@ -23,7 +23,6 @@ Page({
     shareFrom: '',
 
     /* ---- 视觉层 ---- */
-    flameGlowFilter: '',   // 火焰发光 CSS filter
     barcodeText: ''        // 条码文字 ID
   },
 
@@ -82,23 +81,8 @@ Page({
       })
     }
 
-    /* ---- 计算火焰发光强度 ---- */
-    this._computeFlameGlow()
-
     /* ---- 生成二维条码 ---- */
     this._generateBarcode()
-  },
-
-  /* ==============================================================
-     计算火焰发光 CSS filter（根据 moodEnergy 动态调整）
-     ============================================================== */
-  _computeFlameGlow() {
-    const energy = this.data.moodEnergy || 0
-    const radius = 4 + energy * 0.24   // 4 ~ 28 rpx
-    const opacity = 0.2 + energy * 0.005 // 0.2 ~ 0.7
-    this.setData({
-      flameGlowFilter: `drop-shadow(0 0 ${radius}rpx rgba(255, 140, 0, ${opacity}))`
-    })
   },
 
   /* ==============================================================
@@ -282,12 +266,11 @@ Page({
               img.src = src
             })
 
-            let avatarImg = null, catImg = null, fireImg = null
+            let avatarImg = null, catImg = null
             try {
-              [avatarImg, catImg, fireImg] = await Promise.all([
+              [avatarImg, catImg] = await Promise.all([
                 loadImg(this.data.userAvatar || '/assets/moodRecord/5.png'),
-                loadImg('/assets/moodRecord/6.png'),
-                loadImg('/assets/moodRecord/fire.png')
+                loadImg('/assets/moodRecord/6.png')
               ])
             } catch (e) { /* 图片失败不阻塞，对应元素留空 */ }
 
@@ -357,26 +340,9 @@ Page({
             ctx.globalAlpha = 1.0
 
             // =============================================
-            // ⑤ 火焰图标 + 情绪核心区
-            //    发光强度根据 moodEnergy 动态计算
+            // ⑤ 情绪核心区
             // =============================================
-            const energy = moodEnergy || 0
-            const glowR = 4 + energy * 0.24   // 4 ~ 28 px
-            const glowA = 0.2 + energy * 0.005 // 0.2 ~ 0.7
-
             ctx.textAlign = 'center'
-
-            // 绘制火焰图片（带发光 shadow）
-            if (fireImg) {
-              ctx.save()
-              ctx.shadowColor = `rgba(255, 140, 0, ${glowA})`
-              ctx.shadowBlur = glowR
-              ctx.shadowOffsetX = 0
-              ctx.shadowOffsetY = 0
-              const fSize = 48
-              ctx.drawImage(fireImg, CX - fSize / 2, 58, fSize, fSize)
-              ctx.restore()
-            }
 
             // 情绪热度
             ctx.font = '290 12px "Microsoft YaHei", sans-serif'
