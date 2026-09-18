@@ -1,0 +1,494 @@
+<!-- ============================================
+     catRoom — 猫的房间（Figma 6_79）
+     画布 402×874 → 1px ≈ 1.866rpx（按 375 屏宽换算）
+     区块：① 猫和主人的房间（402×536）
+           ② 对话台：chat / Other 标签 + 气泡（380×306，top:551）
+     ============================================ -->
+
+<view class="room">
+
+  <!-- ========== ① 房间画面（第一步：空房间） ========== -->
+  <view class="stage stage--{{timeOfDay}}" catchtap="onStageTap">
+
+    <!-- 房间图（空房间 · assets/CodeBuddyAssets/catRoom/room_01.png） -->
+    <image
+      class="stage-room"
+      src="/assets/CodeBuddyAssets/catRoom/room_01.png"
+      mode="aspectFill"
+    />
+
+    <!-- 多猫同时渲染：CAT_POSES 数组里逐只铺
+         坐标百分比相对 stage（= 房间图本身），与 Figma 坐标 1:1 对应 -->
+    <block wx:for="{{catPoses}}" wx:key="id" wx:for-item="pose">
+      <view
+        class="stage-cat"
+        style="left: {{pose.box.left}}%; top: {{pose.box.top}}%; width: {{pose.box.width}}%; height: {{pose.box.height}}%"
+      >
+        <image class="stage-cat__img" src="{{pose.body}}" mode="aspectFit" />
+      </view>
+    </block>
+
+    <!-- 空房间提示：未召唤时显示轻点房间文案 -->
+    <view class="stage-hint" wx:if="{{catPoses.length === 0}}">
+      <text>轻点房间，召唤猫咪</text>
+    </view>
+
+    <!-- 返回（沉浸式自定义导航） -->
+    <view
+      class="stage-back"
+      style="top: {{statusBarHeight + 8}}px"
+      catchtap="onBack"
+      hover-class="stage-back--hover"
+    >
+      <text class="stage-back__icon">‹</text>
+    </view>
+
+  </view>
+
+  <!-- ========== ② 对话台 ========== -->
+  <view class="console">
+
+    <!-- 标签：chat / Other -->
+    <view class="console-tabs">
+      <view
+        class="console-tab {{tab === 'chat' ? 'console-tab--on' : ''}}"
+        data-tab="chat"
+        bindtap="onSwitchTab"
+      >chat</view>
+      <view
+        class="console-tab {{tab === 'other' ? 'console-tab--on' : ''}}"
+        data-tab="other"
+        bindtap="onSwitchTab"
+      >Other</view>
+    </view>
+
+    <!-- ---------- chat：和猫的对话（复用星猫聊天记录） ---------- -->
+    <view class="console-panel" wx:if="{{tab === 'chat'}}">
+
+      <scroll-view
+        class="bubble-scroll"
+        scroll-y
+        scroll-into-view="{{scrollToView}}"
+        scroll-with-animation
+        enhanced
+        show-scrollbar="{{false}}"
+      >
+        <block wx:for="{{messages}}" wx:key="id">
+
+          <!-- 猫说的（左） -->
+          <view class="bubble-row" wx:if="{{item.role === 'ai'}}" id="msg-{{item.id}}">
+            <image class="bubble-avatar" src="{{catAvatar}}" mode="aspectFit" />
+            <view class="bubble bubble--cat">
+              <text class="bubble-text">{{item.content}}</text>
+              <image class="bubble-tail bubble-tail--cat" src="/assets/CodeBuddyAssets/6_79/4.svg" mode="aspectFit" />
+            </view>
+          </view>
+
+          <!-- 主人说的（右） -->
+          <view class="bubble-row bubble-row--user" wx:else id="msg-{{item.id}}">
+            <view class="bubble bubble--user">
+              <text class="bubble-text">{{item.content}}</text>
+              <image class="bubble-tail bubble-tail--user" src="/assets/CodeBuddyAssets/6_79/1.svg" mode="aspectFit" />
+            </view>
+            <image class="bubble-avatar bubble-avatar--user" src="{{userAvatar}}" mode="aspectFill" wx:if="{{userAvatar}}" />
+          </view>
+
+        </block>
+
+        <!-- 猫正在打字 -->
+        <view class="bubble-row" wx:if="{{isTyping}}">
+          <image class="bubble-avatar" src="{{catAvatar}}" mode="aspectFit" />
+          <view class="bubble bubble--cat bubble--typing">
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+          </view>
+        </view>
+
+        <view id="bubble-bottom" class="bubble-bottom"></view>
+      </scroll-view>
+
+      <!-- 输入 -->
+      <view class="input-bar">
+        <input
+          class="input-bar__field"
+          value="{{inputText}}"
+          placeholder="和猫说点什么..."
+          placeholder-class="input-bar__placeholder"
+          confirm-type="send"
+          adjust-position="{{false}}"
+          cursor-spacing="20"
+          maxlength="500"
+          bindinput="onInput"
+          bindconfirm="onSend"
+        />
+        <view class="input-bar__send {{inputText ? 'input-bar__send--on' : ''}}" bindtap="onSend">
+          <text>发送</text>
+        </view>
+      </view>
+
+    </view>
+
+    <!-- ---------- Other：猫的 4 个功能（邮件 / 明信片 / 物品 / 位置） ---------- -->
+    <view class="console-panel console-panel--other" wx:else>
+
+      <!-- 顶部 4 个功能入口 -->
+      <view class="other-tabs">
+        <view class="other-tab {{otherTab === 'mail' ? 'other-tab--on' : ''}}"
+              data-tab="mail" bindtap="onSwitchOtherTab" hover-class="other-tab--hover">
+          <image class="other-tab__icon" src="/assets/CodeBuddyAssets/398_536/1.svg" mode="aspectFit" />
+          <text class="other-tab__label">邮件</text>
+        </view>
+        <view class="other-tab {{otherTab === 'postcard' ? 'other-tab--on' : ''}}"
+              data-tab="postcard" bindtap="onSwitchOtherTab" hover-class="other-tab--hover">
+          <image class="other-tab__icon" src="/assets/CodeBuddyAssets/398_536/2.svg" mode="aspectFit" />
+          <text class="other-tab__label">明信片</text>
+        </view>
+        <view class="other-tab {{otherTab === 'item' ? 'other-tab--on' : ''}}"
+              data-tab="item" bindtap="onSwitchOtherTab" hover-class="other-tab--hover">
+          <image class="other-tab__icon" src="/assets/CodeBuddyAssets/398_536/3.svg" mode="aspectFit" />
+          <text class="other-tab__label">物品</text>
+        </view>
+        <view class="other-tab {{otherTab === 'location' ? 'other-tab--on' : ''}}"
+              data-tab="location" bindtap="onSwitchOtherTab" hover-class="other-tab--hover">
+          <image class="other-tab__icon" src="/assets/CodeBuddyAssets/398_536/4.svg" mode="aspectFit" />
+          <text class="other-tab__label">位置</text>
+        </view>
+      </view>
+
+      <!-- 内容区 -->
+      <view class="other-body">
+
+        <!-- ===== 邮件：已设计 ===== -->
+        <view class="mail-card" wx:if="{{otherTab === 'mail'}}">
+
+          <!-- 邮件原文 + 右上小按钮 -->
+          <view class="mail-card__head">
+            <text class="mail-card__text">{{mail.text}}</text>
+            <view class="mail-card__topbtn" bindtap="onMailMore" hover-class="other-btn--hover">
+              <image src="/assets/CodeBuddyAssets/398_536/5.svg" mode="aspectFit" />
+            </view>
+          </view>
+
+          <!-- 回复 / 转发 按钮（点击回复弹出文本录入窗口） -->
+          <view class="mail-card__actions">
+            <view class="mail-action" bindtap="onMailReply" hover-class="other-btn--hover">
+              <image class="mail-action__icon" src="/assets/CodeBuddyAssets/398_536/6.svg" mode="aspectFit" />
+              <text class="mail-action__label">回复</text>
+            </view>
+            <view class="mail-action" bindtap="onMailForward" hover-class="other-btn--hover">
+              <image class="mail-action__icon" src="/assets/CodeBuddyAssets/398_536/7.svg" mode="aspectFit" />
+              <text class="mail-action__label">转发</text>
+            </view>
+          </view>
+
+          <!-- 回复分隔 -->
+          <view class="mail-replies__divider">
+            <text>回复</text>
+          </view>
+
+          <!-- 邮件对话流 -->
+          <scroll-view
+            class="mail-replies"
+            scroll-y
+            scroll-into-view="{{mailScrollToView}}"
+            scroll-with-animation
+            enhanced
+            show-scrollbar="{{false}}"
+          >
+            <block wx:for="{{mailReplies}}" wx:key="id">
+              <view class="mail-reply mail-reply--{{item.role}}" id="mail-reply-{{item.id}}">
+                <text class="mail-reply__text">{{item.content}}</text>
+              </view>
+            </block>
+
+            <!-- 猫正在打字 -->
+            <view class="mail-reply mail-reply--ai mail-reply--typing" wx:if="{{isMailTyping}}">
+              <view class="typing-dot"></view>
+              <view class="typing-dot"></view>
+              <view class="typing-dot"></view>
+            </view>
+
+            <view id="mail-reply-bottom" class="mail-reply-bottom"></view>
+          </scroll-view>
+
+        </view>
+
+        <!-- ===== 明信片：点开是一张猫寄来的卡（Figma 488_1503 group18） ===== -->
+        <view class="postcard-view" wx:elif="{{otherTab === 'postcard'}}">
+
+          <!-- 卡片本体：头 → 图 → 引文 -->
+          <view class="postcard-card">
+            <view class="postcard-card__head">
+              <image class="postcard-card__logo" src="/assets/CodeBuddyAssets/488_1503/1.svg" mode="aspectFit" />
+              <view class="postcard-card__headtext">
+                <text class="postcard-card__title">Meow Post</text>
+                <text class="postcard-card__no">No. {{postcard.no}}</text>
+              </view>
+            </view>
+
+            <image class="postcard-card__photo" src="{{postcard.photo}}" mode="aspectFill" />
+
+            <view class="postcard-card__quote">
+              <text user-select="true">{{postcard.quote}}</text>
+            </view>
+          </view>
+
+          <!-- 底部按钮：回复 / 保存 -->
+          <view class="postcard-actions">
+            <view class="postcard-action" bindtap="onPostcardReply" hover-class="other-btn--hover">
+              <text class="postcard-action__label">回复</text>
+            </view>
+            <view class="postcard-action" bindtap="onPostcardSave" hover-class="other-btn--hover">
+              <text class="postcard-action__label">保存</text>
+            </view>
+          </view>
+
+          <!-- 内嵌回复区（独立功能，不复用邮件弹窗）
+               点「回复」展开 → 写完「寄出」→ 折成「已寄出 + 内容摘要」 -->
+          <view class="postcard-reply" wx:if="{{postcardReplyOpen || postcardReplySent}}">
+            <view class="postcard-reply__divider"></view>
+
+            <!-- 状态 A：正在写 -->
+            <block wx:if="{{postcardReplyOpen}}">
+              <textarea
+                class="postcard-reply__input"
+                value="{{postcardReplyDraft}}"
+                placeholder="给猫写几句话…"
+                placeholder-class="postcard-reply__placeholder"
+                maxlength="200"
+                auto-height
+                cursor-spacing="20"
+                bindinput="onPostcardReplyDraftInput"
+              />
+              <view class="postcard-reply__actions">
+                <view class="postcard-reply__btn" bindtap="onPostcardReplyCancel" hover-class="postcard-reply__btn--hover">
+                  <text>取消</text>
+                </view>
+                <view class="postcard-reply__btn postcard-reply__btn--on {{postcardReplyDraft ? 'postcard-reply__btn--active' : ''}}"
+                bindtap="onPostcardReplyConfirm" hover-class="postcard-reply__btn--hover">
+                  <text>寄出</text>
+                </view>
+              </view>
+            </block>
+
+            <!-- 状态 B：已寄出 -->
+            <view wx:elif="{{postcardReplySent}}" class="postcard-reply__sent" bindtap="onPostcardReplyAgain">
+              <text class="postcard-reply__sent-tag">已寄出</text>
+              <text class="postcard-reply__sent-text">{{postcardReplyText}}</text>
+            </view>
+          </view>
+
+          <!-- ===== 猫的梦：独立卡片，挂在上面 Meow Post 卡下方（Figma 1186_145） ===== -->
+          <view class="dream-postcard">
+
+            <!-- 左列：卡头 + 图 -->
+            <view class="dream-postcard__left">
+              <view class="dream-postcard__head">
+                <image class="dream-postcard__logo" src="/assets/CodeBuddyAssets/1186_145/1.svg" mode="aspectFit" />
+                <view class="dream-postcard__headtext">
+                  <text class="dream-postcard__title">DR Post</text>
+                  <text class="dream-postcard__no">{{dream.no}}</text>
+                </view>
+              </view>
+              <image class="dream-postcard__photo" src="{{dream.photo}}" mode="aspectFill" />
+            </view>
+
+            <!-- 右列：梦的正文 → 解析 / 保存 → 猫的解析 -->
+            <view class="dream-postcard__right">
+              <text class="dream-postcard__text" user-select="true">{{dream.text}}</text>
+
+              <!-- 解析 / 保存（Figma 1186_70：两枚等宽白底描边胶囊）
+                   保存 = 把这张卡收进物品库的「卡片」分类 -->
+              <view class="dream-postcard__actions">
+                <view class="dream-postcard__action" bindtap="onDreamInterpret" hover-class="other-btn--hover">
+                  <text>{{dream.interpreting ? '解析中…' : '解析'}}</text>
+                </view>
+                <view class="dream-postcard__action {{dream.saved ? 'dream-postcard__action--done' : ''}}"
+                      bindtap="onDreamSaveCard" hover-class="other-btn--hover">
+                  <text>{{dream.saved ? '已保存' : '保存'}}</text>
+                </view>
+              </view>
+
+              <!-- 用户自己写的解析（对话框里保存后显示） -->
+              <text class="dream-postcard__mine" wx:if="{{dream.mine}}" user-select="true">你：{{dream.mine}}</text>
+
+              <!-- 解析结果：「猫：…」（没解析过时不占位） -->
+              <text class="dream-postcard__result" wx:if="{{dream.result}}" user-select="true">猫：{{dream.result}}</text>
+            </view>
+
+          </view>
+
+        </view>
+
+        <!-- ===== 物品：猫外出留在家里的东西（Figma 404_658） ===== -->
+        <view class="item-view" wx:elif="{{otherTab === 'item'}}">
+          <scroll-view class="item-list" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+            <block wx:for="{{items}}" wx:key="id">
+              <view class="item-card">
+                <image class="item-card__icon" src="{{item.icon}}" mode="aspectFit" />
+                <text class="item-card__title">{{item.title}}</text>
+                <view class="item-card__actions">
+                  <view class="item-action {{item.bookmarked ? 'item-action--on' : ''}}"
+                        bindtap="onItemCollect" data-id="{{item.id}}" hover-class="item-action--hover">
+                    <text>收藏</text>
+                  </view>
+                  <view class="item-action" bindtap="onItemMessage" data-id="{{item.id}}" hover-class="item-action--hover">
+                    <text>留言</text>
+                  </view>
+                  <view class="item-action" bindtap="onItemDiscard" data-id="{{item.id}}" hover-class="item-action--hover">
+                    <text>扔掉</text>
+                  </view>
+                </view>
+                <view class="item-note" wx:if="{{itemNoteSentMap[item.id]}}">
+                  <text class="item-note__tag">已留言</text>
+                  <text class="item-note__text">{{itemNoteSentMap[item.id]}}</text>
+                </view>
+              </view>
+            </block>
+            <view class="item-empty" wx:if="{{items.length === 0}}">
+              <text>家里已经清理干净啦～</text>
+            </view>
+          </scroll-view>
+        </view>
+
+        <!-- ===== 位置：Figma 413_669 风格 =====
+             现阶段直接拿 413_669/1.png 当样本图（含猫 / pin / 5 个模糊地点名 / 自述）。
+             等设计出一张「无字版」底图后，启用：
+               · 底图替换为无字图
+               · 标签层用 AI 编的「莫名其妙」地点名（机制已经预埋在云函数 chatHunyuan 的 location 分支）
+               · 自述也由 AI 生成 -->
+        <view class="loc-view" wx:elif="{{otherTab === 'location'}}">
+          <image
+            class="loc-map"
+            src="/assets/CodeBuddyAssets/413_669/1.png"
+            mode="widthFix"
+          />
+        </view>
+
+        <!-- ===== 其余功能：待设计 ===== -->
+        <view class="other-empty" wx:else>
+          <text>敬请期待</text>
+        </view>
+
+      </view>
+    </view>
+
+  </view>
+
+  <!-- ===== 邮件回复弹窗（脱离 other-body，fixed 全屏） ===== -->
+  <view class="mail-reply-modal" wx:if="{{mailReplyModalVisible}}">
+    <view class="mail-reply-modal__mask" bindtap="onMailReplyCancel"></view>
+    <view class="mail-reply-modal__sheet">
+      <view class="mail-reply-modal__handle"></view>
+      <text class="mail-reply-modal__title">回复给猫</text>
+      <textarea
+        class="mail-reply-modal__input"
+        value="{{mailReplyDraft}}"
+        placeholder="给猫写点什么…"
+        placeholder-class="mail-reply-modal__placeholder"
+        maxlength="500"
+        auto-height
+        cursor-spacing="20"
+        bindinput="onMailReplyDraftInput"
+      />
+      <view class="mail-reply-modal__actions">
+        <view class="mail-reply-modal__btn" bindtap="onMailReplyCancel" hover-class="mail-reply-modal__btn--hover">
+          <text>取消</text>
+        </view>
+        <view class="mail-reply-modal__btn mail-reply-modal__btn--on {{mailReplyDraft ? 'mail-reply-modal__btn--active' : ''}}"
+        bindtap="onMailReplyConfirm" hover-class="mail-reply-modal__btn--hover">
+          <text>发送</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 物品留言弹窗（脱离 other-body，fixed 全屏） ===== -->
+  <view class="item-reply-modal" wx:if="{{itemReplyModalVisible}}">
+    <view class="item-reply-modal__mask" bindtap="onItemReplyCancel"></view>
+    <view class="item-reply-modal__sheet">
+      <view class="item-reply-modal__handle"></view>
+      <text class="item-reply-modal__title">给物品留一句</text>
+      <textarea
+        class="item-reply-modal__input"
+        value="{{itemReplyDraft}}"
+        placeholder="写下你想对它说的话…"
+        placeholder-class="item-reply-modal__placeholder"
+        maxlength="120"
+        auto-height
+        cursor-spacing="20"
+        bindinput="onItemReplyDraftInput"
+      />
+      <view class="item-reply-modal__actions">
+        <view class="item-reply-modal__btn" bindtap="onItemReplyCancel" hover-class="item-reply-modal__btn--hover">
+          <text>取消</text>
+        </view>
+        <view class="item-reply-modal__btn {{itemReplyDraft ? 'item-reply-modal__btn--active' : ''}}"
+              bindtap="onItemReplyConfirm" hover-class="item-reply-modal__btn--hover">
+          <text>寄出</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 解梦对话框（Figma 1190_148）· 点「解析」弹出 =====
+       用户把自己对这个梦的看法写给猫，打钩保存（同时交给猫据此解析）
+       工具条：打钩=保存 · 麦克风=语音输入（录音，可回放）
+               垃圾桶=清空（曲别针按需求去掉） -->
+  <view class="dream-dialog" wx:if="{{dreamDialogVisible}}" style="padding-bottom: {{dreamKeyboard * 2}}rpx">
+    <view class="dream-dialog__mask" bindtap="onDreamDialogClose"></view>
+
+    <view class="dream-dialog__panel">
+
+      <!-- 标题栏 -->
+      <view class="dream-dialog__head">
+        <image class="dream-dialog__head-icon" src="/assets/CodeBuddyAssets/1190_148/1.svg" mode="aspectFit" />
+        <text class="dream-dialog__head-title">帮猫解析</text>
+      </view>
+
+      <!-- 输入区：用户的说法（占位就是设计稿里的「给猫解析一下」） -->
+      <textarea
+        class="dream-dialog__input"
+        value="{{dreamDraft}}"
+        placeholder="给猫解析一下"
+        placeholder-class="dream-dialog__placeholder"
+        maxlength="200"
+        cursor-spacing="20"
+        adjust-position="{{false}}"
+        bindinput="onDreamDraftInput"
+        bindkeyboardheightchange="onDreamKeyboard"
+      />
+
+      <!-- 语音条（录过或正在录才出现）：播放 / 时长 / 删除 -->
+      <view class="dream-dialog__voice" wx:if="{{dreamVoice || dreamRecording}}">
+        <view class="dream-dialog__voice-play" bindtap="onDreamVoicePlay">
+          <image class="dream-dialog__voice-icon" src="/assets/CodeBuddyAssets/1190_148/3.svg" mode="aspectFit" />
+        </view>
+        <text class="dream-dialog__voice-text">{{dreamRecording ? '正在录…再点一下麦克风结束' : (dreamPlaying ? '播放中…' : '语音 ' + dreamVoice.duration + '″')}}</text>
+        <text class="dream-dialog__voice-del" wx:if="{{!dreamRecording}}" catchtap="onDreamVoiceRemove">删除</text>
+      </view>
+
+      <!-- 工具条：保存（打钩）/ 语音 / 清空（垃圾桶）· 画布上的曲别针已去掉 -->
+      <view class="dream-dialog__tools">
+        <view class="dream-dialog__tool" bindtap="onDreamSave" hover-class="dream-dialog__tool--hover">
+          <image class="dream-dialog__tool-icon" src="/assets/CodeBuddyAssets/1190_148/2.svg" mode="aspectFit" />
+        </view>
+        <view class="dream-dialog__tool {{dreamRecording ? 'dream-dialog__tool--rec' : ''}}"
+              bindtap="onDreamVoice" hover-class="dream-dialog__tool--hover">
+          <image class="dream-dialog__tool-icon" src="/assets/CodeBuddyAssets/1190_148/3.svg" mode="aspectFit" />
+        </view>
+        <view class="dream-dialog__tool" bindtap="onDreamClear" hover-class="dream-dialog__tool--hover">
+          <image class="dream-dialog__tool-icon" src="/assets/CodeBuddyAssets/1190_148/5.svg" mode="aspectFit" />
+        </view>
+      </view>
+
+    </view>
+  </view>
+
+  <!-- ===== 底部导航（TabBar） ===== -->
+  <view class="room-bottom-tab">
+    <bottom-tab current="room" bindchange="onTabChange" />
+  </view>
+
+</view>

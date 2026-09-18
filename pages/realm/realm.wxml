@@ -1,0 +1,72 @@
+<!-- ============================================================
+    realm — 秘境 · 块体拼接小游戏（样板关卡）
+    按 Figma 458_1225 版式 + Figma Make 块体规则实现
+
+    玩法
+      · 画布底层 = 9×9 的 90³ 立方体网格（X / Y / Z 三轴都是 90 的整数倍）
+      · A（意识）初始在 (0, 0)：绿色半高台阶 90×90×45（顶 z=45）· 可拖动，按 90 格步进挪位
+      · B（潜意识）固定在 (5, 2)：粉色半高台阶 90×90×45（顶 z=45）· 不可动
+      · 顶部米色容器 = 物料库：11 个块体（半高 ×5 / 正方体 ×3 / 长方体 ×3）
+      · 拖拽块体到大点阵画布，自动吸附 90³ 网格
+      · 相邻顶面高差 Δz ∈ {0, ±45, ±90} 即「可通行」；其它跳变不通
+      · 全部 11 件用完 + A→B 连通 = 通关
+    ============================================================ -->
+
+<view class="realm" style="padding-top: {{statusBarHeight}}px">
+
+  <!-- ① 顶部 -->
+  <view class="realm-head">
+    <image class="realm-head__icon" src="{{headIcon}}" mode="aspectFit" />
+    <text class="realm-head__title">秘境</text>
+  </view>
+
+  <!-- ② 时刻 + 黑猫（紧靠物料气泡上方，居中堆叠；底部整块会随之上移） -->
+  <view class="meta-stack">
+    <text class="realm-stamp">{{clock}}</text>
+    <image class="realm-cat" src="{{catSrc}}" mode="aspectFit" />
+  </view>
+
+  <!-- ③ 组件池（猫给的块体，数量为关卡参数） + 右侧文案 -->
+  <view class="inv-row">
+    <view class="inventory">
+      <view class="inv-slot {{item.count === 0 ? 'inv-slot--empty' : ''}}"
+            wx:for="{{tray}}" wx:key="type"
+            data-index="{{index}}"
+            bindtouchstart="onTrayTouchStart"
+            catchtouchmove="onTrayTouchMove"
+            bindtouchend="onTrayTouchEnd"
+            bindtouchcancel="onTrayTouchCancel">
+        <canvas type="2d" id="thumb{{index}}" class="inv-thumb" disable-scroll="true"></canvas>
+        <text class="inv-count">{{item.count}}个</text>
+      </view>
+    </view>
+    <view class="inv-ready" aria-label="物料已齐备">
+      <text class="inv-ready__line">物料已齐备</text>
+      <text class="inv-ready__line">可以生成秘境</text>
+    </view>
+  </view>
+
+  <!-- ④ 秘境生成（重置本关） -->
+  <view class="realm-generate" bindtap="onReset">
+    <text class="realm-generate__label">秘境生成</text>
+  </view>
+
+  <!-- ⑤ 拼接画布：点阵 + 等距块体 -->
+  <view class="realm-canvas" catchtouchmove="onBoardTouchMove">
+    <!-- disable-scroll：canvas 内有手势时禁止页面滚动 / 下拉刷新
+         （不开这个，拖动时整页会跟着滑几十 px，画面看着就是在「抖」，坐标也跟着漂） -->
+    <canvas type="2d" id="board" class="board"
+            disable-scroll="true"
+            bindtouchstart="onBoardTouchStart"
+            catchtouchmove="onBoardTouchMove"
+            bindtouchend="onBoardTouchEnd"
+            bindtouchcancel="onBoardTouchCancel"></canvas>
+    <view class="board-tip {{linked ? 'is-linked' : ''}}">{{tipText}}</view>
+  </view>
+
+  <!-- ⑥ 底部导航 -->
+  <view class="realm-bottom-tab">
+    <bottom-tab current="realm" safeBottom="{{false}}" bindchange="onTabChange" />
+  </view>
+
+</view>

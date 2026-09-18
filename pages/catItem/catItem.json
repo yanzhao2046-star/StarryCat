@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "bottom-tab": "/components/bottomTab/bottomTab"
+  },
+  "navigationBarTitleText": "猫物",
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFFFFF"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "genCatStyle",
+  "version": "1.0.0",
+  "description": "将用户上传的照片按「星星猫宇宙」画风生成新猫图",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

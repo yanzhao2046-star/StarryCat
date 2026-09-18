@@ -1,0 +1,32 @@
+<!-- ============================================
+     onboard - 开屏页（Figma 503_1510）
+     毛布力猫不理 · 375×852 → 750×1704rpx（1px=2rpx）
+     交互：点击「开门」图片才进入主功能，无自动跳转
+     ============================================ -->
+
+<view class="splash">
+
+  <!-- 猫形象（Figma 503_1510 / 2.png）：375×489 → 750×978rpx，top:363 贴底 -->
+  <image
+    class="cat"
+    src="/assets/CodeBuddyAssets/503_1510/2.png"
+    mode="widthFix"
+  />
+
+  <!-- 品牌字：top:86 → 172rpx -->
+  <view class="brand">
+    <text class="brand-line">毛布力</text>
+    <text class="brand-line">猫不理</text>
+  </view>
+
+  <!-- 开门入口：83×89 → 166×178rpx，top:194 → 388rpx，点击进入 -->
+  <view class="door-wrap" bindtap="goHome" hover-class="door-hover">
+    <image
+      class="door"
+      src="/assets/CodeBuddyAssets/503_1510/1.png"
+      mode="aspectFit"
+    />
+    <text class="enter-hint">进入</text>
+  </view>
+
+</view>

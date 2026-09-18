@@ -1,0 +1,316 @@
+/* ============================================
+   catMoodLib - 猫的心情库 / 猫发的心情列表
+   Figma 基准: 375 × 852 px → 750 × 1704 rpx
+   原生 tabBar：page height 由系统扣除 tabBar 后撑满
+   样式整体复用 moodLib.wxss，主题色不变
+   ============================================ */
+
+page {
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+.page {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background: #ffffff;
+}
+
+.page-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-left: 60rpx;
+  padding-right: 60rpx;
+  padding-top: 140rpx;
+  padding-bottom: calc(170rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* ============================================
+   顶部标题
+   ============================================ */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: #ffffff;
+  padding-top: 36rpx;
+  padding-left: 60rpx;
+  padding-right: 60rpx;
+  padding-bottom: 16rpx;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 0 #F3F4F6;
+}
+
+.header-title {
+  font-size: 28rpx;        /* 同「物品」页：15px · 常规字重 */
+  font-weight: 400;
+  color: #000000;
+  line-height: 1.2;
+  margin-top: 4rpx;
+  text-align: center;
+  font-family: Inter, Microsoft YaHei, sans-serif;
+}
+
+/* ---- 标题块：图标在上、标题在下，整体居中（同「物品」页头部） ---- */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.header-icon {
+  width: 66rpx;            /* Figma 471_1339: 33px */
+  height: 66rpx;
+  flex-shrink: 0;
+}
+.header-subtitle {
+  margin-top: 8rpx;
+}
+
+.header-subtitle {
+  font-size: 28rpx;
+  font-weight: 400;
+  color: #99A1AF;
+  margin-top: 8rpx;
+}
+
+/* ---- 标题行：标题块居中 ---- */
+.header-top-row {
+  position: relative;
+}
+
+/* ============================================
+   空状态
+   ============================================ */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding-bottom: 120rpx;
+}
+
+.empty-icon {
+  width: 160rpx;
+  height: 160rpx;
+  opacity: 0.3;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #99A1AF;
+}
+
+.empty-sub {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: #C4CAD3;
+}
+
+/* ============================================
+   记录列表（可滚动）
+   ============================================ */
+.list-scroll {
+  flex: 1;
+  width: 100%;
+  padding-top: 16rpx;
+  box-sizing: border-box;
+}
+
+/* ---- 紧凑列表条目 (frame3279) ---- */
+.record-card {
+  width: 100%;
+  min-height: 120rpx;
+  background: #ffffff;
+  border-radius: 40rpx;
+  box-shadow: 0 0 40rpx rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 20rpx;
+  box-sizing: border-box;
+  margin-bottom: 18rpx;
+  transition: box-shadow 0.2s;
+}
+
+.record-card--expanded {
+  box-shadow: 0 0 48rpx rgba(97, 85, 245, 0.18);
+}
+
+/* ---- 左侧情绪图标 ---- */
+.rc-icon {
+  width: 80rpx;
+  height: 80rpx;
+  flex-shrink: 0;
+}
+
+/* ---- 中间内容区（三行布局） ---- */
+.rc-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 20rpx;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* 第一行：记录时间 + 分数 */
+.rc-row-time {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.rc-time {
+  font-size: 20rpx;
+  font-weight: 290;
+  color: #101828;
+  line-height: 1;
+}
+
+.rc-score {
+  font-size: 20rpx;
+  font-weight: 290;
+  color: #8B5CF6;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* 第二行：情绪名称 + 黑话 */
+.rc-row-info {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8rpx;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  margin-top: 8rpx;
+}
+
+.rc-mood {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: #000000;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.rc-note-txt {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: #4D1A80;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+/* 第三行：语录 */
+.rc-quote {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: #4A5565;
+  margin-top: 4rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* ---- 右侧+按钮 ---- */
+.rc-btn {
+  width: 68rpx;
+  height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 2rpx solid rgba(0, 0, 0, 0.10);
+  margin-left: 20rpx;
+  padding-left: 20rpx;
+  flex-shrink: 0;
+}
+
+.rc-btn-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+/* ============================================
+   展开详情面板 (Frame 2147224327)
+   ============================================ */
+.expand-panel {
+  width: 100%;
+  margin-bottom: 18rpx;
+  margin-top: -8rpx;
+  animation: fadeSlideIn 0.25s ease;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 外层：边框容器 */
+.expand-outer {
+  width: 100%;
+  border: 2rpx solid #F0EEF0;
+  border-radius: 48rpx;
+  padding: 7rpx;
+  box-sizing: border-box;
+}
+
+/* 内层：半透明背景 */
+.expand-inner {
+  background: rgba(97, 85, 245, 0.10);
+  border-radius: 44rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
+/* ---- 猫的语录（替代原"星星猫"语录，主体改成猫自己） ---- */
+.exp-quote-text {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: #4A5565;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ---- 评论面板区域（用户评论 → 猫回复） ---- */
+.exp-comments {
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+/* ===== 底部导航：仅提供贴底定位，胶囊外观由 bottom-tab 组件自带 ===== */
+.page-bottom-tab {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}

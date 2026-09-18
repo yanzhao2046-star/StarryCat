@@ -1,0 +1,35 @@
+{
+  "libVersion": "3.17.0",
+  "projectname": "codeBuddy",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "秘境 realm",
+          "pathName": "pages/realm/realm",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ],
+      "current": -1
+    }
+  },
+  "setting": {
+    "urlCheck": true,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "skylineRenderEnable": false,
+    "preloadBackgroundData": false,
+    "autoAudits": false,
+    "useApiHook": true,
+    "showShadowRootInWxmlPanel": true,
+    "useStaticServer": false,
+    "useLanDebug": false,
+    "showES6CompileOption": false,
+    "compileHotReLoad": true,
+    "checkInvalidKey": true,
+    "ignoreDevUnusedFiles": true,
+    "bigPackageSizeSupport": false
+  }
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5.234 4.08">
+  <!-- 基础网格：等距菱形网格（边长 = 基准棱长 1，水平半格 0.866、垂直半格 0.5）
+       pattern 单元 1.732 × 1，平铺后网格顶点与 cube.svg 的底面下顶点重合
+       渲染尺寸 5.234s × 4.08s -->
+  <defs>
+    <pattern id="iso-mesh" width="1.732" height="1" patternUnits="userSpaceOnUse">
+      <path d="M0,0.5 L0.866,0 L1.732,0.5 L0.866,1 Z"
+            fill="none" stroke="#5A5E78" stroke-opacity="0.16" stroke-width="0.02"/>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="5.234" height="4.08" fill="url(#iso-mesh)"/>
+</svg>

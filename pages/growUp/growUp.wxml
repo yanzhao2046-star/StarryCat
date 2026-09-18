@@ -1,0 +1,59 @@
+<!-- ============================================================
+  growUp.wxml — 星猫成长页
+  Figma 313_1778 蓝图：375×932px → 750rpx
+  容器：padding 0 60rpx（对齐 youMeOther）
+  ============================================================ -->
+
+<view class="page">
+
+  <!-- ====== 主内容（可滚动） ====== -->
+  <scroll-view class="content" scroll-y show-scrollbar="{{false}}">
+
+    <!-- ========== 头部渐变区 ========== -->
+    <view class="header">
+      <text class="header-title">星星猫宇宙</text>
+      <text class="header-subtitle">聊心事，养猫</text>
+    </view>
+
+    <!-- ========== 星猫状态区 ========== -->
+    <view class="cat-section">
+      <text class="cat-section-desc">每一个情绪记录都会喂养这只猫</text>
+      <view class="cat-section-main">
+        <!-- 星猫头像圆 -->
+        <view class="cat-avatar-wrap">
+          <image class="cat-avatar-img" src="/assets/CodeBuddyAssets/313_1778/5.png" mode="aspectFit"></image>
+        </view>
+        <!-- 三项数据 -->
+        <view class="cat-stats">
+          <text class="cat-stats-text">心情Token：{{growData.token}}</text>
+          <text class="cat-stats-text">智慧指数：{{growData.wisdom}}</text>
+          <text class="cat-stats-text">懂你指数：{{growData.understand}}</text>
+        </view>
+      </view>
+      <!-- 总分进度条 -->
+      <view class="cat-progress">
+        <view class="cat-progress-bar">
+          <view class="cat-progress-fill" style="width: {{overallProgress}}%;"></view>
+        </view>
+        <text class="cat-progress-label">{{totalScore}}分：{{levelTitle}}</text>
+      </view>
+    </view>
+
+    <!-- ========== 成长规则区 ========== -->
+    <view class="rules-section">
+      <view class="rules-header">
+        <text class="rules-title">成长规则</text>
+      </view>
+      <view class="rules-body">
+        <image class="rules-img" src="/assets/CodeBuddyAssets/313_1778/6.png" mode="widthFix"></image>
+      </view>
+    </view>
+
+    <!-- 底部留白 -->
+    <view class="bottom-spacer"></view>
+
+  </scroll-view>
+
+  
+
+</view>

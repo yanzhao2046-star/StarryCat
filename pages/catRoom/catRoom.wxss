@@ -1,0 +1,1305 @@
+/* ============================================================
+   catRoom — 猫的房间（Figma 6_79）
+   画布 402×874；1px ≈ 1.866rpx（375 屏宽换算）
+   配色
+     页面底        #FFF9F2
+     标签选中      #FAEEDF
+     标签未选      #FFF9F2
+     对话台        #FBEEDF
+     猫气泡        #FFFFFF / 文字 #484848
+     主人气泡      #19C685 / 文字 #2F2F2F
+   ============================================================ */
+
+/* ===== 底部导航：仅提供贴底定位，胶囊外观由 bottom-tab 组件自带 ===== */
+.room-bottom-tab {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+page {
+  background: #FFF9F2;
+}
+
+.room {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #FFF9F2;
+  /* 让出悬浮导航胶囊的高度，避免内容被遮挡 */
+  padding-bottom: calc(170rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   ① 猫和主人的房间
+   ============================================================ */
+.stage {
+  position: relative;
+  flex: 0 0 auto;
+  /* 严格锁房间图宽高比（800×1067 → 750rpx 宽 : 1000rpx 高），
+     图不裁剪，猫的百分比坐标与 tools/catRoomEditor.html 1:1 对应 */
+  height: 1000rpx;
+  overflow: hidden;
+  background: #F3E8DA;
+  transition: background 600ms ease;
+}
+.stage--dusk  { background: #F1CFA8; }
+.stage--night { background: #1F2238; }
+
+/* 房间场景图：铺满 stage（第一步空房间） */
+.stage-room {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 猫图层：百分比落位在房间图上，图本体 aspectFit 不变形 */
+.stage-cat {
+  position: absolute;
+}
+.stage-cat__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 空房间提示：居中半透明胶囊，引导用户点击召唤 */
+.stage-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 14rpx 28rpx;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 36rpx;
+  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.08);
+  z-index: 5;
+  pointer-events: none;
+}
+.stage-hint text {
+  font-size: 24rpx;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+  letter-spacing: 2rpx;
+}
+
+/* 返回按钮：脱离滚动流，固定在视口左上角 */
+.stage-back {
+  position: fixed;
+  z-index: 10;
+  left: 24rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-back--hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.stage-back__icon {
+  font-size: 40rpx;
+  line-height: 1;
+  color: #2F2F2F;
+  margin-top: -6rpx;
+}
+
+/* ============================================================
+   ② 对话台
+   ============================================================ */
+.console {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* ------ 标签：chat / Other ------ */
+.console-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  height: 67rpx;       /* 36px */
+}
+
+.console-tab {
+  flex: 1;
+  height: 100%;
+  border-radius: 28rpx;   /* 15px */
+  background: #FFF9F2;
+  color: #000000;
+  font-size: 22rpx;       /* 12px */
+  font-weight: 300;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.console-tab--on {
+  background: #FAEEDF;
+}
+
+/* ------ 面板容器 ------ */
+.console-panel {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #FBEEDF;
+  border-radius: 32rpx;   /* 17px */
+  overflow: hidden;
+}
+
+/* ------ 气泡列表（内嵌滚动 + page 滚动共存） ------ */
+.bubble-scroll {
+  height: 62vh;            /* 给内嵌 scroll-view 一个上限，长对话靠 page 滚 */
+  padding: 30rpx 22rpx 0;
+  box-sizing: border-box;
+}
+
+.bubble-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 26rpx;
+}
+
+.bubble-row--user {
+  justify-content: flex-end;
+}
+
+.bubble-avatar {
+  width: 71rpx;          /* 38px */
+  height: 71rpx;
+  border-radius: 9rpx;   /* 5px */
+  flex: 0 0 auto;
+  background: #FFF6E9;
+}
+
+/* ------ 气泡 ------ */
+.bubble {
+  position: relative;
+  max-width: 480rpx;
+  padding: 19rpx;        /* 10px */
+  border-radius: 9rpx;   /* 5px */
+  margin-left: 28rpx;    /* 15px */
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.bubble--cat {
+  background: #FFFFFF;
+}
+
+.bubble--user {
+  background: #19C685;
+  margin-left: 0;
+  margin-right: 28rpx;
+}
+
+.bubble-text {
+  font-size: 30rpx;      /* 16px */
+  font-weight: 500;
+  line-height: 1.35;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.bubble--cat .bubble-text {
+  color: #484848;
+}
+
+.bubble--user .bubble-text {
+  color: #2F2F2F;
+}
+
+/* ------ 气泡小尾巴 ------ */
+.bubble-tail {
+  position: absolute;
+  top: 9rpx;             /* 5px */
+  width: 15rpx;          /* 8px */
+  height: 21rpx;         /* 11px */
+}
+
+.bubble-tail--cat {
+  left: -14rpx;
+}
+
+.bubble-tail--user {
+  right: -14rpx;
+}
+
+/* ------ 打字中 ------ */
+.bubble--typing {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 22rpx;
+}
+
+.typing-dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 10rpx;
+  border-radius: 50%;
+  background: #D9C9B4;
+  animation: typingBlink 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; margin-right: 0; }
+
+@keyframes typingBlink {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30%           { opacity: 1;    transform: translateY(-4rpx); }
+}
+
+.bubble-bottom {
+  height: 26rpx;
+}
+
+/* ------ 输入栏 ------ */
+.input-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 16rpx 22rpx 22rpx;
+}
+
+.input-bar__field {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 26rpx;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border-radius: 36rpx;
+  font-size: 26rpx;
+  color: #2F2F2F;
+}
+
+.input-bar__placeholder {
+  color: #C4B5A2;
+  font-size: 26rpx;
+  font-weight: 300;
+}
+
+.input-bar__send {
+  flex: 0 0 auto;
+  margin-left: 16rpx;
+  height: 72rpx;
+  padding: 0 32rpx;
+  border-radius: 36rpx;
+  background: #F0E3D2;
+  color: #A99A86;
+  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.input-bar__send--on {
+  background: #19C685;
+  color: #FFFFFF;
+}
+
+/* ============================================================
+   Other 面板（Figma 398_512 外壳 + 398_536 内容）
+   外壳：380×270px = 709×504rpx @ 1.866
+   色：卡片底 #FFDBB3 · 按钮描边 #FFDBB3 · 按钮文字 #8A5A2B
+   ============================================================ */
+.console-panel--other {
+  flex: 0 0 auto;
+  width: 709rpx;
+  min-height: 504rpx;
+  margin: 0 auto;
+  padding: 40rpx 36rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------ 顶部 4 个功能入口 ------ */
+.other-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 157rpx;          /* 84px @ 1.866 */
+}
+.other-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+  padding: 4rpx 0;
+  opacity: 0.55;
+  transition: opacity 120ms ease;
+}
+.other-tab--on     { opacity: 1; }
+.other-tab--hover  { opacity: 0.7; }
+.other-tab__icon {
+  width: 64rpx;
+  height: 64rpx;
+  display: block;
+}
+.other-tab__label {
+  font-size: 26rpx;        /* 14px */
+  font-weight: 400;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #000000;
+}
+
+/* ------ 内容区 ------ */
+.other-body {
+  flex: 0 0 auto;
+  margin-top: 18rpx;
+  position: relative;
+}
+
+/* ------ 邮件卡片（Figma 398_536） ------ */
+.mail-card {
+  width: calc(100% + 72rpx);
+  margin-left: -36rpx;
+  min-height: 504rpx;
+  padding: 36rpx 34rpx 26rpx;
+  box-sizing: border-box;
+  background: #FFDBB3;
+  border-radius: 36rpx;
+  box-shadow: 6rpx 10rpx 8rpx rgba(0, 0, 0, 0.25);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部：邮件原文 + 右上小圆按钮 */
+.mail-card__head {
+  position: relative;
+  padding-right: 80rpx;
+}
+.mail-card__text {
+  font-size: 28rpx;
+  font-weight: 300;
+  font-family: 'Inter', -apple-system, sans-serif;
+  line-height: 1.45;
+  color: #2F2F2F;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.mail-card__topbtn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 67rpx;
+  height: 63rpx;
+  border-radius: 52rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFDBB3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mail-card__topbtn image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+/* 回复 / 转发按钮（两端对齐各一） */
+.mail-card__actions {
+  flex: 0 0 auto;
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: space-between;
+}
+.mail-action {
+  width: 295rpx;
+  height: 67rpx;
+  border-radius: 34rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFDBB3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+.other-btn--hover { background: #FFF6E9; }
+.mail-action__icon {
+  width: 30rpx;
+  height: 30rpx;
+}
+.mail-action__label {
+  font-size: 22rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+}
+
+/* ------ 回复分隔 ------ */
+.mail-replies__divider {
+  flex: 0 0 auto;
+  margin: 24rpx 0 14rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.mail-replies__divider::before,
+.mail-replies__divider::after {
+  content: '';
+  flex: 1;
+  height: 2rpx;
+  background: rgba(138, 90, 43, 0.25);
+}
+.mail-replies__divider text {
+  font-size: 22rpx;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+}
+
+/* ------ 邮件对话流 ------ */
+.mail-replies {
+  height: 50vh;            /* 内嵌 scroll-view 上限，长对话靠 page 滚 */
+  padding: 0 4rpx;
+  box-sizing: border-box;
+}
+.mail-reply {
+  max-width: 80%;
+  margin-bottom: 14rpx;
+  padding: 16rpx 22rpx;
+  border-radius: 18rpx;
+  font-size: 26rpx;
+  line-height: 1.45;
+  word-break: break-word;
+  white-space: pre-wrap;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+.mail-reply__text { display: inline; }
+
+/* 用户的回复（用户给猫的） */
+.mail-reply--user {
+  margin-left: auto;
+  background: #FFFFFF;
+  color: #2F2F2F;
+  border: 2rpx solid #FFDBB3;
+}
+
+/* 猫的回信 */
+.mail-reply--ai {
+  background: #FFDBB3;
+  color: #2F2F2F;
+}
+
+/* 猫正在打字 */
+.mail-reply--typing {
+  display: flex;
+  align-items: center;
+  width: auto;
+  padding: 16rpx 22rpx;
+}
+.mail-reply--typing .typing-dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 10rpx;
+  border-radius: 50%;
+  background: #8A5A2B;
+  animation: typingBlink 1.2s infinite ease-in-out;
+}
+.mail-reply--typing .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.mail-reply--typing .typing-dot:nth-child(3) { animation-delay: 0.4s; margin-right: 0; }
+
+.mail-reply-bottom { height: 12rpx; }
+
+/* ============================================================
+   明信片（Figma 408_344）· 独立功能，不复用邮件
+   规格：卡 337×335px、#FFF6F7、圆角 24、outline #EFEAE2、shadow 0 16 40
+         头 logo 32 + Meow Post（Fraunces 700 16）+ 编号（Fraunces 600 11）
+         引文 293×84 居中（Londrina Solid 15 · #796E2E）
+         底图 337×171
+         按钮 138×36 白底 + #FFDBB3 描边 · #8A5A2B 12 600
+   ============================================================ */
+.postcard-view {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* 收窄居中：四周透出面板底色，视觉上浮出一张卡片 */
+  width: 520rpx;
+  margin: 12rpx auto 26rpx;
+  box-sizing: border-box;
+}
+
+.postcard-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #FFF6F7;
+  border-radius: 36rpx;
+  box-shadow: 0 22rpx 56rpx rgba(44, 34, 30, 0.12);
+  border: 1rpx solid #EFEAE2;
+  overflow: hidden;            /* 让底部大图贴合圆角 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 头部 logo + Meow Post + 编号 */
+.postcard-card__head {
+  flex: 0 0 auto;
+  padding: 20rpx 24rpx 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+.postcard-card__logo {
+  width: 48rpx;
+  height: 48rpx;
+  flex: 0 0 auto;
+}
+.postcard-card__headtext {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+.postcard-card__title {
+  font-size: 25rpx;
+  font-weight: 700;
+  font-family: 'Fraunces', Georgia, serif;
+  color: #4A3E3D;
+  line-height: 1.1;
+}
+.postcard-card__no {
+  font-size: 18rpx;
+  font-weight: 600;
+  font-family: 'Fraunces', Georgia, serif;
+  color: #8C7D77;
+  line-height: 1.1;
+}
+
+/* 引文（猫的内心独白，居中、艺术字） */
+.postcard-card__quote {
+  flex: 0 0 auto;
+  padding: 22rpx 26rpx 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 128rpx;
+}
+.postcard-card__quote text {
+  font-size: 24rpx;
+  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  color: #796E2E;
+  line-height: 1.45;
+  text-align: center;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* 明信片大图（头部下方，通栏） */
+.postcard-card__photo {
+  width: 100%;
+  height: 248rpx;
+  display: block;
+}
+
+/* 按钮：回复 / 保存 */
+.postcard-actions {
+  width: 100%;
+  margin-top: 22rpx;
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.postcard-action {
+  flex: 1;
+  height: 60rpx;
+  border-radius: 30rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFDBB3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease;
+}
+.postcard-action__label {
+  font-size: 21rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+}
+
+/* 内嵌回复区（独立 modal-less 形态） */
+.postcard-reply {
+  width: 100%;
+  margin-top: 22rpx;
+  padding: 0 4rpx;
+  box-sizing: border-box;
+}
+.postcard-reply__divider {
+  height: 1rpx;
+  background: rgba(138, 90, 43, 0.18);
+  margin-bottom: 24rpx;
+}
+.postcard-reply__input {
+  width: 100%;
+  min-height: 140rpx;
+  max-height: 280rpx;
+  padding: 18rpx 22rpx;
+  box-sizing: border-box;
+  background: #FBEEDF;
+  border: 2rpx solid #FFDBB3;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #2F2F2F;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.postcard-reply__placeholder {
+  color: #B69C7C;
+}
+.postcard-reply__actions {
+  margin-top: 18rpx;
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.postcard-reply__btn {
+  flex: 1;
+  height: 64rpx;
+  border-radius: 32rpx;
+  background: #FBEEDF;
+  color: #8A5A2B;
+  font-size: 24rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.postcard-reply__btn--on     { background: #F0E3D2; color: #A99A86; }
+.postcard-reply__btn--active { background: #8A5A2B; color: #FFFFFF; }
+.postcard-reply__btn--hover  { opacity: 0.85; }
+
+/* 已寄出状态 */
+.postcard-reply__sent {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 18rpx 22rpx;
+  background: #FBEEDF;
+  border-radius: 24rpx;
+}
+.postcard-reply__sent-tag {
+  font-size: 20rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+  letter-spacing: 1rpx;
+}
+.postcard-reply__sent-text {
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #2F2F2F;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* ============================================================
+   猫的梦卡片（Figma 1186_145）· 独立卡片，挂在 Meow Post 卡下方
+   规格（px → 本页 520rpx 卡宽，1px ≈ 1.566rpx）：
+     卡 332×359 · #FFF6F7 · 圆角 22 · outline #EFEAE2
+     左列 172×311（距卡 18,24）：头 38（logo 32 + DR Post 16 700 + 编号 11 600）
+                                  图 172×273 圆角 12
+     右列 138×178（距卡 194,72）：梦正文 122×99 居中（Londrina Solid 12 · #796E2E）
+                                  解析 / 保存 两枚等宽胶囊 138×36 白底 + #FFDBB3 描边
+                                    （Inter 12 600 · #8A5A2B，Figma 1186_70）
+                                  「猫：…」（Londrina Solid 12 · #796E2E）
+   ============================================================ */
+.dream-postcard {
+  width: 100%;
+  margin-top: 26rpx;
+  padding: 38rpx 22rpx 38rpx 28rpx;
+  box-sizing: border-box;
+  background: #FFF6F7;
+  border-radius: 36rpx;
+  border: 1rpx solid #EFEAE2;
+  box-shadow: 0 22rpx 56rpx rgba(44, 34, 30, 0.12);
+  display: flex;
+  align-items: flex-start;
+}
+
+/* 左列：卡头 + 图 */
+.dream-postcard__left {
+  flex: 0 0 auto;
+  width: 270rpx;
+  display: flex;
+  flex-direction: column;
+}
+.dream-postcard__head {
+  height: 60rpx;
+  display: flex;
+  align-items: flex-start;
+  gap: 14rpx;
+}
+.dream-postcard__logo {
+  width: 50rpx;
+  height: 50rpx;
+  margin-top: 2rpx;
+  flex: 0 0 auto;
+}
+.dream-postcard__headtext {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding-top: 2rpx;
+}
+.dream-postcard__title {
+  font-size: 25rpx;
+  font-weight: 700;
+  font-family: 'Fraunces', Georgia, serif;
+  color: #4A3E3D;
+  line-height: 1.1;
+}
+.dream-postcard__no {
+  font-size: 17rpx;
+  font-weight: 600;
+  font-family: 'Fraunces', Georgia, serif;
+  color: #8C7D77;
+  line-height: 1.1;
+}
+.dream-postcard__photo {
+  width: 100%;
+  height: 428rpx;
+  display: block;
+  border-radius: 20rpx;
+}
+
+/* 右列：梦的正文 → 解析 → 猫的解析 */
+.dream-postcard__right {
+  flex: 1;
+  min-width: 0;
+  margin-top: 75rpx;
+  margin-left: 6rpx;
+  display: flex;
+  flex-direction: column;
+}
+.dream-postcard__text {
+  min-height: 155rpx;
+  font-size: 20rpx;
+  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  color: #796E2E;
+  line-height: 2;
+  text-align: center;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+/* 解析 / 保存：并排两枚等宽胶囊（Figma 1186_70 · 白底 + #FFDBB3 描边） */
+.dream-postcard__actions {
+  margin-top: 16rpx;
+  display: flex;
+  gap: 10rpx;
+}
+.dream-postcard__action {
+  flex: 1;
+  min-width: 0;
+  height: 56rpx;
+  border-radius: 28rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFDBB3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease;
+}
+.dream-postcard__action text {
+  font-size: 20rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+}
+/* 已保存进物品库：按钮压成灰调，点它只会提示 */
+.dream-postcard__action--done {
+  background: #FBF3E4;
+  border-color: #EFD9B8;
+}
+.dream-postcard__action--done text {
+  color: #A99A86;
+}
+/* 用户自己写的那句（对话框里保存后显示） */
+.dream-postcard__mine {
+  margin-top: 16rpx;
+  font-size: 20rpx;
+  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  color: #8A5A2B;
+  line-height: 2;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.dream-postcard__result {
+  margin-top: 16rpx;
+  font-size: 20rpx;
+  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  color: #796E2E;
+  line-height: 2;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* ============================================================
+   解梦对话框（Figma 1190_148）· 点「解析」弹出
+   规格（px → 2rpx/px，对话框宽度 ≈ 屏幕一半）：
+     面板 189×161
+     标题栏 189×36 · rgba(226,217,246,.54) · 圆角 9
+            图标 24 (距左 11,上 6) + 标题 10 Microsoft YaHei
+     输入区 189×91 · rgba(183,156,250,.31) · 圆角 9 · 占位「给猫解析一下」10 居中
+     工具条 189×30 · rgba(183,156,250,.42) · 圆角 11
+            3 个 24 图标等距（间距 15；原画布 4 个，曲别针已去掉）
+   ============================================================ */
+.dream-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 键盘弹起时由行内样式补 padding-bottom，把面板整体推上去 */
+  transition: padding-bottom 200ms ease;
+}
+.dream-dialog__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.dream-dialog__panel {
+  position: relative;
+  z-index: 1;
+  width: 378rpx;
+  /* 设计稿里标题栏/输入区/语音条/工具条都是半透明色，面板没底色时整片会透出遮罩，
+     这里垫一层不透明白底：半透明色叠在白底上的观感和设计稿一致，但不再透背景 */
+  background: #FFFFFF;
+  border-radius: 18rpx;
+  box-shadow: 0 22rpx 56rpx rgba(44, 34, 30, 0.18);
+  overflow: hidden;                /* 白底圆角跟着各块的圆角，不留白边 */
+  animation: dreamDialogIn 200ms ease-out;
+}
+@keyframes dreamDialogIn {
+  from { opacity: 0; transform: translateY(24rpx) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 标题栏 */
+.dream-dialog__head {
+  height: 72rpx;
+  padding: 0 22rpx;
+  box-sizing: border-box;
+  background: rgba(226, 217, 246, 0.54);
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+}
+.dream-dialog__head-icon {
+  flex: 0 0 auto;
+  width: 48rpx;
+  height: 48rpx;
+}
+.dream-dialog__head-title {
+  margin-left: 16rpx;
+  font-size: 20rpx;
+  font-family: 'Microsoft YaHei', -apple-system, sans-serif;
+  color: #000000;
+  letter-spacing: 1rpx;
+}
+
+/* 输入区（占位居中，和设计稿一致） */
+.dream-dialog__input {
+  width: 100%;
+  height: 182rpx;
+  margin-top: 4rpx;
+  padding: 44rpx 36rpx;
+  box-sizing: border-box;
+  background: rgba(183, 156, 250, 0.31);
+  border-radius: 18rpx;
+  font-size: 20rpx;
+  line-height: 1.7;
+  color: #2F2F2F;
+  text-align: center;
+}
+.dream-dialog__placeholder {
+  font-size: 20rpx;
+  color: rgba(0, 0, 0, 0.28);
+  text-align: center;
+}
+
+/* 语音条（录音中 / 录完才出现） */
+.dream-dialog__voice {
+  height: 56rpx;
+  margin-top: 4rpx;
+  padding: 0 22rpx;
+  box-sizing: border-box;
+  background: rgba(183, 156, 250, 0.42);
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+}
+.dream-dialog__voice-play {
+  flex: 0 0 auto;
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dream-dialog__voice-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+.dream-dialog__voice-text {
+  flex: 1;
+  min-width: 0;
+  margin-left: 14rpx;
+  font-size: 20rpx;
+  font-family: 'Microsoft YaHei', -apple-system, sans-serif;
+  color: #2F2F2F;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.dream-dialog__voice-del {
+  flex: 0 0 auto;
+  padding: 8rpx 0 8rpx 16rpx;
+  font-size: 20rpx;
+  font-family: 'Microsoft YaHei', -apple-system, sans-serif;
+  color: #5B4A9B;
+}
+
+/* 工具条：保存 / 语音 / 清空 */
+.dream-dialog__tools {
+  height: 60rpx;
+  margin-top: 4rpx;
+  padding: 0 30rpx;
+  box-sizing: border-box;
+  background: rgba(183, 156, 250, 0.42);
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30rpx;
+}
+.dream-dialog__tool {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dream-dialog__tool-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+.dream-dialog__tool--hover {
+  opacity: 0.65;
+}
+/* 录音中：麦克风带红点呼吸 */
+.dream-dialog__tool--rec {
+  border-radius: 50%;
+  background: rgba(255, 92, 92, 0.92);
+  animation: dreamRecPulse 900ms ease-in-out infinite;
+}
+@keyframes dreamRecPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.12); opacity: 0.78; }
+}
+
+/* ============================================================
+   物品（Figma 404_658）：猫外出留在家里的东西
+   卡 356×143px · #FFDBB3 圆角 17
+   3 按钮 100×26 · 白底 + #FFDBB3 描边 · 文字 #8A5A2B 12 600
+   ============================================================ */
+.item-view {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.item-list {
+  width: 100%;
+  max-height: 720rpx;          /* 列表区，超过可滚 */
+  box-sizing: border-box;
+}
+.item-card {
+  width: 600rpx;
+  margin: 0 auto 18rpx;
+  padding: 22rpx 24rpx 18rpx;
+  box-sizing: border-box;
+  background: #FFDBB3;
+  border-radius: 34rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  box-shadow: 0 14rpx 32rpx rgba(138, 90, 43, 0.10);
+}
+.item-card__icon {
+  width: 90rpx;
+  height: 90rpx;
+  flex: 0 0 auto;
+}
+.item-card__title {
+  font-size: 26rpx;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #2F2F2F;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.item-card__actions {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+.item-action {
+  flex: 1;
+  height: 50rpx;
+  background: #FFFFFF;
+  border: 2rpx solid #FFDBB3;
+  border-radius: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.item-action text {
+  font-size: 22rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+}
+.item-action--on {
+  background: #8A5A2B;
+}
+.item-action--on text { color: #FFFFFF; }
+.item-action--hover { opacity: 0.85; }
+
+/* 物品下挂的留言摘要 */
+.item-note {
+  width: 100%;
+  margin-top: 4rpx;
+  padding: 12rpx 18rpx;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.item-note__tag {
+  font-size: 19rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+  letter-spacing: 1rpx;
+}
+.item-note__text {
+  font-size: 24rpx;
+  line-height: 1.45;
+  color: #2F2F2F;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.item-empty {
+  padding: 60rpx 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26rpx;
+  color: #A99A86;
+  letter-spacing: 2rpx;
+}
+
+/* ------ 物品留言弹窗 ------ */
+.item-reply-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.item-reply-modal__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.item-reply-modal__sheet {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 16rpx 32rpx 40rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  animation: mailSheetUp 220ms ease-out;
+}
+.item-reply-modal__handle {
+  width: 80rpx;
+  height: 8rpx;
+  margin: 0 auto 20rpx;
+  border-radius: 4rpx;
+  background: #E5DCCB;
+}
+.item-reply-modal__title {
+  font-size: 30rpx;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #2F2F2F;
+  margin-bottom: 20rpx;
+}
+.item-reply-modal__input {
+  width: 100%;
+  min-height: 160rpx;
+  max-height: 300rpx;
+  padding: 22rpx 24rpx;
+  box-sizing: border-box;
+  background: #FBEEDF;
+  border: 2rpx solid #FFDBB3;
+  border-radius: 18rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: #2F2F2F;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.item-reply-modal__placeholder { color: #B69C7C; }
+.item-reply-modal__actions {
+  margin-top: 26rpx;
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.item-reply-modal__btn {
+  flex: 1;
+  height: 84rpx;
+  border-radius: 42rpx;
+  background: #FBEEDF;
+  color: #8A5A2B;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.item-reply-modal__btn--active { background: #8A5A2B; color: #FFFFFF; }
+.item-reply-modal__btn--hover  { opacity: 0.85; }
+
+/* ------ 邮件回复弹窗（点击「回复」触发） ------ */
+.mail-reply-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.mail-reply-modal__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.mail-reply-modal__sheet {
+  position: relative;
+  z-index: 1;
+  background: #FFFFFF;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 16rpx 32rpx 40rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  animation: mailSheetUp 220ms ease-out;
+}
+@keyframes mailSheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.mail-reply-modal__handle {
+  width: 80rpx;
+  height: 8rpx;
+  margin: 0 auto 20rpx;
+  border-radius: 4rpx;
+  background: #E5DCCB;
+}
+.mail-reply-modal__title {
+  font-size: 30rpx;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #2F2F2F;
+  margin-bottom: 20rpx;
+}
+.mail-reply-modal__input {
+  width: 100%;
+  min-height: 200rpx;
+  max-height: 360rpx;
+  padding: 22rpx 24rpx;
+  box-sizing: border-box;
+  background: #FBEEDF;
+  border: 2rpx solid #FFDBB3;
+  border-radius: 18rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: #2F2F2F;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.mail-reply-modal__placeholder {
+  color: #B69C7C;
+}
+.mail-reply-modal__actions {
+  margin-top: 26rpx;
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.mail-reply-modal__btn {
+  flex: 1;
+  height: 84rpx;
+  border-radius: 42rpx;
+  background: #FBEEDF;
+  color: #8A5A2B;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.mail-reply-modal__btn--on     { background: #F0E3D2; color: #A99A86; }
+.mail-reply-modal__btn--active { background: #8A5A2B; color: #FFFFFF; }
+.mail-reply-modal__btn--hover  { opacity: 0.85; }
+
+/* ============================================================
+   位置（Figma 413_669）：现阶段直接用 413_669/1.png 样本图（含猫/pin/5 个
+   模糊地点名/自述），等设计出无字底图后改为：图 + AI 编的动态标签层
+   ============================================================ */
+.loc-view {
+  flex: 0 0 auto;
+}
+.loc-map {
+  display: block;
+  width: 100%;
+  border-radius: 28rpx;
+}
+
+/* ------ 未设计功能占位 ------ */
+.other-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #A99A86;
+  letter-spacing: 4rpx;
+}

@@ -1,0 +1,91 @@
+<!-- ============================================================
+  chat.wxml — 和星猫聊心事（微信风格对话页）
+  ============================================================ -->
+
+<view class="page">
+
+  <!-- =================== 顶部导航栏 =================== -->
+  <view class="chat-nav">
+    <view class="chat-nav__back" bindtap="onBack">
+      <text class="chat-nav__back-icon">‹</text>
+    </view>
+    <view class="chat-nav__center">
+      <image class="chat-nav__avatar" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+      <view class="chat-nav__info">
+        <text class="chat-nav__name">星猫</text>
+        <text class="chat-nav__status">在线</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- =================== 消息列表（可滚动） =================== -->
+  <scroll-view
+    class="msg-list"
+    scroll-y
+    scroll-into-view="{{scrollToView}}"
+    scroll-with-animation
+  >
+    <!-- 时间分隔 -->
+    <view class="msg-time" wx:if="{{messages.length > 0}}">
+      <text class="msg-time__text">{{timeLabel}}</text>
+    </view>
+
+    <!-- 消息循环 -->
+    <block wx:for="{{messages}}" wx:key="id">
+      <!-- 星猫消息（左侧） -->
+      <view class="msg-row msg-row--cat" wx:if="{{item.role === 'cat'}}" id="msg-{{item.id}}">
+        <image class="msg-avatar msg-avatar--cat" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+        <view class="msg-bubble msg-bubble--cat">
+          <text class="msg-text">{{item.content}}</text>
+        </view>
+      </view>
+
+      <!-- 用户消息（右侧） -->
+      <view class="msg-row msg-row--user" wx:else id="msg-{{item.id}}">
+        <view class="msg-bubble msg-bubble--user">
+          <text class="msg-text msg-text--user">{{item.content}}</text>
+        </view>
+        <view class="msg-avatar msg-avatar--user">
+          <image wx:if="{{userAvatar}}" class="msg-avatar__img" src="{{userAvatar}}" mode="aspectFit"></image>
+          <text wx:else class="msg-avatar__me">我</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 星猫正在输入... -->
+    <view class="msg-row msg-row--cat" wx:if="{{typing}}">
+      <image class="msg-avatar msg-avatar--cat" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+      <view class="msg-bubble msg-bubble--cat msg-bubble--typing">
+        <view class="typing-dots">
+          <view class="typing-dot"></view>
+          <view class="typing-dot"></view>
+          <view class="typing-dot"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位，防止被输入栏遮挡 -->
+    <view class="msg-bottom"></view>
+  </scroll-view>
+
+  <!-- =================== 底部输入栏 =================== -->
+  <view class="input-bar">
+    <input
+      class="input-bar__field"
+      value="{{inputText}}"
+      placeholder="说点什么..."
+      placeholder-class="input-bar__placeholder"
+      bindinput="onInput"
+      bindconfirm="onSend"
+      confirm-type="send"
+      adjust-position="{{false}}"
+      cursor-spacing="20"
+    />
+    <view class="input-bar__send {{inputText ? 'input-bar__send--active' : ''}}" bindtap="onSend">
+      <text class="input-bar__send-text">发送</text>
+    </view>
+  </view>
+
+  
+
+</view>

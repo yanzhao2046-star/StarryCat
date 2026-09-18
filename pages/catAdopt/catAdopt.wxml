@@ -1,0 +1,98 @@
+<!-- ============================================
+     catAdopt - 选择你的猫（Figma 523_427）
+     画布 402×874 → 1px ≈ 1.866rpx（按 375 屏宽换算）
+     区块：① 拍摄（AI 生成） ② 领养（6 选 1）
+     ============================================ -->
+
+<view class="page">
+
+  <!-- ========== ① 拍摄 ========== -->
+  <view class="section section-shoot" bindtap="onShoot">
+
+    <view class="section-title">
+      <image class="title-icon" src="/assets/CodeBuddyAssets/523_427/1.svg" mode="aspectFit" />
+      <text class="title-text">拍摄</text>
+    </view>
+
+    <view class="preview">
+      <image
+        wx:if="{{shootImage}}"
+        class="preview-img"
+        src="{{shootImage}}"
+        mode="aspectFill"
+      />
+      <text wx:else class="preview-placeholder">AI\n生成猫\n你的猫</text>
+    </view>
+
+    <view class="desc">
+      <image class="desc-icon" src="/assets/CodeBuddyAssets/523_427/2.svg" mode="aspectFit" />
+      <view class="desc-bar">
+        <text class="desc-text">{{catDesc || catNick || '你的猫的特别说明'}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- ========== ② 领养 ========== -->
+  <view class="section section-adopt">
+
+    <view class="section-title">
+      <image class="title-icon" src="/assets/CodeBuddyAssets/523_427/3.svg" mode="aspectFit" />
+      <text class="title-text">领养</text>
+    </view>
+
+    <view class="cat-grid">
+      <view
+        wx:for="{{cats}}"
+        wx:key="index"
+        class="cat-cell {{selectedIndex === item.index ? 'selected' : ''}}"
+        data-index="{{item.index}}"
+        bindtap="onAdopt"
+      >
+        <image class="cat-thumb" src="{{item.src}}" mode="aspectFit" />
+      </view>
+    </view>
+
+  </view>
+
+  <!-- ========== ③ 取名 · 认养弹层 ========== -->
+  <view class="name-mask {{showNamePanel ? 'name-mask--show' : ''}}" catchtap="onCancelName">
+    <view class="name-sheet" catchtap="onSheetTap">
+
+      <text class="name-title">给它起个名字吧</text>
+      <text class="name-sub">名字会出现在你和它的每次互动里</text>
+
+      <view class="name-preview">
+        <image class="name-preview-img" src="{{pendingCat.src}}" mode="aspectFit" />
+      </view>
+
+      <input
+        class="name-input"
+        value="{{catNick}}"
+        placeholder="输入姓名 / 猫的昵称"
+        placeholder-class="name-placeholder"
+        maxlength="12"
+        focus="{{nameFocus}}"
+        confirm-type="done"
+        bindinput="onNameInput"
+        bindconfirm="onConfirmAdopt"
+      />
+
+      <view class="name-btn {{catNick ? '' : 'name-btn--disabled'}}" bindtap="onConfirmAdopt">认养</view>
+
+    </view>
+  </view>
+
+  <!-- ========== ④ AI 生成中全屏遮罩 ========== -->
+  <view class="gen-mask {{generating ? 'gen-mask--show' : ''}}" catchtouchmove="noop">
+    <view class="gen-card">
+      <view class="gen-spinner"></view>
+      <text class="gen-title">画师正在创作</text>
+      <text class="gen-sub">{{genStep}}</text>
+      <view class="gen-bar">
+        <view class="gen-bar-fill" style="width: {{genPct}}%"></view>
+      </view>
+    </view>
+  </view>
+
+</view>

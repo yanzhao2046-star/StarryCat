@@ -1,0 +1,162 @@
+<!-- ============================================================
+    pages/catItem/catItem.wxml — 猫物 (Figma 429_1103)
+    结构：顶部图标+标题 → 分类胶囊 → 物品网格卡
+          → 提示条「拖入你想组合的物品」→ 3 槽位组合卡
+          → 留言 / 密封 → 底部信封（密封）
+    ============================================================ -->
+<view class="page" bind:touchmove="_onTouchMove">
+
+  <!-- ============== 顶部：猫物图标 + 标题 ============== -->
+  <view class="header">
+    <image class="header-icon" src="/assets/CodeBuddyAssets/429_1103/1.svg" mode="aspectFit"></image>
+    <text class="header-title">物品</text>
+  </view>
+
+  <!-- ============== 分类标签栏 ============== -->
+  <scroll-view scroll-x="true" class="category-row" enhanced="true" show-scrollbar="{{false}}">
+    <view class="cat-chip {{activeCategory === c.id ? 'cat-chip--active' : ''}}"
+          wx:for="{{categories}}" wx:key="id" wx:for-item="c"
+          data-id="{{c.id}}" bindtap="onCategoryTap">{{c.label}}</view>
+    <view class="cat-chip cat-chip--add">+</view>
+  </scroll-view>
+
+  <!-- ============== 物品网格卡 ============== -->
+  <!-- 「卡片」分类里的卡片：图标是卡片配图，方形裁切；其余分类是物品 SVG -->
+  <view class="item-grid-card">
+    <view class="item-grid">
+      <view class="grid-item"
+            wx:for="{{itemsByCategory[activeCategory]}}" wx:key="id" wx:for-item="it"
+            data-id="{{it.id}}"
+            data-source="grid"
+            bindtap="onPickItem"
+            bind:touchstart="_onTouchStart"
+            bind:touchend="_onTouchEnd"
+            bind:touchcancel="_onTouchCancel">
+        <image class="grid-icon {{it.category === 'cards' ? 'grid-icon--card' : ''}}"
+               src="{{it.icon}}"
+               mode="{{it.category === 'cards' ? 'aspectFill' : 'aspectFit'}}"></image>
+        <text class="grid-name">{{it.name}}</text>
+      </view>
+      <view class="grid-empty"
+            wx:if="{{!itemsByCategory[activeCategory] || !itemsByCategory[activeCategory].length}}">该分类暂无物品</view>
+    </view>
+  </view>
+
+  <!-- ============== 提示条 ============== -->
+  <view class="combo-hint">拖入你想组合的物品</view>
+
+  <!-- ============== 组合槽位（拖入 / 点击落入最近的空位） ============== -->
+  <view id="combo" class="combo-card">
+    <view class="combo-slot {{slot.itemId ? 'combo-slot--filled' : ''}}"
+          wx:for="{{slots}}" wx:key="slot" wx:for-item="slot"
+          data-id="{{slot.itemId}}"
+          data-source="slot"
+          data-slot="{{slot.slot}}"
+          bind:touchstart="_onTouchStart"
+          bind:touchend="_onTouchEnd"
+          bind:touchcancel="_onTouchCancel"
+          bindlongtap="onSlotItemLongPress">
+      <image class="combo-icon" wx:if="{{slot.itemId}}" src="{{slot.icon}}" mode="aspectFit"></image>
+    </view>
+  </view>
+
+  <!-- ============== 留言 / 密封 ============== -->
+  <view class="combo-actions">
+    <view class="combo-btn" bindtap="onMessageTap" hover-class="combo-btn--hover">
+      <text>{{comboMessage ? '已留言' : '留言'}}</text>
+    </view>
+    <view class="combo-btn" bindtap="onSealTap" hover-class="combo-btn--hover">
+      <text>密封</text>
+    </view>
+  </view>
+
+  <!-- ============== 底部信封（密封） ==============
+       点击密封 → 信件出现 → 猫把它拿走 → 3s 后猫的回信信封抵达
+       → 点击信封拆开 → 回信内容 -->
+  <view class="seal-wrap" wx:if="{{!replyOpen}}">
+
+    <!-- 回信未到：密封圆 + 信件动画 -->
+    <block wx:if="{{!replyReady}}">
+      <view class="seal-circle" bindtap="onSealCircleTap" hover-class="seal-circle--hover"></view>
+      <view wx:if="{{sealState === 'taken'}}" class="seal-tip">猫已拿走...</view>
+      <image wx:if="{{sealState}}"
+             class="seal-envelope {{sealState === 'letter' ? 'seal-envelope--in' : 'seal-envelope--taken'}}"
+             src="/assets/CodeBuddyAssets/1186_123/1.png"
+             mode="aspectFit"
+             bindtap="onSealCircleTap"></image>
+    </block>
+
+    <!-- 猫的回信抵达：信封（Figma 1207_179，图内自带「猫的回信」字样，点击拆开） -->
+    <block wx:else>
+      <view class="seal-circle"></view>
+      <view class="reply-envelope"
+            bindtap="onReplyOpen"
+            hover-class="reply-envelope--hover">
+        <image class="reply-envelope__img" src="{{replyEnvelope}}" mode="aspectFit"></image>
+      </view>
+    </block>
+  </view>
+
+  <!-- ============== 猫的回信（Figma 1205_175）==============
+       点击空白收起回到密封圆；「保存」把回信存成图片 -->
+  <view class="reply-card" wx:else bindtap="onReplyCardTap">
+    <view class="reply-card__inner">
+      <image class="reply-card__bg" src="{{replyBg}}" mode="aspectFill"></image>
+      <view class="reply-card__text">
+        <text class="reply-card__line" wx:for="{{replyLines}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="reply-card__save"
+            catchtap="onSaveReply"
+            hover-class="reply-card__save--hover">
+        <text class="reply-card__save-text">保存</text>
+      </view>
+    </view>
+    <canvas type="2d" id="replyCanvas" class="reply-canvas"></canvas>
+  </view>
+
+  <!-- ============== 浮动拖动层 ============== -->
+  <view class="drag-layer" wx:if="{{dragItem}}"
+        style="left: {{dragItem.x}}px; top: {{dragItem.y}}px;"
+        bind:touchstart="_onTouchStart"
+        bind:touchmove="_onTouchMove"
+        bind:touchend="_onTouchEnd"
+        bind:touchcancel="_onTouchCancel"
+        data-source="drag"
+        data-id="{{dragItem.itemId}}">
+    <image class="drag-icon" src="{{dragItem.icon}}" mode="aspectFit"></image>
+  </view>
+
+  <!-- ============== 留言弹窗 ============== -->
+  <view class="msg-modal" wx:if="{{msgModalVisible}}">
+    <view class="msg-modal__mask" bindtap="onMessageCancel"></view>
+    <view class="msg-modal__sheet">
+      <view class="msg-modal__handle"></view>
+      <text class="msg-modal__title">给这组物品留一句</text>
+      <textarea
+        class="msg-modal__input"
+        value="{{msgDraft}}"
+        placeholder="写下你想对它说的话…"
+        placeholder-class="msg-modal__placeholder"
+        maxlength="120"
+        auto-height
+        cursor-spacing="20"
+        bindinput="onMessageInput"
+      />
+      <view class="msg-modal__actions">
+        <view class="msg-modal__btn" bindtap="onMessageCancel" hover-class="msg-modal__btn--hover">
+          <text>取消</text>
+        </view>
+        <view class="msg-modal__btn {{msgDraft ? 'msg-modal__btn--active' : ''}}"
+              bindtap="onMessageConfirm" hover-class="msg-modal__btn--hover">
+          <text>收下</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 底部导航（TabBar） ===== -->
+  <view class="page-bottom-tab">
+    <bottom-tab current="store" bindchange="onTabChange" />
+  </view>
+
+</view>

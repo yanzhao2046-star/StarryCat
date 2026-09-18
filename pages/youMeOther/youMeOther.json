@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "comment-panel": "/components/comment-panel/comment-panel",
+    "bottom-tab": "/components/bottomTab/bottomTab"
+  },
+  "navigationBarTitleText": "你我他",
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFFFFF"
+}
