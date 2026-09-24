@@ -10,7 +10,7 @@
       <text class="chat-nav__back-icon">‹</text>
     </view>
     <view class="chat-nav__center">
-      <image class="chat-nav__avatar" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+      <image webp="{{true}}" class="chat-nav__avatar" src="/assets/CodeBuddyAssets/1542_56/1.png" mode="aspectFit"></image>
       <view class="chat-nav__info">
         <text class="chat-nav__name">星猫</text>
         <text class="chat-nav__status">在线</text>
@@ -34,7 +34,7 @@
     <block wx:for="{{messages}}" wx:key="id">
       <!-- 星猫消息（左侧） -->
       <view class="msg-row msg-row--cat" wx:if="{{item.role === 'cat'}}" id="msg-{{item.id}}">
-        <image class="msg-avatar msg-avatar--cat" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+        <image webp="{{true}}" class="msg-avatar msg-avatar--cat" src="/assets/CodeBuddyAssets/1542_56/1.png" mode="aspectFit"></image>
         <view class="msg-bubble msg-bubble--cat">
           <text class="msg-text">{{item.content}}</text>
         </view>
@@ -46,7 +46,7 @@
           <text class="msg-text msg-text--user">{{item.content}}</text>
         </view>
         <view class="msg-avatar msg-avatar--user">
-          <image wx:if="{{userAvatar}}" class="msg-avatar__img" src="{{userAvatar}}" mode="aspectFit"></image>
+          <image webp="{{true}}" wx:if="{{userAvatar}}" class="msg-avatar__img" src="{{userAvatar}}" mode="aspectFit"></image>
           <text wx:else class="msg-avatar__me">我</text>
         </view>
       </view>
@@ -54,7 +54,7 @@
 
     <!-- 星猫正在输入... -->
     <view class="msg-row msg-row--cat" wx:if="{{typing}}">
-      <image class="msg-avatar msg-avatar--cat" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
+      <image webp="{{true}}" class="msg-avatar msg-avatar--cat" src="/assets/CodeBuddyAssets/279_204/5.png" mode="aspectFit"></image>
       <view class="msg-bubble msg-bubble--cat msg-bubble--typing">
         <view class="typing-dots">
           <view class="typing-dot"></view>
@@ -86,24 +86,6 @@
     </view>
   </view>
 
-  <!-- =================== 底部导航栏（星猫说激活） =================== -->
-  <view class="tab-bar">
-    <view class="tab-item" data-tab="moodIsland" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/4.svg" mode="aspectFit"></image>
-      <text class="tab-label">情绪岛</text>
-    </view>
-    <view class="tab-item" data-tab="moodLib" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/3.svg" mode="aspectFit"></image>
-      <text class="tab-label">心情库</text>
-    </view>
-    <view class="tab-item active" data-tab="starTalk" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/2.svg" mode="aspectFit"></image>
-      <text class="tab-label">星猫说</text>
-    </view>
-    <view class="tab-item" data-tab="people" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/1.svg" mode="aspectFit"></image>
-      <text class="tab-label">你我他</text>
-    </view>
-  </view>
+  
 
 </view>

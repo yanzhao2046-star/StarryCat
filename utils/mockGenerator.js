@@ -3,19 +3,19 @@
    生成 2026/07/01 ~ 2026/08/05 的测试数据，替换旧记录
    ================================================================= */
 
-var SHARE_FALLBACK = {
-  '平和放松': { shareText: '有点松弛感在的', shareTip: '松弛不是懒，是你允许自己慢下来。' },
-  '超开心':   { shareText: '今天超快乐！', shareTip: '快乐会传染，多分享一点。' },
-  '充满干劲': { shareText: '冲鸭冲鸭！', shareTip: '你认真起来的样子，真的很酷。' },
-  '认真专注': { shareText: '沉浸式工作/学习中', shareTip: '专注是最好的礼物，送给自己。' },
-  '想歇一会': { shareText: '只想葛优躺', shareTip: '休息不是放弃，是为了更好的出发。' },
-  '有点沮丧': { shareText: 'emo了', shareTip: '允许自己难过，也是一种勇敢。' },
-  '有点迷糊': { shareText: '脑袋嗡嗡的', shareTip: '深呼吸，慢慢来。' },
-  '烦躁生气': { shareText: '气炸了', shareTip: '情绪需要出口，找个方式释放它。' },
-  '偷偷小得意': { shareText: '这波操作稳了！', shareTip: '稳住，你能赢。' },
-  '感恩':     { shareText: '被世界温柔以待', shareTip: '感恩不是示弱，是你看见了光。' },
-  '热爱劳动': { shareText: '今天劳模附体！', shareTip: '努力这件事，从来不会被辜负。' },
-  '团队合作': { shareText: '和队友并肩作战', shareTip: '一个人走得快，一群人走得远。' }
+var MOOD_FALLBACK = {
+  '平和放松': { moodNote: '有点松弛感在的', moodTip: '松弛不是懒，是你允许自己慢下来。' },
+  '超开心':   { moodNote: '今天超快乐！', moodTip: '快乐会传染，多分享一点。' },
+  '充满干劲': { moodNote: '冲鸭冲鸭！', moodTip: '你认真起来的样子，真的很酷。' },
+  '认真专注': { moodNote: '沉浸式工作/学习中', moodTip: '专注是最好的礼物，送给自己。' },
+  '想歇一会': { moodNote: '只想葛优躺', moodTip: '休息不是放弃，是为了更好的出发。' },
+  '有点沮丧': { moodNote: 'emo了', moodTip: '允许自己难过，也是一种勇敢。' },
+  '有点迷糊': { moodNote: '脑袋嗡嗡的', moodTip: '深呼吸，慢慢来。' },
+  '烦躁生气': { moodNote: '气炸了', moodTip: '情绪需要出口，找个方式释放它。' },
+  '偷偷小得意': { moodNote: '这波操作稳了！', moodTip: '稳住，你能赢。' },
+  '感恩':     { moodNote: '被世界温柔以待', moodTip: '感恩不是示弱，是你看见了光。' },
+  '热爱劳动': { moodNote: '今天劳模附体！', moodTip: '努力这件事，从来不会被辜负。' },
+  '团队合作': { moodNote: '和队友并肩作战', moodTip: '一个人走得快，一群人走得远。' }
 }
 
 var EMOTION_CATEGORY = {
@@ -119,7 +119,7 @@ function generateMockRecords() {
       var range = energyRange(moodType)
       var energy = randInt(range[0], range[1])
       var level = getScoreLevel(energy)
-      var fallback = SHARE_FALLBACK[moodType]
+      var fallback = MOOD_FALLBACK[moodType]
       var eventText = randPick(EVENT_POOLS[moodType] || ['日常记录'])
 
       var timeStr = cur.getFullYear() + '.' +
@@ -134,8 +134,8 @@ function generateMockRecords() {
         currentMoodType: moodType,
         emotionCategory: EMOTION_CATEGORY[moodType] || 'neutral',
         eventText: eventText,
-        shareText: fallback.shareText,
-        shareTip: fallback.shareTip,
+        moodNote: fallback.moodNote,
+        moodTip: fallback.moodTip,
         scoreLevel: level,
         hidden: false
       })

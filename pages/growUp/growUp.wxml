@@ -1,7 +1,7 @@
 <!-- ============================================================
   growUp.wxml — 星猫成长页
   Figma 313_1778 蓝图：375×932px → 750rpx
-  容器：padding 0 60rpx（对齐 youMeOther）
+  容器：padding 0 60rpx
   ============================================================ -->
 
 <view class="page">
@@ -21,7 +21,7 @@
       <view class="cat-section-main">
         <!-- 星猫头像圆 -->
         <view class="cat-avatar-wrap">
-          <image class="cat-avatar-img" src="/assets/CodeBuddyAssets/313_1778/5.png" mode="aspectFit"></image>
+          <image webp="{{true}}" class="cat-avatar-img" src="/assets/CodeBuddyAssets/313_1778/5.png" mode="aspectFit"></image>
         </view>
         <!-- 三项数据 -->
         <view class="cat-stats">
@@ -45,7 +45,7 @@
         <text class="rules-title">成长规则</text>
       </view>
       <view class="rules-body">
-        <image class="rules-img" src="/assets/CodeBuddyAssets/313_1778/6.png" mode="widthFix"></image>
+        <image webp="{{true}}" class="rules-img" src="/assets/CodeBuddyAssets/313_1778/6.png" mode="widthFix"></image>
       </view>
     </view>
 
@@ -54,24 +54,6 @@
 
   </scroll-view>
 
-  <!-- ========== 底部导航栏（对齐 youMeOther — 星猫说激活） ========== -->
-  <view class="tab-bar">
-    <view class="tab-item" data-tab="moodIsland" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/4.svg" mode="aspectFit"></image>
-      <text class="tab-label">情绪岛</text>
-    </view>
-    <view class="tab-item" data-tab="moodLib" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/3.svg" mode="aspectFit"></image>
-      <text class="tab-label">心情库</text>
-    </view>
-    <view class="tab-item active" data-tab="starTalk" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/2.svg" mode="aspectFit"></image>
-      <text class="tab-label">星猫说</text>
-    </view>
-    <view class="tab-item" data-tab="people" bindtap="onTabSwitch">
-      <image class="tab-icon" src="/assets/moodLib/1.svg" mode="aspectFit"></image>
-      <text class="tab-label">你我他</text>
-    </view>
-  </view>
+  
 
 </view>

@@ -1,0 +1,84 @@
+/* ============== 底部导航 · 独立浮窗胶囊（Figma 598_140）================
+   设计尺寸 366 × 64px，圆角 32px，底色 #FFD8DC
+   换算 2rpx/px → 732 × 128rpx，圆角 64rpx
+   这里把粉色底压矮到 96rpx（圆角 48rpx）并更贴底，
+   图标 / 文字仍按设计原尺寸，不做缩放
+   5 个 tab 横向均分：房间 / 心情 / 仓库 / 厨房 / 秘境
+   胶囊自身负责宽度、圆角、底色、悬浮阴影；
+   页面侧只需提供一个 position:fixed 的贴底容器即可。
+   ==================================================================== */
+
+.bottom-tab {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+
+  /* 左右各留 9rpx，形成「独立浮窗」的胶囊轮廓 */
+  width: calc(100% - 18rpx);
+  margin-left: auto;
+  margin-right: auto;
+
+  height: 96rpx;
+  padding: 0 16rpx;
+  box-sizing: border-box;
+
+  background: #FFD8DC;
+  border-radius: 48rpx;
+  /* 悬浮投影：让胶囊与页面内容分离 */
+  box-shadow: 0 8rpx 24rpx rgba(255, 154, 168, 0.42);
+  overflow: hidden;
+}
+
+/* 兼容底部安全区（iPhone X+ 等）：只留安全区本身，几乎贴底 */
+.bottom-tab--safe {
+  margin-bottom: calc(8rpx + env(safe-area-inset-bottom));
+}
+
+.tab-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: opacity 0.15s;
+}
+
+.tab-item--active {
+  /* 选中态：紫色（项目主色 #7C3AED） */
+  color: #7C3AED;
+}
+
+.tab-item--active .tab-label {
+  color: #7C3AED;
+  font-weight: 600;
+}
+
+.tab-icon-wrap {
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-icon-wrap--center {
+  /* 心情 tab 图标比其他略大（参考 Figma） */
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.tab-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.tab-label {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #101828;
+  line-height: 1.2;
+}

@@ -59,7 +59,8 @@ page {
 .chat-nav__avatar {
   width: 72rpx;
   height: 72rpx;
-  border-radius: 8rpx;
+  border-radius: 50%;
+  background: #FFD500;
 }
 
 .chat-nav__info {
@@ -131,7 +132,8 @@ page {
 .msg-avatar--cat {
   width: 72rpx;
   height: 72rpx;
-  border-radius: 8rpx;
+  border-radius: 50%;
+  background: #FFD500;
   overflow: hidden;
 }
 
@@ -291,41 +293,4 @@ page {
   color: #101828;
 }
 
-/* ============================================
-   底部导航栏（与 moodRecord 一致，激活"星猫说"）
-   ============================================ */
-.tab-bar {
-  width: 100%;
-  height: 96rpx;
-  margin-top: auto;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom);
-  flex-shrink: 0;
-}
 
-.tab-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4rpx;
-}
-
-.tab-icon {
-  width: 44rpx;
-  height: 44rpx;
-}
-
-.tab-label {
-  font-size: 24rpx;
-  font-weight: 500;
-  color: #000000;
-}
-
-.tab-item.active .tab-label {
-  color: #6155F5;
-  font-weight: 700;
-}

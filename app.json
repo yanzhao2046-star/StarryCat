@@ -1,15 +1,21 @@
 {
   "pages": [
     "pages/onboard/onboard",
-    "pages/moodAdd/moodAdd",
-    "pages/moodDetail/moodDetail",
-    "pages/moodRecord/moodRecord",
-    "pages/moodLib/moodLib",
-    "pages/moodCalendar/moodCalendar",
-    "pages/catCare/catCare",
+    "pages/realm/realm",
     "pages/growUp/growUp",
-    "pages/youMeOther/youMeOther",
-    "pages/chat/chat"
+    "pages/chat/chat",
+    "pages/catRoom/catRoom",
+    "pages/catMoodLib/catMoodLib",
+    "pages/catItem/catItem"
+  ],
+  "subpackages": [
+    {
+      "root": "subpkg_food",
+      "name": "catFood-kitchen",
+      "pages": [
+        "pages/catFood/catFood"
+      ]
+    }
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

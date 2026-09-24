@@ -1,0 +1,12 @@
+<view class="bottom-tab {{safeBottom ? 'bottom-tab--safe' : ''}}">
+  <view class="tab-item {{current === item.key ? 'tab-item--active' : ''}}"
+        wx:for="{{tabs}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onTap">
+    <view class="tab-icon-wrap {{item.key === 'mood' ? 'tab-icon-wrap--center' : ''}}">
+      <image webp="{{true}}" class="tab-icon" src="{{item.icon}}" mode="aspectFit"></image>
+    </view>
+    <text class="tab-label">{{item.label}}</text>
+  </view>
+</view>

@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "bottom-tab": "/components/bottomTab/bottomTab"
+  },
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "秘境",
+  "backgroundColor": "#FFF9F2",
+  "backgroundTextStyle": "dark"
+}

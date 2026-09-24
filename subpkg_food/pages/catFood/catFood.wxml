@@ -1,0 +1,105 @@
+<!-- ============================================================
+     pages/catFood/catFood.wxml — 猫粮 (Figma 460_1279 + 490_1508)
+     ① 顶部 header (粮食图标 + 标题)
+     ② 配方原料卡片 (3行×4列：肉类/蔬菜/水果/维生素，
+        显示剩余克数，点一次减 1 克入碗，长按退回)
+     ③ 碗 (7.png)，碗中按位置叠放已选原料
+     ④ 碗中信息：营养值主显（Σ 克数×营养值/克）+ 克数副显
+        生成猫粮按钮（需三类齐全 + 维生素 1 克）
+     ⑤ 猫粮袋 (Figma 490_1508，右下悬浮，袋身 + 储量进度 + 状态胶囊)
+     ============================================================ -->
+
+<view class="page">
+
+  <!-- 顶部 -->
+  <view class="header">
+    <image webp="{{true}}" class="header-icon" src="/assets/CodeBuddyAssets/460_1279/1.png" mode="aspectFit" data-src="/assets/CodeBuddyAssets/460_1279/1.png" data-tag="header" binderror="onImgError" bindload="onImgLoad"></image>
+    <text class="header-title">粮食</text>
+  </view>
+
+  <!-- 配方原料卡片 -->
+  <view class="food-card">
+    <view class="food-grid">
+      <view class="food-cell food-tier--{{f.tier}} {{f.left <= 0 ? 'food-cell--out' : ''}}"
+            wx:for="{{foods}}" wx:key="id" wx:for-item="f"
+            data-id="{{f.id}}"
+            bindtap="onFoodTap"
+            bindtouchstart="onFoodTouchStart"
+            bindtouchmove="onFoodTouchMove"
+            bindtouchend="onFoodTouchEnd"
+            bindtouchcancel="onFoodTouchCancel"
+            hover-class="food-cell--hover">
+        <image webp="{{true}}" class="food-icon" src="{{f.icon}}" mode="aspectFit" data-src="{{f.icon}}" data-tag="food" binderror="onImgError" bindload="onImgLoad"></image>
+        <text class="food-name">{{f.name}}</text>
+        <view class="food-line">
+          <view class="food-tier-dot"></view>
+          <text class="food-gram">{{f.left}}g</text>
+        </view>
+      </view>
+    </view>
+    <view class="recipe-hint">
+      <text class="recipe-hint-text">点击取 1 克入碗 · 点击碗里的图标退回 · 至少 3 种原料即可生成猫粮</text>
+    </view>
+  </view>
+
+  <!-- 碗 -->
+  <view id="bowl" class="bowl-area">
+    <view class="bowl-stack">
+      <view class="bowl-piece"
+            wx:for="{{bowlPreview}}" wx:key="id"
+            style="left: {{item.lx}}%; top: {{item.ly}}%; transform: rotate({{item.r}}deg); z-index: {{item.z}};"
+            data-id="{{item.foodId}}"
+            bindtap="onBowlPieceTap">
+        <image webp="{{true}}" class="bowl-piece-img" src="{{item.icon}}" mode="aspectFit" binderror="onImgError" bindload="onImgLoad"></image>
+      </view>
+    </view>
+    <image webp="{{true}}" class="bowl-img" src="/assets/CodeBuddyAssets/460_1279/7.png" mode="aspectFit" data-src="/assets/CodeBuddyAssets/460_1279/7.png" data-tag="bowl" binderror="onImgError" bindload="onImgLoad"></image>
+  </view>
+
+  <!-- 碗中数据：营养值为主，克数为辅 -->
+  <view class="bowl-info">
+    <view class="bowl-info-line">
+      <text class="bowl-info-label">营养值</text>
+      <text class="bowl-info-gram">{{bowlNutrition}}</text>
+    </view>
+    <text class="bowl-info-sub">碗中 {{bowlGram}} 克 · 已选 {{bowlCount}} 种原料</text>
+    <text class="bowl-info-detail" wx:if="{{bowlDetail}}">{{bowlDetail}}</text>
+  </view>
+
+  <!-- 生成猫粮按钮 -->
+  <view class="feed-btn {{bowlGram > 0 ? 'feed-btn--on' : ''}}" bindtap="onFeed" hover-class="feed-btn--hover">
+    <text class="feed-btn-text">生成猫粮</text>
+  </view>
+
+  <!-- 猫粮袋（Figma 490_1508）：空/干瘪/半满/饱满 随 totalGram 变化 -->
+  <view class="bag bag--{{bagLevel}} {{bagAnim ? 'bag--pop' : ''}}"
+        bindtap="onBagTap"
+        hover-class="bag--hover">
+    <image webp="{{true}}" class="bag-img" src="/assets/CodeBuddyAssets/490_1508/1.png" mode="aspectFit" data-src="/assets/CodeBuddyAssets/490_1508/1.png" data-tag="bag" binderror="onImgError" bindload="onImgLoad"></image>
+    <view class="bag-meter">
+      <view class="bag-meter-fill" style="width: {{bagPercent}}%;"></view>
+    </view>
+    <view class="bag-pill">
+      <text class="bag-pill-label">{{bagLabel}}</text>
+      <text class="bag-pill-dot">·</text>
+      <text class="bag-pill-gram">营养 {{totalGram}}</text>
+    </view>
+  </view>
+
+  <!-- 拖拽中的原料（浮动层，跟随手指） -->
+  <view class="drag-food" wx:if="{{dragFood}}"
+        style="left: {{dragFood.x}}px; top: {{dragFood.y}}px;">
+    <image webp="{{true}}" class="drag-food-img" src="{{dragFood.icon}}" mode="aspectFit" binderror="onImgError" bindload="onImgLoad"></image>
+  </view>
+
+  <!-- 返回 -->
+  <view class="back-btn" bindtap="onBack" hover-class="back-btn--hover">
+    <text class="back-btn-icon">‹</text>
+  </view>
+
+  <!-- ===== 底部导航（TabBar） ===== -->
+  <view class="page-bottom-tab">
+    <bottom-tab current="kitchen" bindchange="onTabChange" />
+  </view>
+
+</view>

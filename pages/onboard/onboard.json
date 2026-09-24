@@ -1,4 +1,6 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "星星猫宇宙"
+  "navigationStyle": "custom",
+  "navigationBarTextStyle": "black",
+  "disableScroll": true
 }

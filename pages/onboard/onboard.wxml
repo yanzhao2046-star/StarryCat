@@ -1,89 +1,30 @@
 <!-- ============================================
-     onboard - 欢迎登录页
-     Figma 基准 375×852 → 750×1704rpx
-     换算：1px = 2rpx
-     ============================================ -->
+    onboard - 开屏页（Figma 503_1510）
+    Aion 星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
+    交互：点击「开门」图片才进入主功能，无自动跳转
+    ============================================ -->
 
-<view class="page">
+<view class="splash">
 
-  <!-- ====== 内容包装器（236px×486px 居中） ====== -->
-  <view class="content">
-
-    <!-- ****** 标题区域 ****** -->
-    <view class="title-section">
-      <text class="title">欢迎来到\n星星猫宇宙</text>
-      <text class="subtitle">记录情绪 了解内心</text>
-    </view>
-
-    <!-- ****** 表单区域 ****** -->
-    <view class="form-section">
-
-      <!-- ① 昵称 -->
-      <view class="form-group">
-        <text class="form-label">你的昵称</text>
-        <input
-          class="form-input"
-          type="text"
-          maxlength="20"
-          placeholder="给自己取个名字吧"
-          placeholder-class="ph"
-          value="{{nickname}}"
-          bindinput="onNicknameInput"
-        />
-      </view>
-
-      <!-- ② 出生日期 -->
-      <view class="form-group">
-        <text class="form-label">你的出生</text>
-        <picker
-          class="picker-full"
-          mode="date"
-          value="{{birthday}}"
-          start="1970-01-01"
-          end="{{today}}"
-          bindchange="onDateChange"
-        >
-          <view class="form-input picker-row">
-            <text class="{{birthday ? 'val' : 'ph'}}">{{birthday || '选择日期'}}</text>
-            <image class="picker-icon" src="/assets/1.svg" mode="aspectFit" />
-          </view>
-        </picker>
-      </view>
-
-      <!-- ③ 专属图像 — 调用微信拍照/相册选择 -->
-      <view class="form-group">
-        <text class="form-label">你的专属图像</text>
-        <view class="form-input picker-row" bindtap="onAvatarTap">
-          <text class="{{selectedAvatarPath ? 'val' : 'ph'}}">{{selectedAvatarPath ? '已选择' : '选择图像'}}</text>
-          <image class="picker-icon" src="/assets/2.svg" mode="aspectFit" />
-        </view>
-      </view>
-
-      <!-- ④ 选中头像预览（bar 下方居中） -->
-      <view class="avatar-preview" wx:if="{{selectedAvatarPath}}">
-        <image class="avatar-preview-img" src="{{selectedAvatarPath}}" mode="aspectFill"></image>
-      </view>
-
-    </view>
-
-    <!-- ****** 主按钮 ****** -->
-    <button
-      class="submit-btn"
-      hover-class="submit-btn-hover"
-      bindtap="onSubmit"
-    >开启情绪旅程</button>
-
-    <!-- ****** 跳过按钮 — 无需填写资料，直接进入体验 ****** -->
-    <button
-      class="skip-btn"
-      hover-class="skip-btn-hover"
-      bindtap="onSkip"
-    >暂不填写，直接体验</button>
-    <text class="skip-hint">无需注册，可随时补填资料</text>
-
+  <!-- 猫形象（Figma 503_1510 / 2.png）：375×489 → 750×978rpx，top:363 贴底 -->
+  <view class="cat-stack">
+    <image webp="{{true}}" class="cat-layer cat-body" src="/assets/CodeBuddyAssets/503_1510/2.png" mode="widthFix" />
   </view>
 
-  <!-- ====== 右下角装饰图 ====== -->
-  <image class="deco" src="/assets/3.png" mode="aspectFit" />
+  <!-- 品牌字：top:86 → 172rpx -->
+  <view class="brand">
+    <text class="brand-line">Aion</text>
+    <text class="brand-line">星星猫</text>
+  </view>
+
+  <!-- 开门入口：83×89 → 166×178rpx，top:194 → 388rpx，点击进入 -->
+  <view class="door-wrap" bindtap="goHome" hover-class="door-hover">
+    <image webp="{{true}}"
+      class="door"
+      src="/assets/CodeBuddyAssets/503_1510/1.png"
+      mode="aspectFit"
+    />
+    <text class="enter-hint">进入</text>
+  </view>
 
 </view>

@@ -1,0 +1,243 @@
+/* ============================================================
+   realm — 秘境 · 块体拼接小游戏
+   版式按 Figma 458_1225（画布 402×874 → 1px ≈ 1.866rpx）
+   ============================================================ */
+
+page {
+  background: #FFFFFF;
+}
+
+.realm {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #FFFFFF;
+  padding-bottom: calc(170rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* ---------- ① 顶部 ---------- */
+.realm-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50rpx;
+  height: 125rpx;
+}
+
+.realm-head__icon {
+  width: 78rpx;
+  height: 78rpx;
+}
+
+.realm-head__title {
+  margin-top: 2rpx;
+  width: 78rpx;
+  line-height: 40rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: rgba(0, 0, 0, 0.80);
+  font-weight: 400;
+}
+
+/* ---------- ② 组件池（米色容器 + 3 种块体缩略图 + 计数；横向滚） + 右侧文案 ---------- */
+.inv-row {
+  display: flex;
+  align-items: center;
+  margin: 8rpx 30rpx 0;
+  gap: 14rpx;
+}
+
+.inventory {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 160rpx;
+  background: #FFF6F7;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12rpx;
+  padding: 0 20rpx;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+/* 物料已齐备 / 可以生成秘境 —— 来自 Figma 1399_407 selection */
+.inv-ready {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: Inter, "Microsoft YaHei UI", -apple-system, sans-serif;
+  font-size: 24rpx;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.inv-ready__line {
+  display: block;
+}
+
+.inv-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120rpx;
+  height: 190rpx;
+  flex: 0 0 auto;
+  transition: opacity 0.15s;
+}
+
+.inv-slot--empty {
+  opacity: 0.3;
+}
+
+.inv-thumb {
+  width: 110rpx;
+  height: 110rpx;
+}
+
+.inv-count {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: rgba(0, 0, 0, 0.80);
+  font-weight: 300;
+  text-align: center;
+}
+
+/* ---------- ③ 时刻 ---------- */
+/* 时间居中；黑猫已移至画布右上角（canvas-wrap 内绝对定位） */
+.meta-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 14rpx;
+  margin-bottom: 4rpx;
+}
+
+.realm-stamp {
+  font-size: 26rpx;
+  color: #000000;
+  font-family: "Microsoft YaHei UI", -apple-system, sans-serif;
+  font-weight: 290;
+  letter-spacing: 1rpx;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* 画布外层包裹：承载黑猫的绝对定位 + 原 realm-canvas 的外边距 */
+.canvas-wrap {
+  position: relative;
+  margin: 8rpx 30rpx 0;
+}
+
+/* 黑猫：坐在画布右上角顶边上（底部与画布顶边线重合） */
+.realm-cat {
+  position: absolute;
+  top: -106rpx;
+  right: 36rpx;
+  width: 110rpx;
+  height: 118rpx;
+  z-index: 2;
+}
+
+/* ---------- ⑤+ 秘境工具条（提示 / 留言 / 保存） ---------- */
+.realm-bars {
+  display: flex;
+  justify-content: space-between;
+  margin: 16rpx 30rpx 0;
+}
+
+.realm-bar {
+  flex: 1;
+  height: 60rpx;
+  background: #FDF1F4;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.realm-bar + .realm-bar {
+  margin-left: 18rpx;
+}
+
+.realm-bar__label {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.80);
+  font-weight: 300;
+}
+
+/* ---------- ④ 秘境生成 ---------- */
+.realm-generate {
+  margin-top: 14rpx;
+  align-self: center;
+  width: 187rpx;
+  height: 45rpx;
+  background: #FFF6F7;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.realm-generate__label {
+  font-size: 22rpx;
+  color: rgba(0, 0, 0, 0.80);
+  font-weight: 300;
+}
+
+/* ---------- ⑤ 拼接画布（大容器：白底黑边圆角 + 点阵） ---------- */
+.realm-canvas {
+  width: auto;
+  height: 900rpx;
+  background: #FFFFFF;
+  border: 1rpx solid #000000;
+  border-radius: 28rpx;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.board {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.board-tip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 300;
+  letter-spacing: 1rpx;
+  white-space: nowrap;          /* 文案变长变短都不换行，避免整页高度跳动 */
+  pointer-events: none;
+}
+
+.board-tip.is-linked {
+  color: #5FB865;
+}
+
+/* ---------- ⑥ 底部导航 ---------- */
+.realm-bottom-tab {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+  padding-bottom: env(safe-area-inset-bottom);
+}

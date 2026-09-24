@@ -1,0 +1,136 @@
+<!-- ============================================
+  catMoodLib - 猫的心情库
+  整体结构：列表 + 展开 + 评论面板
+    · 列表：猫的近期心情条目
+    · 展开面板：猫的旁白 + 内联评论面板（用户 ↔ 猫 1v1）
+    · 评论走楼中楼：用户评论 → 猫回复（昵称"猫"，基于 moodTip / 回复池）
+  区别：
+    · 主体 = 猫（不是用户）
+    · "心情日历" 入口 → "查看猫物"（猫物面板，未来扩展）
+    · "星星猫语录" → "猫的旁白"（语录内容由猫发，与 moodTip 同源）
+  ============================================ -->
+
+<wxs module="iconMap">
+var icons = ['超开心','偷偷小得意','充满干劲','有点迷糊','认真专注',
+             '有点沮丧','想歇一会','烦躁生气','感恩','热爱劳动',
+             '团队合作','心情DIY'];
+var pool = [5,7,9,11,13,15,17,20,5,7,9,11];
+module.exports = function(mood) {
+  var idx = icons.indexOf(mood);
+  var num = pool[idx] || 5;
+  var ext = '.svg';
+  if (num === 5 || num === 7 || num === 11 || num === 17) {
+    ext = '.png';
+  }
+  return '/assets/moodLib/' + num + ext;
+}
+</wxs>
+<wxs module="fmt">
+// 时间格式化 → "MM.DD HH:mm"（去掉年份）
+//   兼容格式A: "2026-08-06 14:30"（横杠+空格）
+//   兼容格式B: "2026.08.06.14:30"（全点号）
+module.exports.t = function(timeStr) {
+  if (!timeStr) return '';
+  var d, t;
+  if (timeStr.indexOf(' ') !== -1) {
+    var arr = timeStr.split(' ');
+    d = arr[0].split('-');
+    t = arr[1].split(':');
+  } else {
+    var parts = timeStr.split('.');
+    if (parts.length < 4) return timeStr;
+    d = [parts[0], parts[1], parts[2]];
+    t = parts[3].split(':');
+  }
+  if (d.length < 3 || t.length < 2) return timeStr;
+  return d[1] + '.' + d[2] + ' ' + t[0] + ':' + t[1];
+};
+</wxs>
+
+<view class="page">
+
+  <!-- =================== 顶部：标题 + 统计卡片（固定） =================== -->
+  <view class="header">
+    <view class="header-top-row">
+      <view class="header-left">
+        <!-- Figma 471_1339：图标在上，标题在下（同「物品」页头部） -->
+        <image webp="{{true}}" class="header-icon" src="/assets/CodeBuddyAssets/471_1339/1.svg" mode="aspectFit"></image>
+        <view class="header-title">猫的心情</view>
+        <view class="header-subtitle">共 {{recordCount}} 条记录</view>
+      </view>
+    </view>
+
+  </view>
+
+  <scroll-view class="page-body" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+
+  <!-- =================== 空状态占位 =================== -->
+  <view class="empty-state" wx:if="{{isEmpty}}">
+    <image webp="{{true}}" class="empty-icon" src="/assets/moodLib/20.svg" mode="aspectFit"></image>
+    <text class="empty-text">猫还没发心情</text>
+    <text class="empty-sub">等待猫把它的小日子写进来</text>
+  </view>
+
+  <!-- =================== 记录列表 =================== -->
+  <view class="list-scroll" wx:if="{{!isEmpty}}">
+
+    <block wx:for="{{displayList}}" wx:key="id">
+
+      <!-- ====== 紧凑列表条目 (三行布局) ====== -->
+      <view class="record-card {{expandedId === item.id ? 'record-card--expanded' : ''}}">
+        <!-- 左侧情绪头像 -->
+        <image webp="{{true}}" class="rc-icon" src="{{iconMap(item.currentMoodType)}}" mode="aspectFit"></image>
+
+        <!-- 中间内容：三行 -->
+        <view class="rc-body">
+          <!-- 第一行：记录时间 + 分数 -->
+          <view class="rc-row-time">
+            <text class="rc-time">{{fmt.t(item.time)}}</text>
+            <text class="rc-score">{{item.moodEnergy}}</text>
+          </view>
+          <!-- 第二行：情绪名称 + 黑话 -->
+          <view class="rc-row-info">
+            <text class="rc-mood">{{item.currentMoodType}}</text>
+            <text class="rc-note-txt">{{item.moodNote || '—'}}</text>
+          </view>
+          <!-- 第三行：语录（猫的视角："我" = 猫） -->
+          <text class="rc-quote" wx:if="{{item.eventText}}">猫说：{{item.eventText}}</text>
+        </view>
+
+        <!-- 右侧+按钮 -->
+        <view class="rc-btn" catchtap="onExpandToggle" data-id="{{item.id}}">
+          <image webp="{{true}}" class="rc-btn-icon" src="/assets/moodLib/6.svg" mode="aspectFit"></image>
+        </view>
+      </view>
+
+      <!-- ====== 展开详情面板（猫的旁白 + 评论互动） ====== -->
+      <view class="expand-panel" wx:if="{{expandedId === item.id}}">
+        <view class="expand-outer">
+          <view class="expand-inner">
+            <text class="exp-quote-text" wx:if="{{item.moodTip}}">猫的旁白："{{item.moodTip}}"</text>
+
+            <!-- 评论面板：用户评论 → 猫回复（楼中楼） -->
+            <view class="exp-comments">
+              <comment-panel
+                list="{{item.commentList || []}}"
+                targetMoodId="{{item.id}}"
+                selfOpenId="{{selfOpenId}}"
+                bind:sendComment="onSendCommentCatMood"
+              />
+            </view>
+          </view>
+        </view>
+      </view>
+
+    </block>
+
+  </view>
+
+  </scroll-view>
+
+  <!-- ===== 底部导航（TabBar） ===== -->
+  <view class="page-bottom-tab">
+    <bottom-tab current="mood" bindchange="onTabChange" />
+  </view>
+
+</view>

@@ -66,22 +66,4 @@ Page({
     })
   },
 
-  /* ====== 进入聊心事页 ====== */
-  onChatTap() {
-    wx.navigateTo({
-      url: '/pages/catCare/catCare'
-    })
-  },
-
-  /* ====== Tab 切换（对齐 youMeOther data-tab 值） ====== */
-  onTabSwitch(e) {
-    const tab = e.currentTarget.dataset.tab
-    if (tab === 'starTalk') return
-    const routes = {
-      moodIsland: '/pages/moodAdd/moodAdd',
-      moodLib: '/pages/moodLib/moodLib',
-      people: '/pages/youMeOther/youMeOther'
-    }
-    if (routes[tab]) wx.redirectTo({ url: routes[tab] })
-  }
-})
+  })

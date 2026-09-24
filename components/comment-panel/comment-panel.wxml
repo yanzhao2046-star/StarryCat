@@ -50,7 +50,7 @@
 
       <!-- ---- 顶层评论 ---- -->
       <view class="cp-item">
-        <image class="cp-avatar" src="{{parent.avatar}}" mode="aspectFill"></image>
+        <image webp="{{true}}" class="cp-avatar" src="{{parent.avatar}}" mode="aspectFill"></image>
         <view class="cp-body">
           <view class="cp-title-row">
             <text class="cp-nick">{{parent.nickname}}：</text>
@@ -66,7 +66,7 @@
       <!-- ---- 楼中楼回复（缩进） ---- -->
       <block wx:if="{{parent.replies.length > 0}}">
         <view class="cp-item cp-item--reply" wx:for="{{parent.replies}}" wx:key="_id" wx:for-item="reply">
-          <image class="cp-avatar" src="{{reply.avatar}}" mode="aspectFill"></image>
+          <image webp="{{true}}" class="cp-avatar" src="{{reply.avatar}}" mode="aspectFill"></image>
           <view class="cp-body">
             <view class="cp-title-row">
               <text class="cp-nick">{{reply.nickname}}<text class="cp-reply-at" wx:if="{{reply.replyToNick}}"> 回复 {{reply.replyToNick}}</text>：</text>

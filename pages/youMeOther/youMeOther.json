@@ -1,9 +1,0 @@
-{
-  "usingComponents": {
-    "comment-panel": "/components/comment-panel/comment-panel"
-  },
-  "navigationBarTitleText": "你我他",
-  "navigationBarBackgroundColor": "#FFFFFF",
-  "navigationBarTextStyle": "black",
-  "backgroundColor": "#FFFFFF"
-}

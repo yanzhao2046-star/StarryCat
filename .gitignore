@@ -1,0 +1,17 @@
+# IDE 工具与缓存
+.codebuddy/
+tools/
+project.config.json.bak
+project.config.json.bak2
+project.config.json.bak3
+project.private.config.json
+*.bak
+
+# IDE 临时文件
+.idea/
+.vscode/
+.DS_Store
+*.log
+
+# node
+node_modules/

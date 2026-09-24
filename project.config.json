@@ -11,11 +11,672 @@
         "value": ".git"
       },
       {
+        "type": "folder",
+        "value": "tools"
+      },
+      {
+        "type": "folder",
+        "value": "assets/room"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1142_422"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1233_500"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1318_344"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1385_465"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1403_413"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1403_414"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1403_429"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1403_459"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1485_69"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1487_70"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1528_149"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/1528_158"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/269_322"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/275_993"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/313_1509"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/313_1511"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/313_1517"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/313_336"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/398_541"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/398_545"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/398_548"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/401_623"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/404_658"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/408_344"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/417_816"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/I1263_492;54616_25404"
+      },
+      {
+        "type": "folder",
+        "value": "assets/CodeBuddyAssets/realm"
+      },
+      {
         "type": "file",
-        "value": "*.ps1"
+        "value": "assets/CodeBuddyAssets/catRoom/preview-6cats.jpg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/6_79/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/429_1103/A_single_cute_gray_plush_mouse_2026-09-15T12-08-58.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/429_1103/A_single_colorful_yarn_ball_to_2026-09-15T12-08-49.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/429_1103/A_single_feather_teaser_wand_t_2026-09-15T12-08-51.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/starfield.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/6_79/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/8.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/stage-4-sapling.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/6.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/stage-3-branch.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/fire.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/stage-2-sprout.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/stage-1-seed.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/6.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/7.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/12.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/9.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/6.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/8.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/11.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/10.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/labor.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/9.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/team.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/tkgiving.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodAdd/peace.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/3.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/7.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/583_94/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/mono_clip.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1190_148/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/mono_mic.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodRecord/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodDetail/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/mono_trash.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/5.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/moodLib/mono_check.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/2.svg"
+      },
+      {
+        "type": "folder",
+        "value": "cloudfunctions"
+      },
+      {
+        "type": "file",
+        "value": "project.config.json.bak"
+      },
+      {
+        "type": "file",
+        "value": "project.config.json.bak2"
+      },
+      {
+        "type": "file",
+        "value": "project.config.json.bak3"
+      },
+      {
+        "type": "file",
+        "value": "project.private.config.json"
+      },
+      {
+        "type": "file",
+        "value": "README.md"
+      },
+      {
+        "type": "file",
+        "value": "*.bak"
       }
     ],
-    "include": []
+    "include": [
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/6_79/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/6_79/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/5.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/6.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/398_536/7.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/488_1503/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/488_1503/2.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1186_145/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1186_145/2.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/413_669/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1190_148/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1190_148/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1190_148/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1190_148/5.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/503_1510/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/503_1510/2.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/4.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/6.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/7.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/8.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/523_427/9.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/413_675/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/2.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/3.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/4.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/6.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/7.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/8.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/9.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/10.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/11.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/12.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/13.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/460_1279/14.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/600_141/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/583_94/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/583_94/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/583_94/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/583_94/5.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/458_1225/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/313_1778/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/313_1778/6.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1542_56/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/279_204/5.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/2.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/3.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/4.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/5.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/6.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/401_620/7.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/471_1339/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/429_1103/1.svg"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1186_123/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/490_1508/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1205_175/bg.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/1207_179/1.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/catRoom/act01.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/catRoom/act02.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/catRoom/act03.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/catRoom/act06.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/catRoom/act07.png"
+      },
+      {
+        "type": "file",
+        "value": "assets/CodeBuddyAssets/catRoom/act08.png"
+      }
+    ]
   },
   "setting": {
     "urlCheck": true,
@@ -34,7 +695,9 @@
     "checkInvalidKey": true,
     "checkSiteMap": true,
     "uploadWithSourceMap": true,
-    "compileHotReLoad": false,
+    "ignoreUploadUnusedFiles": false,
+    "ignoreDevUnusedFiles": false,
+    "compileHotReLoad": true,
     "lazyloadPlaceholderEnable": false,
     "useMultiFrameRuntime": true,
     "useApiHook": true,
@@ -62,7 +725,20 @@
   "libVersion": "3.17.0",
   "appid": "wx9dc21ed1c7badf51",
   "projectname": "star-cat-universe",
-  "condition": {},
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "秘境 realm",
+          "pathName": "pages/realm/realm",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ],
+      "current": 0
+    }
+  },
   "simulatorPluginLibVersion": {},
   "editorSetting": {}
 }

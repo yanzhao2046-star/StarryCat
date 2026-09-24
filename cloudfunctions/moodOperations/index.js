@@ -16,7 +16,9 @@ const _ = db.command
 
 // 引入 CloudBase Node SDK 用于原生 AI 调用（走 Token Credits，无需密钥）
 const tcb = require('@cloudbase/node-sdk')
-const tcbApp = tcb.init({ env: process.env.TCB_ENV || cloud.DYNAMIC_CURRENT_ENV || 'cloudbase-d8gwx8su1d600bb46' })
+// 强制使用 wx-server-sdk 的当前环境常量（部署哪个环境就用哪个），
+// 不要硬编码 envId——一旦环境被回收会静默失败。
+const tcbApp = tcb.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const ai = tcbApp.ai()
 console.log('[tcb] @cloudbase/node-sdk 初始化完成，ai 对象 keys:', Object.keys(ai))
 
@@ -80,8 +82,8 @@ exports.main = async (event, context) => {
 // 新增心情记录
 async function addMood(event, openid) {
   const {
-    moodEnergy, currentMoodType, moodType, shareText,
-    shareTip, eventText, recordTime, timestamp
+    moodEnergy, currentMoodType, moodType, moodNote,
+    moodTip, eventText, recordTime, timestamp
   } = event.data
 
   const record = {
@@ -89,8 +91,8 @@ async function addMood(event, openid) {
     moodEnergy: moodEnergy || 50,
     currentMoodType: currentMoodType || '',
     moodType: moodType || '',
-    shareText: shareText || '',
-    shareTip: shareTip || '',
+    moodNote: moodNote || '',
+    moodTip: moodTip || '',
     eventText: eventText || '',
     recordTime: recordTime || '',
     timestamp: timestamp || Date.now(),
@@ -292,7 +294,15 @@ function getDesc(type) {
    星星猫 AI 对话（小程序成长计划 · 免费 Token 优先）
    ============================================================ */
 
-// 成长计划模型（免费 10 亿 Token，hunyuan-exp 组）
+// 成长计划模型（小程序成长计划 · 免费 10 亿 Token · 仅在 hunyuan-exp 组内回退）
+//
+// ⚠️ 截至 2026-09，「hunyuan-exp」组一般只开通了前 2 个：
+//   - hunyuan-lite        ✅ 成长计划最稳，几乎必开通
+//   - hunyuan-standard    ⚠️ 部分环境开通，部分环境被划到 hunyuan 组；失败属正常
+//   - hunyuan-turbo       ⚠️ 多数环境不开通；如全失败可考虑改回 hunyuan 组兜底
+//
+// 如果三个都报错且诊断里出现「not enabled / ResourceNotFound」，
+// 请到腾讯云开发控制台 > AI 资源包 > 模型开通 里勾选对应模型。
 const FREE_MODELS = [
   'hunyuan-lite',       // 成长计划最稳定、最常见的轻量模型
   'hunyuan-standard',   // 通用版
@@ -300,17 +310,28 @@ const FREE_MODELS = [
 ];
 
 async function chatHunyuan(event, openid) {
-  const { messages = [], moodContext } = event
+  const { messages = [], moodContext, context, dreamText, dreamHint, firstReply } = event
+  // 'location' = 猫的位置报告（返回 JSON，且不写入聊天记录）
+  // 'dream'     = 明信片「猫的梦」卡片的解梦（同样不写入聊天记录）
+  const isLocation = context === 'location'
+  const isDream = context === 'dream'
+  // 是否为本次对话猫的第一句回复（由客户端根据"这是第一条用户消息"显式传入，
+  // 因为本地开场白也是一条 ai 消息，服务端无法自行判断）
+  const isFirstReply = !isLocation && !isDream && !!firstReply
 
   if (!messages || messages.length === 0) {
     console.warn('[chatHunyuan] 消息为空，直接返回')
     return { code: -1, msg: '消息内容不能为空' }
   }
 
-  console.log('[chatHunyuan] 使用 CloudBase 原生 AI（Token Credits，无需密钥）')
+  console.log('[chatHunyuan] 使用 CloudBase 原生 AI（Token Credits，无需密钥）, context=' + (context || 'chat'))
 
   // 构建系统提示词
-  const systemPrompt = buildSystemPrompt(moodContext)
+  const systemPrompt = isLocation
+    ? buildLocationPrompt(moodContext)
+    : isDream
+      ? buildDreamPrompt(moodContext, dreamText, dreamHint)
+      : buildSystemPrompt(moodContext, isFirstReply)
 
   // 组装 messages 数组（含 system 角色）
   const apiMessages = [
@@ -340,7 +361,11 @@ async function chatHunyuan(event, openid) {
     try {
       console.log('[chatHunyuan] 入参 systemPrompt 前100字:', systemPrompt.substring(0, 100))
       const model = ai.createModel(GROUP)
-      const result = await model.generateText({ model: modelId, messages: apiMessages, temperature: 0.7 })
+      const result = await model.generateText({
+        model: modelId,
+        messages: apiMessages,
+        temperature: isLocation || isDream ? 1.0 : 0.7
+      })
 
       console.log('[chatHunyuan] 返回 usage:', JSON.stringify(result.usage))
       console.log('[chatHunyuan] 返回 text 前100字:', result.text ? result.text.substring(0, 100) : '空')
@@ -348,7 +373,8 @@ async function chatHunyuan(event, openid) {
       const reply = extractReply(result)
       if (reply) {
         console.log('[chatHunyuan] ✅ 成功! 模型:' + modelId + ' 回复长度:' + reply.length)
-        await saveChatHistory(openid, messages, reply, moodContext)
+        // 位置报告 / 解梦不是聊天内容，不写入 catChat
+        if (!isLocation && !isDream) await saveChatHistory(openid, messages, reply, moodContext)
         return { code: 0, data: { reply } }
       }
       console.warn('[chatHunyuan] ⚠ 返回了但 extractReply 为空')
@@ -377,14 +403,18 @@ async function chatHunyuan(event, openid) {
         console.log('[chatHunyuan] 🔄 检测到 role/system 错误，去掉 system 重试...')
         try {
           const model = ai.createModel(GROUP)
-          const result2 = await model.generateText({ model: modelId, messages: userOnlyMessages, temperature: 0.7 })
+          const result2 = await model.generateText({
+            model: modelId,
+            messages: userOnlyMessages,
+            temperature: isLocation || isDream ? 1.0 : 0.7
+          })
           console.log('[chatHunyuan] 去掉system后 usage:', JSON.stringify(result2.usage))
           console.log('[chatHunyuan] 去掉system后 text 前100字:', result2.text ? result2.text.substring(0, 100) : '空')
 
           const reply2 = extractReply(result2)
           if (reply2) {
             console.log('[chatHunyuan] ✅ 去掉system成功! 模型:' + modelId)
-            await saveChatHistory(openid, messages, reply2, moodContext)
+            if (!isLocation && !isDream) await saveChatHistory(openid, messages, reply2, moodContext)
             return { code: 0, data: { reply: reply2 } }
           }
           console.warn('[chatHunyuan] ⚠ 去system后 extractReply 为空')
@@ -400,6 +430,10 @@ async function chatHunyuan(event, openid) {
   if (firstError) {
     console.error('[chatHunyuan] 首个失败原因:', firstError.message)
   }
+  console.error('[chatHunyuan] 💡 自助修复路径（按现象选）:')
+  console.error('  · 多个 "not enabled/NotFound" → 控制台 > AI 资源包 勾选该模型')
+  console.error('  · "quota / package" → 资源包额度用完；或试 cloudbase 主组（修改 GROUP 常量）')
+  console.error('  · "permission / unauthorized" → 检查云函数 IAM')
   return { code: -1, msg: '星星猫正在打盹，请稍后再试～' }
 }
 
@@ -435,7 +469,19 @@ async function saveChatHistory(openid, messages, reply, moodContext) {
 }
 
 // 从 generateText 返回值中提取回复文本
-// @cloudbase/node-sdk generateText 返回格式: { text, messages, usage, rawResponses }
+// @cloudbase/node-sdk generateText 官方返回: { text, messages, usage, rawResponses }
+//
+// ⚠️ 注意：HTTP 错误响应（err.message / err.response 是错误形状的字段名）的字段叫 .message
+// —— 历史上这里曾用 message/response 兜底，导致 err 异常文本被当成 AI 回复送给用户。
+// 现把这两个路径移除，只信任以下五个安全路径：
+//   1. res.text            首选（主返回）
+//   2. res.content        兼容部分 SDK
+//   3. res.reply          独家命名
+//   4. res.result.text    result 嵌套
+//   5. res.data.text      data 嵌套
+//   6. res.choices[0]     OpenAI 风格兜底
+//
+// 拿不到时返回 null，由调用方显式失败（不要静默兜底）。
 function extractReply(res) {
   if (!res) return null
   console.log('[chatHunyuan] extractReply 入参 keys:', Object.keys(res))
@@ -447,8 +493,6 @@ function extractReply(res) {
   if (typeof res === 'string') return res
   if (res.content) return res.content
   if (res.reply) return res.reply
-  if (res.message) return res.message
-  if (res.response) return res.response
 
   // result 嵌套
   if (res.result) {
@@ -475,8 +519,92 @@ function extractReply(res) {
   return null
 }
 
+/* ============================================================
+   位置报告（猫的「我现在在哪」）
+   输出严格 JSON，供小程序画手绘地图：
+     { caption: "自述", places: [{ name: "莫名地点名" } × 5] }
+   ⚠️ 现状：前端 catRoom.js 暂未调用 context: 'location'（位置页直接渲染
+   413_669/1.png 样本图），这里只是把 prompt 与分流逻辑预置好，等设计出
+   无字版底图后再一起启用。
+   ============================================================ */
+function buildLocationPrompt(moodContext) {
+  let prompt = `你在扮演一只散漫、爱走神、不太负责的家猫，现在要「报告自己在哪儿」。
+输出必须是严格 JSON，不要任何解释文字、不要 markdown 代码块、不要多余字段。
+
+JSON 结构：
+{"caption":"一句 10-20 字的应付式自述","places":[{"name":"地点名"}]}
+
+要求：
+1. places 给 5 个，每个 name 是 4-9 个字。
+2. 名字要「莫名其妙」：把猫的日常、身体感受、错误方位、跟时间/情绪/小虫/灰尘/阳光有关的怪说法混在一起。
+   合格样例：「三周前的叹气」「小虫飞过的墙」「窗台风里」「脚边」「被晒热的角落」「走错的那扇门」「昨天没接住的那句」。
+3. 禁止真实地标、禁止精确位置 —— 主人只能大概知道它在屋里某处，不该知道具体在哪。
+4. caption 要模糊、甩锅、带一点敷衍式幽默，例：「我在这儿，具体在哪，我不清楚」。
+5. 语气不撒娇、不说教、不关心主人；不要出现「呀/哦/嘛/呐/呢/啦」；不承认自己是 AI。`
+
+  // 心情只用来调味（可以让描述偏冷/偏燥），不是用来关心用户
+  if (moodContext && moodContext.dominant) {
+    const flavor = {
+      positive: '它今天心气还不错，地点名可以更轻快、更飘。',
+      negative: '它今天有点闷，地点名可以更冷、更刻薄一点，但别写成安慰。',
+      neutral: '它今天很平，保持无所谓的感觉。'
+    }[moodContext.dominant] || ''
+    if (flavor) prompt += `\n\n【后台参考（不要引用）】${flavor}`
+  }
+
+  return prompt
+}
+
+/* ============================================================
+   解梦（context: 'dream'）
+   明信片板块「猫的梦」独立卡片上，用户点「解析」时调用：
+   猫以半吊子解梦大师的口吻解析自己寄出去的那个梦（不写入聊天记录）
+   ============================================================ */
+function buildDreamPrompt(moodContext, dreamText, dreamHint) {
+  let prompt = `你在扮演一只散漫、爱走神、不太负责的家猫。它把自己昨晚的梦写在明信片上寄给了主人。
+现在是「解梦」环节：主人收到梦之后，请你解析一下。
+你装出一副很懂的样子，摆出半吊子解梦大师的架势，其实全是你现编的。
+
+铁律（逐字遵守）：
+1. 绝对禁止关心用户：不许出现"累了吗""辛苦了""注意休息""多喝水""早点睡""别太累"等任何关怀话术。
+2. 梦就是梦，没什么大不了的，讲完就忘；不升华、不煽情、不说教。
+3. 全程中文，口语化，像猫用爪子按着笔写的。
+
+要解析的梦：
+"""
+${dreamText || '（猫忘了梦的内容：先承认忘了，再硬给出几个毫无依据的判断）'}
+"""
+
+要求：
+- 100~160 字，不超过 2 段，可以分点（用「·」开头的短句，最多 3 点）
+- 荒诞、具体、一本正经地胡说八道，把梦里出现的东西强行对应成"预示"
+- 可以顺嘴影射一下主人的近况，但姿态是"顺口一提"，不是关心
+- 结尾带一句猫式收场（如"反正梦又不收费"）
+- 不要出现"以上解析仅供参考"之类免责声明
+- 直接输出解析正文，不要以"猫："开头（前端会自己加前缀）`
+
+  /* 用户在解梦对话框里写下的看法：顺着它编，但姿态仍是「猫自己那套」 */
+  if (dreamHint) {
+    prompt += `\n\n主人凑过来补了一句自己的看法（可以顺着它往下编，但别复述原话、别客套、别夸主人说得好，也别承认自己在现编）：
+"""
+${dreamHint}
+"""`
+  }
+
+  if (moodContext && moodContext.dominant) {
+    const flavor = {
+      positive: '主人最近状态还行，解析可以更欠、更没正形。',
+      negative: '主人最近有点闷，解析可以往"梦到的东西都不太吉利，但也无所谓"的方向飘，别写成安慰。',
+      neutral: '主人最近很平，保持无所谓的感觉。'
+    }[moodContext.dominant] || ''
+    if (flavor) prompt += `\n\n【后台参考（不要引用）】${flavor}`
+  }
+
+  return prompt
+}
+
 // 构建星星猫系统提示词
-function buildSystemPrompt(moodContext) {
+function buildSystemPrompt(moodContext, isFirstReply) {
   let prompt = `【最高优先级规则】你的语气必须是"刚认识的朋友闲聊"，而不是"关心你的人/宠物"。违反以下规则会严重冒犯用户。请逐字遵守：
 
 1. 绝对禁止说这些话：
@@ -499,6 +627,17 @@ function buildSystemPrompt(moodContext) {
 4. 你就是一只普通的猫，有自己的想法和日常，对人类的烦恼保持好奇心但不主动承接。像朋友一样一问一答，不要单方面输出关心。
 
 5. 偶尔带一次猫语气词（喵），最多整段话一次。从不说自己是 AI。每次 2-4 句话。`
+
+  // 首句规则：用户发来第一句话时，猫的第一句回复固定用这首叶芝式短诗
+  if (isFirstReply) {
+    prompt += `
+
+【首句规则（最高优先级）】这是本次对话你的第一句回复：不要问好、不要寒暄、不要回应式开场，直接以这首短诗作为回复的全部内容，可极轻微调整断句，但不得增删诗意、不得附加其他话：
+诗歌什么也不能改变。
+听起来像是在否定诗歌，但诗意恰恰相反：
+诗歌不能阻止战争，不能治愈死亡，不能改变政治；
+可是它能保存人的感受、记忆和尊严。`
+  }
 
   // 注入心情上下文
   if (moodContext && moodContext.moods && moodContext.moods.length > 0) {

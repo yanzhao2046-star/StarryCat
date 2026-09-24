@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "猫的心情库",
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFFFFF",
+  "usingComponents": {
+    "comment-panel": "/components/comment-panel/comment-panel",
+    "bottom-tab": "/components/bottomTab/bottomTab"
+  }
+}
