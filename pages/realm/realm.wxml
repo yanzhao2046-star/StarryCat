@@ -63,6 +63,22 @@
             bindtouchend="onBoardTouchEnd"
             bindtouchcancel="onBoardTouchCancel"></canvas>
     <view class="board-tip {{linked ? 'is-linked' : ''}}">{{tipText}}</view>
+    <!-- 缩放控制：双指缩放 + 单击按钮步进 / 还原 -->
+    <view class="zoom-controls">
+      <view class="zoom-btn" hover-class="zoom-btn--hover" catchtap="onZoomIn">
+        <text class="zoom-btn__glyph">+</text>
+      </view>
+      <view class="zoom-btn" hover-class="zoom-btn--hover" catchtap="onZoomOut">
+        <text class="zoom-btn__glyph">−</text>
+      </view>
+      <view class="zoom-btn" hover-class="zoom-btn--hover" catchtap="onRotateStep" aria-label="旋转45度">
+        <text class="zoom-btn__glyph">⟳</text>
+      </view>
+      <view class="zoom-btn zoom-btn--reset" hover-class="zoom-btn--hover" catchtap="onResetView" aria-label="视图还原">
+        <text class="zoom-btn__glyph">↺</text>
+      </view>
+    </view>
+
     </view>
   </view>
 
