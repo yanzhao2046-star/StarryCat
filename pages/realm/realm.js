@@ -353,6 +353,7 @@ Page({
       layout: null, cssW: 0, cssH: 0,
       boardRect: null, invRect: null,   // 存的是「页面坐标」= 视口坐标 + 测量时的 scrollTop
       scrollTop: 0,
+      view: { scale: 1, offsetX: 0, offsetY: 0, theta: 0, minScale: 0.7, maxScale: 2.8 },
       /* 调试开关（由调试条控制） */
       _snapMode: 'edge', // 'edge' 边线+A；'off' 仅地面
       _showGrid: true,
@@ -1693,7 +1694,22 @@ Page({
     }
   },
 
-  onShareAppMessage() {
+    _zoomBy(factor) {
+    const g = this.game
+    if (!g || !g.view) return
+    let s = g.view.scale * factor
+    if (s < 0.7) s = 0.7
+    if (s > 2.8) s = 2.8
+    g.view.scale = s
+    this.draw()
+  },
+  onZoomIn() { this._zoomBy(1.2) },
+  onZoomOut() { this._zoomBy(1 / 1.2) }
+  onRotateStep() {}
+  onResetView() {}
+
+
+onShareAppMessage() {
     return { title: 'Aion 星星猫 — 秘境', path: '/pages/realm/realm' }
   },
 })
