@@ -1694,22 +1694,38 @@ Page({
     }
   },
 
-    _zoomBy(factor) {
+  /* view controls: +/- zoom step, rotate +45deg, reset */
+  _zoomBy(factor) {
     const g = this.game
     if (!g || !g.view) return
     let s = g.view.scale * factor
-    if (s < 0.7) s = 0.7
-    if (s > 2.8) s = 2.8
+    if (s < g.view.minScale) s = g.view.minScale
+    if (s > g.view.maxScale) s = g.view.maxScale
     g.view.scale = s
     this.draw()
   },
   onZoomIn() { this._zoomBy(1.2) },
-  onZoomOut() { this._zoomBy(1 / 1.2) }
-  onRotateStep() {}
-  onResetView() {}
+  onZoomOut() { this._zoomBy(1 / 1.2) },
+  onRotateStep() {
+    const g = this.game
+    if (!g || !g.view) return
+    const TAU = Math.PI * 2
+    let theta = g.view.theta + Math.PI / 4
+    theta = ((theta + Math.PI) % TAU + TAU) % TAU - Math.PI
+    g.view.theta = theta
+    this.draw()
+  },
+  onResetView() {
+    const g = this.game
+    if (!g || !g.view) return
+    g.view.scale = 1
+    g.view.offsetX = 0
+    g.view.offsetY = 0
+    g.view.theta = 0
+    this.draw()
+  },
 
-
-onShareAppMessage() {
+  onShareAppMessage() {
     return { title: 'Aion 星星猫 — 秘境', path: '/pages/realm/realm' }
   },
 })
