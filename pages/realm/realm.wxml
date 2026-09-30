@@ -71,7 +71,7 @@
       <view class="zoom-btn" hover-class="zoom-btn--hover" catchtap="onZoomOut">
         <text class="zoom-btn__glyph">−</text>
       </view>
-      <view class="zoom-btn" hover-class="zoom-btn--hover" catchtap="onRotateStep" aria-label="旋转45度">
+      <view class="zoom-btn" hover-class="zoom-btn--hover" catchtap="onRotateStep" aria-label="旋转90度">
         <text class="zoom-btn__glyph">⟳</text>
       </view>
       <view class="zoom-btn zoom-btn--reset" hover-class="zoom-btn--hover" catchtap="onResetView" aria-label="视图还原">

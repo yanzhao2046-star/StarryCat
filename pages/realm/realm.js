@@ -210,11 +210,38 @@ function boxQuads(box, L) {
   const zt = zb + h
   const x2 = x1 + w, y2 = y1 + d
   const P = (gx, gy, gz) => proj(L, gx, gy, gz)
-  return {
-    top:   [P(x2, y2, zt), P(x2, y1, zt), P(x1, y1, zt), P(x1, y2, zt)],
-    left:  [P(x1, y2, zt), P(x1, y1, zt), P(x1, y1, zb), P(x1, y2, zb)],
-    right: [P(x1, y1, zt), P(x2, y1, zt), P(x2, y1, zb), P(x1, y1, zb)],
+  const top = [P(x2, y2, zt), P(x2, y1, zt), P(x1, y1, zt), P(x1, y2, zt)]
+  const yaw = L.yaw || 0
+  if (!yaw) {
+    return {
+      top,
+      left:  [P(x1, y2, zt), P(x1, y1, zt), P(x1, y1, zb), P(x1, y2, zb)],
+      right: [P(x1, y1, zt), P(x2, y1, zt), P(x2, y1, zb), P(x1, y1, zb)],
+    }
   }
+  /* yaw ≠ 0：可见侧面随视角变化，按法线动态选，防止旋转后「缺面」
+     · 法线 n 旋转后与视线方向 (1,1) 点积 < 0 → 面朝相机，画
+     · 屏幕朝向 n'x - n'y < 0 → 'left' 槽位（暗面），> 0 → 'right' 槽位（亮面）
+       —— left/right 只是明暗分工槽位，跟屏幕走，与 yaw 无关
+     · 90° 整数倍时恒好选到 2 个侧面（45° 时其中一面会退化成线，所以步进取 90°） */
+  const cos = Math.cos(yaw), sin = Math.sin(yaw)
+  const sides = [
+    { n: [-1, 0], pts: [P(x1, y2, zt), P(x1, y1, zt), P(x1, y1, zb), P(x1, y2, zb)] },  // x1 面
+    { n: [ 1, 0], pts: [P(x2, y1, zt), P(x2, y2, zt), P(x2, y2, zb), P(x2, y1, zb)] },  // x2 面
+    { n: [ 0,-1], pts: [P(x1, y1, zt), P(x2, y1, zt), P(x2, y1, zb), P(x1, y1, zb)] },  // y1 面
+    { n: [ 0, 1], pts: [P(x1, y2, zt), P(x2, y2, zt), P(x2, y2, zb), P(x1, y2, zb)] },  // y2 面
+  ]
+  const quads = { top }
+  for (const s of sides) {
+    const nx = s.n[0] * cos - s.n[1] * sin
+    const ny = s.n[0] * sin + s.n[1] * cos
+    if (nx + ny >= -1e-9) continue          // 背面：不画
+    quads[nx - ny < 0 ? 'left' : 'right'] = s.pts
+  }
+  /* 防御：极端角度只选出 1 面时，另一个槽位复用 top（保持 hitBlock/绘制不崩） */
+  if (!quads.left) quads.left = top
+  if (!quads.right) quads.right = top
+  return quads
 }
 
 function quadPath(ctx, pts) {
@@ -1753,7 +1780,7 @@ Page({
     }
   },
 
-  /* view controls: +/- zoom step, rotate +45deg, reset */
+  /* view controls: +/- zoom step, rotate 90deg (yaw), reset */
   _zoomBy(factor) {
     const g = this.game
     if (!g || !g.view) return
@@ -1766,10 +1793,11 @@ Page({
   onZoomIn() { this._zoomBy(1.2) },
   onZoomOut() { this._zoomBy(1 / 1.2) },
   onRotateStep() {
+    /* 步进 90°（4 个正交视角）：45° 时侧面会退化成线、块体看着缺面，所以不走斜角 */
     const g = this.game
     if (!g || !g.view) return
     const TAU = Math.PI * 2
-    let theta = g.view.theta + Math.PI / 4
+    let theta = g.view.theta + Math.PI / 2
     theta = ((theta + Math.PI) % TAU + TAU) % TAU - Math.PI
     g.view.theta = theta
     this.draw()
