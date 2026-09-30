@@ -619,6 +619,18 @@ Page({
     const { ctx, layout: L, cssW, cssH } = g
 
     ctx.clearRect(0, 0, cssW, cssH)
+    /* 视图变换：绕画布中心做 平移+缩放+旋转（zoom-controls 按钮驱动 g.view）
+       世界坐标 → 屏幕坐标；canvasPoint() 里做严格互逆的逆变换，保证触摸命中不漂 */
+    const v = g.view
+    ctx.save()
+    if (v) {
+      const cx = cssW / 2, cy = cssH / 2
+      ctx.translate(cx + v.offsetX, cy + v.offsetY)
+      ctx.scale(v.scale, v.scale)
+      ctx.rotate(v.theta)
+      ctx.translate(-cx, -cy)
+    }
+
 
     /* ① 最底层：单元网格参考线（SHOW_GRID 调试条上可临时打开） */
     if (SHOW_GRID || g._showGrid) this.drawUnitGrid(ctx, L)
@@ -662,6 +674,8 @@ Page({
       if (g.preview.snap) this.drawSnapIndicator(ctx, L, g.preview.snap)
     }
 
+    /* 复位变换：syncTip 只更新文字，不在画布上画东西 */
+    ctx.restore()
     this.syncTip()
   },
 
@@ -1088,9 +1102,27 @@ Page({
      拖拽中用冻结的 dragRect（纯视口坐标）；非拖拽兜底退回 boardRect + scrollTop */
   canvasPoint(clientX, clientY) {
     const g = this.game
-    if (g.dragRect) return { x: clientX - g.dragRect.left, y: clientY - g.dragRect.top }
-    const r = g.boardRect
-    return { x: clientX - r.left, y: clientY + (g.scrollTop || 0) - r.top }
+    let x, y
+    if (g.dragRect) {
+      x = clientX - g.dragRect.left
+      y = clientY - g.dragRect.top
+    } else {
+      const r = g.boardRect
+      x = clientX - r.left
+      y = clientY + (g.scrollTop || 0) - r.top
+    }
+    /* g.view 的逆变换（屏幕 → 世界），与 draw() 里的 translate/scale/rotate 互逆：
+       缩放/旋转后触摸命中、拖拽吸附仍落在正确的格子上 */
+    const v = g.view
+    if (v && (v.scale !== 1 || v.theta !== 0 || v.offsetX !== 0 || v.offsetY !== 0)) {
+      const cx = (g.cssW || 0) / 2, cy = (g.cssH || 0) / 2
+      const dx = (x - (cx + v.offsetX)) / v.scale
+      const dy = (y - (cy + v.offsetY)) / v.scale
+      const cos = Math.cos(v.theta), sin = Math.sin(v.theta)
+      x = dx * cos + dy * sin + cx
+      y = -dx * sin + dy * cos + cy
+    }
+    return { x, y }
   },
 
   /* 松手磁吸：在指尖落点附近找「最近的有效格」

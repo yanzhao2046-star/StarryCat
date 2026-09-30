@@ -232,6 +232,42 @@ page {
   color: #5FB865;
 }
 
+/* ---------- 画布缩放控制（右下角三按钮：放大 / 缩小 / 还原） ----------
+   用 catchtap 抢手势，按钮按钮区不让 canvas 的 bindtouchstart 误吞成「拖块体起手」 */
+.zoom-controls {
+  position: absolute;
+  right: 16rpx;
+  bottom: 56rpx;       /* 避开 board-tip 文案（bottom: 40rpx + 行高） */
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  z-index: 2;
+}
+.zoom-btn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid #E5D9C2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+.zoom-btn--hover {
+  background: #FFF6E9;
+  border-color: #FFDBB3;
+}
+.zoom-btn__glyph {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #4A3E3D;
+  line-height: 1;
+}
+.zoom-btn--reset .zoom-btn__glyph {
+  font-size: 28rpx;
+}
+
 /* ---------- ⑥ 底部导航 ---------- */
 .realm-bottom-tab {
   position: fixed;
