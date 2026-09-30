@@ -183,6 +183,16 @@ const MAX_Z = CELL * 6
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
 function proj(L, gx, gy, gz) {
+  /* yaw ≠ 0：先把世界 xy 绕棋盘中心旋转（视角绕 Z 轴公转），再走等距投影
+     —— 块体永远立正，画面不会像 ctx.rotate 那样整体歪掉 */
+  const yaw = L.yaw || 0
+  if (yaw) {
+    const cx = LEVEL.nx / 2, cy = LEVEL.ny / 2
+    const dx = gx - cx, dy = gy - cy
+    const cos = Math.cos(yaw), sin = Math.sin(yaw)
+    gx = cx + dx * cos - dy * sin
+    gy = cy + dx * sin + dy * cos
+  }
   return [L.ox + (gx - gy) * L.hw, L.oy - (gx + gy) * L.hh - gz * L.zScale]
 }
 
@@ -283,8 +293,17 @@ function inPoly(px, py, pts) {
    返回 x / y 为整数格（floor）；u / v 为浮点格坐标，供抓取偏移（相对步进）使用 */
 function cellFromPoint(px, py, L, gz = 0) {
   const dx = px - L.ox, dy = L.oy - gz * L.zScale - py
-  const u = (dx / L.hw + dy / L.hh) / 2       // → x
-  const v = (dy / L.hh - dx / L.hw) / 2       // → y
+  let u = (dx / L.hw + dy / L.hh) / 2         // → x
+  let v = (dy / L.hh - dx / L.hw) / 2         // → y
+  /* 逆 yaw：proj() 里绕棋盘中心转了 +yaw，这里转 -yaw 还原成真实网格坐标 */
+  const yaw = L.yaw || 0
+  if (yaw) {
+    const cx = LEVEL.nx / 2, cy = LEVEL.ny / 2
+    const du = u - cx, dv = v - cy
+    const cos = Math.cos(yaw), sin = Math.sin(yaw)
+    u = cx + du * cos + dv * sin
+    v = cy - du * sin + dv * cos
+  }
   return { x: Math.floor(u), y: Math.floor(v), u, v }
 }
 
@@ -619,15 +638,17 @@ Page({
     const { ctx, layout: L, cssW, cssH } = g
 
     ctx.clearRect(0, 0, cssW, cssH)
-    /* 视图变换：绕画布中心做 平移+缩放+旋转（zoom-controls 按钮驱动 g.view）
-       世界坐标 → 屏幕坐标；canvasPoint() 里做严格互逆的逆变换，保证触摸命中不漂 */
+    /* 视图变换：缩放/平移走 canvas 变换；
+       旋转不走 ctx.rotate（那会让画面整体歪掉），而是把 yaw 写进 layout →
+       proj() 绕棋盘中心旋转世界 xy，即「视角绕 Z 轴公转」，块体始终保持立正。
+       取负号：屏幕上的转向与 ⟳ 图标一致（顺时针） */
     const v = g.view
+    L.yaw = v ? -(v.theta || 0) : 0
     ctx.save()
     if (v) {
       const cx = cssW / 2, cy = cssH / 2
       ctx.translate(cx + v.offsetX, cy + v.offsetY)
       ctx.scale(v.scale, v.scale)
-      ctx.rotate(v.theta)
       ctx.translate(-cx, -cy)
     }
 
@@ -798,14 +819,23 @@ Page({
     ctx.restore()
   },
 
-  /* 画家算法：远角 (x+y) 大的先画；同深度低的先画 */
+  /* 画家算法：远角深度大的先画；同深度低的先画
+     深度 ∝ 屏幕远近 = 旋转后的 (gx+gy)（sy = oy - (gx'+gy')·hh）
+     yaw ≠ 0 时 (gx'+gy') 是 (gx,gy) 的线性泛函，块四角取最大即可 */
   paintOrder(board) {
-    return [...board].sort((a, b) => {
-      const fa = (a.x + a.w - 1) + (a.y + a.d - 1)
-      const fb = (b.x + b.w - 1) + (b.y + b.d - 1)
-      if (fa !== fb) return fb - fa
-      if (a.z !== b.z) return a.z - b.z
-      return b.x - a.x
+    const yaw = (this.game && this.game.layout && this.game.layout.yaw) || 0
+    const key = b => {
+      const x2 = b.x + b.w - 1, y2 = b.y + b.d - 1
+      if (!yaw) return x2 + y2
+      const a = Math.cos(yaw) + Math.sin(yaw)
+      const c = Math.cos(yaw) - Math.sin(yaw)
+      return Math.max(b.x * a + b.y * c, b.x * a + y2 * c, x2 * a + b.y * c, x2 * a + y2 * c)
+    }
+    return [...board].sort((p, q) => {
+      const fp = key(p), fq = key(q)
+      if (fp !== fq) return fq - fp
+      if (p.z !== q.z) return p.z - q.z
+      return q.x - p.x
     })
   },
 
@@ -1111,16 +1141,13 @@ Page({
       x = clientX - r.left
       y = clientY + (g.scrollTop || 0) - r.top
     }
-    /* g.view 的逆变换（屏幕 → 世界），与 draw() 里的 translate/scale/rotate 互逆：
-       缩放/旋转后触摸命中、拖拽吸附仍落在正确的格子上 */
+    /* g.view 的逆变换（屏幕 → 世界）：只逆 缩放+平移；
+       旋转的逆由 cellFromPoint 按 L.yaw 做，与 proj() 严格互逆 */
     const v = g.view
-    if (v && (v.scale !== 1 || v.theta !== 0 || v.offsetX !== 0 || v.offsetY !== 0)) {
+    if (v && (v.scale !== 1 || v.offsetX !== 0 || v.offsetY !== 0)) {
       const cx = (g.cssW || 0) / 2, cy = (g.cssH || 0) / 2
-      const dx = (x - (cx + v.offsetX)) / v.scale
-      const dy = (y - (cy + v.offsetY)) / v.scale
-      const cos = Math.cos(v.theta), sin = Math.sin(v.theta)
-      x = dx * cos + dy * sin + cx
-      y = -dx * sin + dy * cos + cy
+      x = (x - (cx + v.offsetX)) / v.scale + cx
+      y = (y - (cy + v.offsetY)) / v.scale + cy
     }
     return { x, y }
   },
