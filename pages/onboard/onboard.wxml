@@ -1,15 +1,25 @@
 <!-- ============================================
     onboard - 开屏页（Figma 503_1510）
-    Aion 星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
-    交互：点击「开门」图片才进入主功能，无自动跳转
+    星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
+    交互：8 向视线猫 —— 手指触摸全屏任意处，猫头/眼睛看向手指方向；
+          抬手 600ms 后回到「上方」待机帧
+    入口：点击「开门」图片进入主功能，无自动跳转
     ============================================ -->
 
-<view class="splash">
+<view class="splash"
+  bindtouchstart="onGazeTouch"
+  bindtouchmove="onGazeTouch"
+  bindtouchend="onGazeEnd"
+  bindtouchcancel="onGazeEnd"
+>
 
-  <!-- 猫形象（Figma 503_1510 / 2.png）：375×489 → 750×978rpx，top:363 贴底 -->
-  <view class="cat-stack">
+  <!-- 静态兜底猫：canvas 8 帧全部预加载完成（画好待机帧）后隐藏，先画后藏无闪烁 -->
+  <view class="cat-stack" wx:if="{{catFallback}}">
     <image webp="{{true}}" class="cat-layer cat-body" src="/assets/CodeBuddyAssets/503_1510/2.png" mode="widthFix" />
   </view>
+
+  <!-- 8 向视线猫：512×512 整猫素材，身体固定仅头部跟随，贴底铺满 -->
+  <canvas type="2d" id="gazeCanvas" class="cat-canvas"></canvas>
 
   <!-- 品牌字：top:86 → 172rpx -->
   <view class="brand">

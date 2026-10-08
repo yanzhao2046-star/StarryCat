@@ -34,6 +34,17 @@ page {
   width: 750rpx;
 }
 
+/* ------ 8 向视线猫 canvas：512×512 方形素材 → 750×750rpx 贴底铺满 ------
+   素材身体/脚位 8 帧一致，同一矩形绘制 → 换帧不跳动 */
+.cat-canvas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 750rpx;
+  height: 750rpx;
+  z-index: 1;
+}
+
 
 /* ------ 品牌字 ------ */
 .brand {
