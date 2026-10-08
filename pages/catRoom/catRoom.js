@@ -23,7 +23,6 @@ const CAT_POSES = [
   { id: 'act02', body: '/assets/CodeBuddyAssets/catRoom/act02.png', box: { left: 37.333, top: 79.000, width: 19.292, height: 16.375 } },
   { id: 'act08', body: '/assets/CodeBuddyAssets/catRoom/act08.png', box: { left: 71.917, top: 17.750, width: 10.333, height:  9.969 } },
 ]
-
 /* ---------- Storage keys ---------- */
 const ITEM_STORAGE_KEY      = 'catItems'
 const ITEM_NOTE_STORAGE_KEY = 'catItemNotes'
@@ -54,6 +53,13 @@ const BRING_ITEM_POOL = [
   { icon: '/assets/CodeBuddyAssets/401_620/7.svg', title: '坐得很端正的玩具熊', category: 'toys' },
 ]
 const pick = arr => arr[Math.floor(Math.random() * arr.length)]
+/* 邮件寄出时间 → "M/D HH:MM"，与邮件一同渲染在内容底部 */
+const formatMailTime = ts => {
+  if (!ts) return ''
+  const d = new Date(ts)
+  const pad = n => n < 10 ? '0' + n : n
+  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
+}
 
 /* chat 开场白池：getGreeting() 随机抽一句（猫的语气·短句·冷幽默） */
 const CAT_FIRST_LINES = [
@@ -216,11 +222,13 @@ Page({
     /* 孤儿梦事件对账：把漏建卡片的 dream 事件补成梦卡（过夜测试 0920 修复） */
     outputs.syncOrphanDreams(behavior.getState().events)
     const dream = outputs.getLatestDream()
+    const latestMail = outputs.getLatestMail()
+    const latestPlace = outputs.getLatestPlace()
     const patch = {
-      mail: outputs.getLatestMail(),
+      mail: latestMail ? { ...latestMail, timeText: formatMailTime(latestMail.createdAt) } : null,
       postcard: outputs.getLatestTravel(),
       dream: dream ? { ...dream, interpreting: false } : null,
-      locationPlace: outputs.getLatestPlace(),
+      locationPlace: latestPlace ? { ...latestPlace, timeText: formatMailTime(latestPlace.at) } : null,
     }
     if (dream) patch['dream.saved'] = dream.saved || this.isDreamCardSaved(dream.no)
     this.setData(patch)
@@ -243,7 +251,10 @@ Page({
           this.setData({ catPoses: [] })
           const place = outputs.addPlace()
           const mail = outputs.addMail()
-          this.setData({ locationPlace: place, mail })
+          this.setData({
+            locationPlace: { ...place, timeText: formatMailTime(place.at) },
+            mail: { ...mail, timeText: formatMailTime(mail.createdAt) },
+          })
           this.catBubble('（猫溜出门去了，还发来一封邮件）')
           break
         }
@@ -650,8 +661,41 @@ Page({
     })
   },
 
-  onMailForward() {
-    wx.showToast({ title: '转发功能待开放', icon: 'none' })
+  /* 「保存」→ 邮件收进物品库（catItem）的「卡片」分类（catItemCards，与秘境/回信卡片同库）
+     同一封邮件只收一次（按 mailId 去重）；图标用信封 1207_179/1。
+     保存后从邮件列表中移除，并清空 other · 邮件 tab 的展示（仓库里仍保留卡片） */
+  onMailSave() {
+    const mail = this.data.mail
+    if (!mail) return
+    try {
+      let list = wx.getStorageSync(ITEM_CARD_STORAGE_KEY) || []
+      if (!Array.isArray(list)) list = []
+      if (list.some(c => c && c.source === 'mail' && c.mailId === mail.id)) {
+        wx.showToast({ title: '已经保存过啦', icon: 'none' })
+        /* 已存过也清掉面板（防止刷新后再次出现） */
+        outputs.removeMail(mail.id)
+        this.setData({ mail: null, mailReplies: [], mailMessageId: 0 })
+        return
+      }
+      list.unshift({
+        id: 'mailcard_' + Date.now(),
+        name: '猫的邮件',
+        category: 'cards',
+        icon: '/assets/CodeBuddyAssets/1207_179/1.png',
+        cover: '/assets/CodeBuddyAssets/1207_179/1.png',
+        source: 'mail',
+        mailId: mail.id,
+        text: mail.text,
+        createdAt: Date.now(),
+      })
+      wx.setStorageSync(ITEM_CARD_STORAGE_KEY, list)
+      /* 从邮件列表移除 + 清空 other · 邮件 tab（仓库里那张卡片仍在） */
+      outputs.removeMail(mail.id)
+      this.setData({ mail: null, mailReplies: [], mailMessageId: 0 })
+      wx.showToast({ title: '已存入卡片库', icon: 'success', duration: 1200 })
+    } catch (e) {
+      wx.showToast({ title: '保存失败', icon: 'none' })
+    }
   },
 
   /* 邮件回复弹窗 */
@@ -784,14 +828,38 @@ Page({
     })
   },
 
-  /* 「保存」按钮 → 写入本地收藏 */
+  /* 「保存」→ 旅卡收进物品库（catItem）的「卡片」分类。
+     保存后从源列表移除，并清空 other · 明信片 tab 顶部那张 Meow Post（梦卡 DR Post 仍独立显示）。
+     与邮件保存一致：仓库里始终能看回，other tab 不再出现 */
   onPostcardSave() {
+    const card = this.data.postcard
+    if (!card) return
     try {
-      const saved = wx.getStorageSync('savedPostcards') || []
-      const id = this.data.postcard.no
-      if (!saved.includes(id)) saved.push(id)
-      wx.setStorageSync('savedPostcards', saved)
-      wx.showToast({ title: '已收藏到相册', icon: 'success', duration: 1200 })
+      let list = wx.getStorageSync(ITEM_CARD_STORAGE_KEY) || []
+      if (!Array.isArray(list)) list = []
+      if (list.some(c => c && c.source === 'postcard' && c.postcardId === card.id)) {
+        wx.showToast({ title: '已经保存过啦', icon: 'none' })
+        outputs.removeTravelCard(card.id)
+        this.setData({ postcard: null })
+        return
+      }
+      list.unshift({
+        id: 'postcardcard_' + Date.now(),
+        name: '猫的明信片 No.' + card.no,
+        category: 'cards',
+        icon: card.photo,
+        cover: card.photo,
+        source: 'postcard',
+        postcardId: card.id,
+        no: card.no,
+        photo: card.photo,
+        quote: card.quote,
+        createdAt: Date.now(),
+      })
+      wx.setStorageSync(ITEM_CARD_STORAGE_KEY, list)
+      outputs.removeTravelCard(card.id)
+      this.setData({ postcard: null })
+      wx.showToast({ title: '已存入卡片库', icon: 'success', duration: 1200 })
     } catch (e) {
       wx.showToast({ title: '保存失败', icon: 'none' })
     }
@@ -807,6 +875,42 @@ Page({
       return
     }
     this.setData({ dreamDialogVisible: true })
+  },
+
+  /* 「保存」→ 去处收进物品库（catItem）的「卡片」分类。
+     保存后从源列表移除，并清空 other · 位置 tab 的展示（仓库里仍保留卡片）。
+     与邮件/明信片保存一致 */
+  onPlaceSave() {
+    const place = this.data.locationPlace
+    if (!place) return
+    try {
+      let list = wx.getStorageSync(ITEM_CARD_STORAGE_KEY) || []
+      if (!Array.isArray(list)) list = []
+      if (list.some(c => c && c.source === 'place' && c.placeId === place.id)) {
+        wx.showToast({ title: '已经保存过啦', icon: 'none' })
+        outputs.removePlace(place.id)
+        this.setData({ locationPlace: null })
+        return
+      }
+      list.unshift({
+        id: 'placecard_' + Date.now(),
+        name: place.name,
+        category: 'cards',
+        icon: '/assets/CodeBuddyAssets/413_669/1.png',
+        cover: '/assets/CodeBuddyAssets/413_669/1.png',
+        source: 'place',
+        placeId: place.id,
+        note: place.note,
+        at: place.at,
+        createdAt: Date.now(),
+      })
+      wx.setStorageSync(ITEM_CARD_STORAGE_KEY, list)
+      outputs.removePlace(place.id)
+      this.setData({ locationPlace: null })
+      wx.showToast({ title: '已存入卡片库', icon: 'success', duration: 1200 })
+    } catch (e) {
+      wx.showToast({ title: '保存失败', icon: 'none' })
+    }
   },
 
   isDreamCardSaved(no) {

@@ -337,12 +337,20 @@ Page({
     }, 1200)
   },
 
-  /* ---- 强制重建 displayList（互动/评论后让 comment-panel observer 触发） ---- */
+  /* ---- 强制重建 displayList（互动/评论后让 comment-panel observer 触发） ----
+     关键：从 store 取 rx 新推入的评论 / 猫回复，再合并进 displayList。
+     旧版直接 map(this.data.displayList) 会丢失 storage 里刚 push 的增量，导致 UI 看不到自己发的评论、猫的回复也出不来 */
   _refreshDisplay() {
-    const newList = this.data.displayList.map(item => ({
-      ...item,
-      commentList: item.commentList ? item.commentList.slice() : []
-    }))
+    const records = wx.getStorageSync('catMoodRecords') || []
+    const byId = {}
+    records.forEach(r => { byId[r.id] = r })
+    const newList = (this.data.displayList || []).map(item => {
+      const fresh = byId[item.id]
+      if (fresh && Array.isArray(fresh.commentList)) {
+        return { ...item, commentList: fresh.commentList.slice() }
+      }
+      return item
+    })
     this.setData({ displayList: newList })
   },
 

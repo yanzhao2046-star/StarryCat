@@ -192,15 +192,20 @@
             </view>
           </view>
 
-          <!-- 回复 / 转发 按钮（点击回复弹出文本录入窗口） -->
+          <!-- 邮件寄出时间（系统时间，落在内容底部 / 按钮之上） -->
+          <view class="mail-card__meta" wx:if="{{mail.timeText}}">
+            <text class="mail-card__time">猫寄于 {{mail.timeText}}</text>
+          </view>
+
+          <!-- 回复 / 保存 按钮（点击回复弹出文本录入窗口，保存收进物品库卡片） -->
           <view class="mail-card__actions">
             <view class="mail-action" bindtap="onMailReply" hover-class="other-btn--hover">
               <image webp="{{true}}" class="mail-action__icon" src="/assets/CodeBuddyAssets/398_536/6.svg" mode="aspectFit" />
               <text class="mail-action__label">回复</text>
             </view>
-            <view class="mail-action" bindtap="onMailForward" hover-class="other-btn--hover">
-              <image webp="{{true}}" class="mail-action__icon" src="/assets/CodeBuddyAssets/398_536/7.svg" mode="aspectFit" />
-              <text class="mail-action__label">转发</text>
+            <view class="mail-action" bindtap="onMailSave" hover-class="other-btn--hover">
+              <image webp="{{true}}" class="mail-action__icon" src="/assets/CodeBuddyAssets/398_536/8.svg" mode="aspectFit" />
+              <text class="mail-action__label">保存</text>
             </view>
           </view>
 
@@ -410,6 +415,14 @@
             <view class="loc-caption">
               <text class="loc-caption__name">猫去过：{{locationPlace.name}}</text>
               <text class="loc-caption__note" wx:if="{{locationPlace.note}}">{{locationPlace.note}}</text>
+              <text class="loc-caption__time" wx:if="{{locationPlace.timeText}}">猫路过于 {{locationPlace.timeText}}</text>
+            </view>
+
+            <!-- 底部保存按钮 -->
+            <view class="loc-actions">
+              <view class="loc-action" bindtap="onPlaceSave" hover-class="other-btn--hover">
+                <text class="loc-action__label">保存</text>
+              </view>
             </view>
           </block>
         </view>

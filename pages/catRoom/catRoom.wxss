@@ -408,15 +408,27 @@ page {
   height: 32rpx;
 }
 
-/* 回复 / 转发按钮（两端对齐各一） */
+/* 邮件寄出时间（内容底部、按钮之上）：右对齐、次级棕字 */
+.mail-card__meta {
+  margin-top: 18rpx;
+  text-align: right;
+}
+.mail-card__time {
+  font-size: 20rpx;
+  color: #A99A86;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* 回复 / 保存按钮（保存位置不变，两按钮紧靠右排列） */
 .mail-card__actions {
   flex: 0 0 auto;
   margin-top: 20rpx;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 16rpx;
 }
 .mail-action {
-  width: 295rpx;
+  width: 196rpx;
   height: 67rpx;
   border-radius: 34rpx;
   background: #FFFFFF;
@@ -1326,6 +1338,39 @@ page {
 .loc-caption__note {
   font-size: 22rpx;
   color: #A99A86;
+}
+.loc-caption__time {
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: #A99A86;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* 位置卡：底部保存按钮（沿用 postcard/mail 视觉：白底 + #FFDBB3 描边 + 圆胶囊） */
+.loc-actions {
+  flex: 0 0 auto;
+  margin-top: 22rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+}
+.loc-action {
+  flex: 0 0 auto;
+  width: 196rpx;
+  height: 60rpx;
+  border-radius: 30rpx;
+  background: #FFFFFF;
+  border: 1rpx solid #FFDBB3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease;
+}
+.loc-action__label {
+  font-size: 21rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
 }
 
 /* ------ 未设计功能占位 ------ */

@@ -144,6 +144,15 @@ function addTravelCard() {
 }
 function getTravelCards() { return _read(TRAVEL_KEY, []) }
 function getLatestTravel() { const l = getTravelCards(); return l.length ? l[0] : null }
+/* 旅卡被收入物品库后，从源列表移除（防止下次恢复时再次出现在 other · 明信片 tab） */
+function removeTravelCard(id) {
+  const list = _read(TRAVEL_KEY, [])
+  if (!Array.isArray(list) || !list.length) return false
+  const next = list.filter(c => c && c.id !== id)
+  if (next.length === list.length) return false
+  _write(TRAVEL_KEY, next)
+  return true
+}
 
 /* ============================================================
    邮件（goOut · 猫出发了才发来邮件）
@@ -167,6 +176,15 @@ function addMail() {
 }
 function getMails() { return _read(MAIL_KEY, []) }
 function getLatestMail() { const l = getMails(); return l.length ? l[0] : null }
+/* 邮件被收入卡片后，从邮件列表里移出（防止下次恢复时又出现在 other · 邮件 tab） */
+function removeMail(id) {
+  const list = _read(MAIL_KEY, [])
+  if (!Array.isArray(list) || !list.length) return false
+  const next = list.filter(m => m && m.id !== id)
+  if (next.length === list.length) return false
+  _write(MAIL_KEY, next)
+  return true
+}
 
 /* ============================================================
    外出去处（goOut · 位置 tab 的地图）
@@ -195,6 +213,15 @@ function addPlace() {
 }
 function getPlaces() { return _read(PLACE_KEY, []) }
 function getLatestPlace() { const l = getPlaces(); return l.length ? l[0] : null }
+/* 去处被收入物品库后，从源列表移除（防止下次恢复时再次出现在 other · 位置 tab） */
+function removePlace(id) {
+  const list = _read(PLACE_KEY, [])
+  if (!Array.isArray(list) || !list.length) return false
+  const next = list.filter(p => p && p.id !== id)
+  if (next.length === list.length) return false
+  _write(PLACE_KEY, next)
+  return true
+}
 
 /* ============================================================
    秘境物料（giveStairs · 猫叼回楼梯部件）
@@ -286,11 +313,11 @@ module.exports = {
   addDreamCard, getDreamCards, getLatestDream, updateDreamCard, syncOrphanDreams,
   countInterpretedDreams, CRYSTAL_NEED,
   /* 旅卡 / 明信片 */
-  addTravelCard, getTravelCards, getLatestTravel,
+  addTravelCard, getTravelCards, getLatestTravel, removeTravelCard,
   /* 邮件 */
-  addMail, getMails, getLatestMail,
+  addMail, getMails, getLatestMail, removeMail,
   /* 去处（位置地图） */
-  addPlace, getPlaces, getLatestPlace,
+  addPlace, getPlaces, getLatestPlace, removePlace,
   /* 秘境物料 / 解锁 */
   getMaterials, addRealmMaterial, seedMaterialsForTest, MATERIAL_CAPS, MATERIAL_NAMES,
   unlockRealm, isRealmUnlocked,
