@@ -13,7 +13,6 @@
 
   <!-- 品牌字：top:86 → 172rpx -->
   <view class="brand">
-    <text class="brand-line">Aion</text>
     <text class="brand-line">星星猫</text>
   </view>
 
