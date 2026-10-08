@@ -1,8 +1,8 @@
 <!-- ============================================
-    onboard - 开屏页（Figma 503_1510）
+    onboard - 开屏页（Figma 3_5）
     星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
     猫形象：单张静态图（参考图「首页动画」735×1319，贴底 widthFix）
-    入口：点击「开门」图片进入主功能，无自动跳转
+    入口：无 icon —— 点击「进入」文字直接进猫房
     ============================================ -->
 
 <view class="splash">
@@ -12,19 +12,14 @@
     <image class="cat-layer cat-body" src="/assets/CodeBuddyAssets/onboardCat/main.jpg" mode="widthFix" />
   </view>
 
-  <!-- 品牌字：top:86 → 172rpx -->
+  <!-- 品牌字：Figma 3_5 top:231 → 462rpx -->
   <view class="brand">
     <text class="brand-line">星星猫</text>
   </view>
 
-  <!-- 开门入口：83×89 → 166×178rpx，top:194 → 388rpx，点击进入 -->
-  <view class="door-wrap" bindtap="goHome" hover-class="door-hover">
-    <image webp="{{true}}"
-      class="door"
-      src="/assets/CodeBuddyAssets/503_1510/1.png"
-      mode="aspectFit"
-    />
-    <text class="enter-hint">进入</text>
+  <!-- 进入入口（唯一点击区）：无 icon，点击直接进入 -->
+  <view class="enter-wrap" bindtap="goHome" hover-class="enter-hover">
+    <text class="enter-text">进入</text>
   </view>
 
 </view>

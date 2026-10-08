@@ -35,11 +35,11 @@ page {
 }
 
 
-/* ------ 品牌字 ------ */
+/* ------ 品牌字（Figma 3_5：文字块 top:231 → 462rpx，下移） ------ */
 .brand {
   position: absolute;
   left: 184rpx;
-  top: 172rpx;
+  top: 462rpx;
   width: 384rpx;
   height: 276rpx;
   z-index: 2;
@@ -58,34 +58,27 @@ page {
   text-align: center;
 }
 
-/* ------ 开门入口（唯一点击区）------ */
-.door-wrap {
+/* ------ 进入入口（唯一点击区，Figma 3_5：无 icon，top:340 → 680rpx 居中） ------ */
+.enter-wrap {
   position: absolute;
-  left: 292rpx;
-  top: 388rpx;
-  width: 166rpx;
+  left: 0;
+  width: 100%;
+  top: 680rpx;
   z-index: 2;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: door-pulse 2s ease-in-out infinite;
+  justify-content: center;
+  animation: enter-pulse 2s ease-in-out infinite;
 }
 
-.door {
-  width: 166rpx;
-  height: 178rpx;
-}
-
-.enter-hint {
-  margin-top: 8rpx;
-  font-size: 30rpx;
+.enter-text {
+  font-size: 30rpx;              /* Figma 15px → 30rpx */
   font-weight: 400;
   color: #000000;
-  text-align: center;
+  padding: 16rpx 48rpx;          /* 扩大点击热区 */
 }
 
-.door-hover {
-  opacity: 0.65;
+.enter-hover {
+  opacity: 0.6;
 }
 
 /* ------ 动画 ------ */
@@ -100,7 +93,7 @@ page {
   }
 }
 
-@keyframes door-pulse {
+@keyframes enter-pulse {
   0%, 100% {
     transform: scale(1);
   }
