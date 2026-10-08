@@ -4,11 +4,11 @@
 // 选猫页（catAdopt）暂时隐藏：统一默认黑猫，直接进猫房
 //
 // 8 向视线猫（canvas type=2d）：
-//   · 8 张 512×512 整猫素材（catGaze/），身体一致仅头部/眼睛方向不同 → 换帧不跳动
+//   · 8 张 512×512 整猫素材（catGaze/），脚部锚点对齐后身体重合、仅头/眼方向不同
 //   · 全屏触摸 → 相对猫中心 atan2 角度 → 45° 一档的 8 向分区
 //   · 防抖：45° 分区本身粗粒度 + 140ms 最短驻留，边界抖动不切帧
-//   · 过渡：帧间线性交叉淡化 140ms（速度均匀不卡顿）
-//   · 抬手 600ms 后淡回「上方」待机帧
+//   · 切帧 = 瞬切（不做交叉淡化：整猫素材头部位移大，淡化必出「双头重影」）
+//   · 抬手 600ms 后切回「上方」待机帧
 //   · 8 帧全部预加载完成才首绘，静态 2.png 兜底图先画后藏，无闪烁
 
 /* 默认黑猫（523_427/8.webp），首次进入自动认养 */
@@ -33,12 +33,11 @@ const GAZE_FILES = [
   '/assets/CodeBuddyAssets/catGaze/upperLeft.png',   // 7 左上
 ]
 const GAZE_IDLE = 0          // 待机帧：上方
-const GAZE_FADE_MS = 90      // 交叉淡化时长（短 + ease-out：重叠窗口极小，读作快速转头）
 const GAZE_DWELL_MS = 140    // 同向最短驻留（防抖）
 const GAZE_IDLE_DELAY = 600  // 抬手后回待机的延迟
 
 /* 脚部锚点对齐（素材像素，实测）：每帧绘制位置的平移量，让 8 帧身体/脚完全重合。
-   不对齐时 lowerLeft 偏 -13.6px、lowerRight 偏 +6.6px——交叉淡化时整猫错位出重影 */
+   不对齐时 lowerLeft 偏 -13.6px、lowerRight 偏 +6.6px——瞬切时整猫错位会跳一下 */
 const GAZE_FEET_DX = [0, -0.8, 0.6, 6.6, 0.3, -13.6, -0.4, -0.2]
 const GAZE_FEET_DY = [0, 0, 0, 3, 0, 0, 0, -1]
 
@@ -72,10 +71,8 @@ Page({
         canvas, ctx,
         cssW: info.width, cssH: info.height,
         rect: { left: info.left, top: info.top },   // 开屏页无滚动，量一次即可
-        imgs: [], draw: null,
-        shown: GAZE_IDLE,          // 当前（目标）显示帧
-        fadeFrom: GAZE_IDLE, fadeTo: GAZE_IDLE, fadeStart: 0,
-        animating: false,
+        imgs: [], draw: null, srcScale: 1,
+        shown: GAZE_IDLE,          // 当前显示帧
         lastSwitch: 0,
         ready: false, idleTimer: null,
       }
@@ -111,16 +108,23 @@ Page({
   },
 
   /* 带脚部锚点对齐的单帧绘制：idx 帧平移 GAZE_FEET_DX/DY × srcScale 后画 */
-  _gazeDrawImg(idx, alpha) {
+  _gazeDrawImg(idx) {
     const gz = this._gaze
     const img = gz.imgs[idx]
     if (!img) return
     const d = gz.draw
     const x = d.x + (GAZE_FEET_DX[idx] || 0) * gz.srcScale
     const y = d.y + (GAZE_FEET_DY[idx] || 0) * gz.srcScale
-    if (alpha !== undefined && alpha < 1) gz.ctx.globalAlpha = alpha
     gz.ctx.drawImage(img, x, y, d.w, d.h)
-    if (alpha !== undefined && alpha < 1) gz.ctx.globalAlpha = 1
+  },
+
+  /* 瞬切帧：整猫素材头部位移大，交叉淡化必然「双头重影」；脚部已对齐，瞬切读作干脆转头 */
+  _gazeSwitch(target) {
+    const gz = this._gaze
+    if (target === gz.shown || !gz.imgs[target]) return
+    gz.shown = target
+    gz.ctx.clearRect(0, 0, gz.cssW, gz.cssH)
+    this._gazeDrawImg(target)
   },
 
   /* 手指位置 → 相对猫中心的角度 → 8 向档位 */
@@ -142,54 +146,19 @@ Page({
     const now = Date.now()
     if (k !== gz.shown && now - gz.lastSwitch >= GAZE_DWELL_MS) {
       gz.lastSwitch = now
-      this._gazeFade(k)
+      this._gazeSwitch(k)
     }
   },
 
-  /* 手指离开 → 延迟淡回待机帧 */
+  /* 手指离开 → 延迟切回待机帧 */
   onGazeEnd() {
     const gz = this._gaze
     if (!gz || !gz.ready) return
     if (gz.idleTimer) clearTimeout(gz.idleTimer)
     gz.idleTimer = setTimeout(() => {
       gz.idleTimer = null
-      this._gazeFade(GAZE_IDLE)
+      this._gazeSwitch(GAZE_IDLE)
     }, GAZE_IDLE_DELAY)
-  },
-
-  /* 交叉淡化切帧：旧帧打底，新帧线性淡入 */
-  _gazeFade(target) {
-    const gz = this._gaze
-    if (target === gz.shown || !gz.imgs[target]) return
-    if (gz.animating) {
-      /* 淡化中途被打断：以画面上更明显的那帧为新起点 */
-      const half = (Date.now() - gz.fadeStart) >= GAZE_FADE_MS / 2
-      gz.fadeFrom = half ? gz.fadeTo : gz.fadeFrom
-    } else {
-      gz.fadeFrom = gz.shown
-    }
-    gz.fadeTo = target
-    gz.fadeStart = Date.now()
-    gz.animating = true
-    gz.shown = target
-    this._gazeTick()
-  },
-
-  _gazeTick() {
-    const gz = this._gaze
-    if (!gz.animating) return
-    const t = Math.min(1, (Date.now() - gz.fadeStart) / GAZE_FADE_MS)
-    /* ease-out 立方：新帧前 ~40ms 就接近全显，两帧半透明重叠的窗口极短，
-       读作「快速转头」而非「慢慢溶化」；配合脚部对齐，身体重合处无重影 */
-    const e = 1 - Math.pow(1 - t, 3)
-    gz.ctx.clearRect(0, 0, gz.cssW, gz.cssH)
-    this._gazeDrawImg(gz.fadeFrom)
-    if (gz.fadeTo !== gz.fadeFrom) this._gazeDrawImg(gz.fadeTo, e)
-    if (t < 1) {
-      gz.canvas.requestAnimationFrame(() => this._gazeTick())
-    } else {
-      gz.animating = false
-    }
   },
 
   /* ================= 进主功能 ================= */
