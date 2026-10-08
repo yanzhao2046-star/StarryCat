@@ -33,9 +33,14 @@ const GAZE_FILES = [
   '/assets/CodeBuddyAssets/catGaze/upperLeft.png',   // 7 左上
 ]
 const GAZE_IDLE = 0          // 待机帧：上方
-const GAZE_FADE_MS = 140     // 交叉淡化时长
+const GAZE_FADE_MS = 90      // 交叉淡化时长（短 + ease-out：重叠窗口极小，读作快速转头）
 const GAZE_DWELL_MS = 140    // 同向最短驻留（防抖）
 const GAZE_IDLE_DELAY = 600  // 抬手后回待机的延迟
+
+/* 脚部锚点对齐（素材像素，实测）：每帧绘制位置的平移量，让 8 帧身体/脚完全重合。
+   不对齐时 lowerLeft 偏 -13.6px、lowerRight 偏 +6.6px——交叉淡化时整猫错位出重影 */
+const GAZE_FEET_DX = [0, -0.8, 0.6, 6.6, 0.3, -13.6, -0.4, -0.2]
+const GAZE_FEET_DY = [0, 0, 0, 3, 0, 0, 0, -1]
 
 Page({
 
@@ -92,6 +97,7 @@ Page({
     if (!img) return                        // 全部加载失败：保留静态兜底猫
     /* contain-fit 绘制矩形（素材 512×512 方形正好铺满；通用逻辑防御异形素材） */
     const s = Math.min(gz.cssW / img.width, gz.cssH / img.height)
+    gz.srcScale = s
     gz.draw = {
       x: (gz.cssW - img.width * s) / 2,
       y: (gz.cssH - img.height * s) / 2,
@@ -99,9 +105,22 @@ Page({
       h: img.height * s,
     }
     gz.ready = true
-    gz.ctx.drawImage(gz.imgs[GAZE_IDLE], gz.draw.x, gz.draw.y, gz.draw.w, gz.draw.h)
+    this._gazeDrawImg(GAZE_IDLE)
     /* canvas 已画出待机帧 → 再隐藏静态兜底图（先画后藏，无闪烁窗口） */
     this.setData({ catFallback: false })
+  },
+
+  /* 带脚部锚点对齐的单帧绘制：idx 帧平移 GAZE_FEET_DX/DY × srcScale 后画 */
+  _gazeDrawImg(idx, alpha) {
+    const gz = this._gaze
+    const img = gz.imgs[idx]
+    if (!img) return
+    const d = gz.draw
+    const x = d.x + (GAZE_FEET_DX[idx] || 0) * gz.srcScale
+    const y = d.y + (GAZE_FEET_DY[idx] || 0) * gz.srcScale
+    if (alpha !== undefined && alpha < 1) gz.ctx.globalAlpha = alpha
+    gz.ctx.drawImage(img, x, y, d.w, d.h)
+    if (alpha !== undefined && alpha < 1) gz.ctx.globalAlpha = 1
   },
 
   /* 手指位置 → 相对猫中心的角度 → 8 向档位 */
@@ -160,14 +179,12 @@ Page({
     const gz = this._gaze
     if (!gz.animating) return
     const t = Math.min(1, (Date.now() - gz.fadeStart) / GAZE_FADE_MS)
-    const d = gz.draw
+    /* ease-out 立方：新帧前 ~40ms 就接近全显，两帧半透明重叠的窗口极短，
+       读作「快速转头」而非「慢慢溶化」；配合脚部对齐，身体重合处无重影 */
+    const e = 1 - Math.pow(1 - t, 3)
     gz.ctx.clearRect(0, 0, gz.cssW, gz.cssH)
-    gz.ctx.drawImage(gz.imgs[gz.fadeFrom], d.x, d.y, d.w, d.h)
-    if (gz.fadeTo !== gz.fadeFrom && t > 0) {
-      gz.ctx.globalAlpha = t            // 线性 → 速度均匀
-      gz.ctx.drawImage(gz.imgs[gz.fadeTo], d.x, d.y, d.w, d.h)
-      gz.ctx.globalAlpha = 1
-    }
+    this._gazeDrawImg(gz.fadeFrom)
+    if (gz.fadeTo !== gz.fadeFrom) this._gazeDrawImg(gz.fadeTo, e)
     if (t < 1) {
       gz.canvas.requestAnimationFrame(() => this._gazeTick())
     } else {
