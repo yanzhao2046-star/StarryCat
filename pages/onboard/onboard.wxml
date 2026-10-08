@@ -1,25 +1,27 @@
 <!-- ============================================
     onboard - 开屏页（Figma 503_1510）
     星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
-    交互：8 向视线猫 —— 手指触摸全屏任意处，猫头/眼睛看向手指方向；
-          抬手 600ms 后回到「上方」待机帧
+    手指跟随：单张精灵动态旋转 —— touchmove 由 WXS 在视图层处理
+    （零 setData），连续 atan2 角度 + lerp(0.18) 缓动跟随，抬手缓回正
     入口：点击「开门」图片进入主功能，无自动跳转
     ============================================ -->
 
+<wxs module="gaze" src="./gaze.wxs"></wxs>
+
 <view class="splash"
-  bindtouchstart="onGazeTouch"
-  bindtouchmove="onGazeTouch"
-  bindtouchend="onGazeEnd"
-  bindtouchcancel="onGazeEnd"
+  data-cx="{{gazeCX}}"
+  data-cy="{{gazeCY}}"
+  bindtouchstart="{{gaze.onStart}}"
+  bindtouchmove="{{gaze.onMove}}"
+  bindtouchend="{{gaze.onEnd}}"
+  bindtouchcancel="{{gaze.onEnd}}"
 >
 
-  <!-- 静态兜底猫：canvas 8 帧全部预加载完成（画好待机帧）后隐藏，先画后藏无闪烁 -->
-  <view class="cat-stack" wx:if="{{catFallback}}">
-    <image webp="{{true}}" class="cat-layer cat-body" src="/assets/CodeBuddyAssets/503_1510/2.png" mode="widthFix" />
-  </view>
-
-  <!-- 8 向视线猫：512×512 整猫素材，身体固定仅头部跟随，贴底铺满 -->
-  <canvas type="2d" id="gazeCanvas" class="cat-canvas"></canvas>
+  <!-- 手指跟随猫：单张方形精灵（catGaze/up.png），绕中心连续旋转 -->
+  <image id="catRot" class="cat-rot"
+    src="/assets/CodeBuddyAssets/catGaze/up.png"
+    mode="aspectFit"
+  />
 
   <!-- 品牌字：top:86 → 172rpx -->
   <view class="brand">

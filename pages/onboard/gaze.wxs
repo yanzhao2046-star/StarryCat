@@ -1,0 +1,123 @@
+// pages/onboard/gaze.wxs — 手指跟随：视图层 WXS
+// touchmove 高频事件全程在视图层处理（setStyle 直接改 transform），
+// 不经过逻辑层、零 setData —— 丝滑的关键。
+// 算法：连续 atan2 角度 + lerp(0.18) 缓动 + 最近4点均值滤波 + 慢速降灵敏度。
+// 注意：WXS 语法子集为 ES5（var / 无箭头函数 / 无模板串），时间用 getDate()。
+
+var LERP = 0.18          /* 缓动系数：0=不动 1=硬贴；0.18 ≈ 柔和跟随 */
+var HISTORY_N = 4        /* 触摸点历史队列长度（均值滤波，压单点噪声） */
+var SLOW_SPEED = 0.06    /* px/ms：低于此速度判定「移动极慢」 */
+var SLOW_FACTOR = 0.35   /* 慢速时目标角度向当前角度收缩的比例（降灵敏度防原地抖动） */
+var IDLE_FRAMES = 36     /* 抬手后回正延迟 ≈600ms @60fps（WXS 无 setTimeout，用帧计数） */
+var EPS = 0.0008         /* 收敛阈值（弧度），小于则停帧循环 */
+
+var target = 0           /* 目标角度（弧度，0=朝上） */
+var current = 0          /* 当前角度 */
+var running = false      /* rAF 循环开关 */
+var delay = 0            /* 回正延迟剩余帧数 */
+var hist = []            /* 最近 HISTORY_N 个触摸点 {x, y, t} */
+
+function pushHist(x, y, t) {
+  hist.push({ x: x, y: y, t: t })
+  while (hist.length > HISTORY_N) hist.shift()
+}
+
+/* 最近 N 点的均值 → 滤波后的平滑触点 */
+function smoothed() {
+  var n = hist.length
+  if (!n) return null
+  var sx = 0, sy = 0
+  for (var i = 0; i < n; i++) { sx += hist[i].x; sy += hist[i].y }
+  return { x: sx / n, y: sy / n, n: n }
+}
+
+/* 差值规整到 [-π, π]，走最短旋转路径 */
+function wrap(d) {
+  while (d > Math.PI) d -= Math.PI * 2
+  while (d < -Math.PI) d += Math.PI * 2
+  return d
+}
+
+function apply(oi) {
+  var cat = oi.selectComponent('#catRot')
+  if (cat) cat.setStyle({ transform: 'rotate(' + (current * 180 / Math.PI).toFixed(2) + 'deg)' })
+}
+
+/* 帧循环：current 向 target 按 LERP 逼近，收敛即停 */
+function tick(oi) {
+  if (!running) return
+  if (delay > 0) {
+    delay--
+    oi.requestAnimationFrame(function () { tick(oi) })
+    return
+  }
+  var d = wrap(target - current)
+  current += d * LERP
+  apply(oi)
+  if (Math.abs(d) < EPS) {
+    current = target
+    running = false
+    return
+  }
+  oi.requestAnimationFrame(function () { tick(oi) })
+}
+
+function ensureLoop(oi) {
+  if (running) return
+  if (oi.requestAnimationFrame) {
+    running = true
+    oi.requestAnimationFrame(function () { tick(oi) })
+  } else {
+    /* 兜底（无 rAF 的环境）：touchmove 事件频率本身够高，逐步逼近 */
+    current += wrap(target - current) * LERP
+    apply(oi)
+  }
+}
+
+function onStart(e, oi) {
+  delay = 0
+  var t = e.touches && e.touches[0]
+  if (t) pushHist(t.clientX, t.clientY, getDate().getTime())
+}
+
+function onMove(e, oi) {
+  var t = e.touches && e.touches[0]
+  if (!t) return
+  var ds = e.currentTarget.dataset
+  var cx = ds.cx, cy = ds.cy
+  if (typeof cx !== 'number' || typeof cy !== 'number') return
+  delay = 0
+  pushHist(t.clientX, t.clientY, getDate().getTime())
+  var s = smoothed()
+  if (!s || s.n < 2) return
+
+  /* 连续目标角：atan2(触点-猫中心) + π/2（素材默认朝上，rotate=0 对应手指正上方） */
+  var raw = Math.atan2(s.y - cy, s.x - cx) + Math.PI / 2
+
+  /* 速度 = 历史队列首尾位移 / 时长；慢速时把目标向当前收缩，压住原地微抖 */
+  var a = hist[0], b = hist[hist.length - 1]
+  var dt = b.t - a.t
+  if (dt > 0) {
+    var speed = Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y)) / dt
+    if (speed < SLOW_SPEED) {
+      raw = current + wrap(raw - current) * SLOW_FACTOR
+    }
+  }
+
+  target = raw
+  ensureLoop(oi)
+}
+
+/* 抬手 → IDLE_FRAMES 帧后转回正上方（延迟内再触摸会取消回正） */
+function onEnd(e, oi) {
+  hist = []
+  target = 0
+  delay = IDLE_FRAMES
+  ensureLoop(oi)
+}
+
+module.exports = {
+  onStart: onStart,
+  onMove: onMove,
+  onEnd: onEnd
+}

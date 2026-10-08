@@ -19,30 +19,17 @@ page {
   overflow: hidden;
 }
 
-/* ------ 猫形象：整张静态图，贴屏幕底部 ------ */
-/* 2.png 比例 375:489，750rpx 宽 → 实际高 ≈978rpx，容器高度自适应 */
-.cat-stack {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 750rpx;
-  z-index: 1;
-}
-
-.cat-layer {
-  display: block;
-  width: 750rpx;
-}
-
-/* ------ 8 向视线猫 canvas：512×512 方形素材 → 750×750rpx 贴底铺满 ------
-   素材身体/脚位 8 帧一致，同一矩形绘制 → 换帧不跳动 */
-.cat-canvas {
+/* ------ 手指跟随猫：单张方形精灵，绕自身中心连续旋转 ------ */
+/* WXS 视图层直接改 transform；will-change 提前提升合成层，旋转零重排 */
+.cat-rot {
   position: absolute;
   left: 0;
   bottom: 0;
   width: 750rpx;
   height: 750rpx;
   z-index: 1;
+  transform-origin: 50% 50%;
+  will-change: transform;
 }
 
 
