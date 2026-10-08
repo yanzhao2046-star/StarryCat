@@ -1,27 +1,16 @@
 <!-- ============================================
     onboard - 开屏页（Figma 503_1510）
     星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
-    手指跟随：单张精灵动态旋转 —— touchmove 由 WXS 在视图层处理
-    （零 setData），连续 atan2 角度 + lerp(0.18) 缓动跟随，抬手缓回正
+    猫形象：单张静态图（参考图「首页动画」735×1319，贴底 widthFix）
     入口：点击「开门」图片进入主功能，无自动跳转
     ============================================ -->
 
-<wxs module="gaze" src="./gaze.wxs"></wxs>
+<view class="splash">
 
-<view class="splash"
-  data-cx="{{gazeCX}}"
-  data-cy="{{gazeCY}}"
-  bindtouchstart="{{gaze.onStart}}"
-  bindtouchmove="{{gaze.onMove}}"
-  bindtouchend="{{gaze.onEnd}}"
-  bindtouchcancel="{{gaze.onEnd}}"
->
-
-  <!-- 手指跟随猫：单张方形精灵（catGaze/up.png），绕中心连续旋转 -->
-  <image id="catRot" class="cat-rot"
-    src="/assets/CodeBuddyAssets/catGaze/up.png"
-    mode="aspectFit"
-  />
+  <!-- 猫形象：750rpx 宽贴底，widthFix 自适应高 ≈1346rpx，整图无裁切 -->
+  <view class="cat-stack">
+    <image class="cat-layer cat-body" src="/assets/CodeBuddyAssets/onboardCat/main.jpg" mode="widthFix" />
+  </view>
 
   <!-- 品牌字：top:86 → 172rpx -->
   <view class="brand">

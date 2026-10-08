@@ -3,8 +3,8 @@
 // 唯一入口：点击「开门」图片进入主功能，无自动跳转
 // 选猫页（catAdopt）暂时隐藏：统一默认黑猫，直接进猫房
 //
-// 猫形象：单张精灵（catGaze/up.png）动态旋转，WXS 视图层手指跟随（gaze.wxs）
-// 素材/实现演进史在 git：8 向视线 320d92b..4e93a6d → 静态单张 → WXS 连续旋转
+// 猫形象：单张静态图（参考图「首页动画」735×1319 竖构图，贴底 widthFix）
+// 视线/跟随交互均下线（效果不佳）；历史方案在 git：8向 320d92b..4e93a6d、WXS旋转 2eba44b
 
 /* 默认黑猫（523_427/8.webp），首次进入自动认养 */
 const DEFAULT_CAT = {
@@ -18,24 +18,9 @@ const DEFAULT_CAT = {
 
 Page({
 
-  data: {
-    /* 手指跟随：猫精灵中心（client 坐标），onReady 量一次传给 WXS 用 */
-    gazeCX: 0,
-    gazeCY: 0,
-  },
+  data: {},
 
   onLoad() {},
-
-  /* 一次性测量猫精灵中心 → dataset 给 WXS（之后 touchmove 全在视图层，零 setData） */
-  onReady() {
-    this.createSelectorQuery()
-      .select('#catRot')
-      .boundingClientRect((r) => {
-        if (!r) return
-        this.setData({ gazeCX: r.left + r.width / 2, gazeCY: r.top + r.height / 2 })
-      })
-      .exec()
-  },
 
   /* 点击开门图 → 直入猫房；未领养过则先自动认养默认黑猫 */
   goHome() {
