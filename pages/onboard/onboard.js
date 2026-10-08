@@ -21,7 +21,9 @@ const DEFAULT_CAT = {
   adoptedAt: 0,
 }
 
-/* 8 向视线素材（索引即方向档位） */
+/* 8 向视线素材（索引即方向档位，顺时针从「上」开始）。
+   想升级 16 向（22.5° 一档）：在两档之间补一张头位中间的图、按顺序插入此数组，
+   档位角度/角度→档位的换算自动按数组长度推导，其余代码零改动 */
 const GAZE_FILES = [
   '/assets/CodeBuddyAssets/catGaze/up.png',          // 0 上
   '/assets/CodeBuddyAssets/catGaze/upperRight.png',  // 1 右上
@@ -32,6 +34,10 @@ const GAZE_FILES = [
   '/assets/CodeBuddyAssets/catGaze/left.png',        // 6 左
   '/assets/CodeBuddyAssets/catGaze/upperLeft.png',   // 7 左上
 ]
+/* 档位角宽：8 张 = 45°/档，16 张 = 22.5°/档（由素材张数决定） */
+const GAZE_SECTOR = Math.PI * 2 / GAZE_FILES.length
+/* 档位 0 = 「上」在 atan2（0=右、逆时针为负）体系里偏移 N/4 档 */
+const GAZE_UP_OFFSET = GAZE_FILES.length / 4
 const GAZE_IDLE = 0          // 待机帧：上方
 const GAZE_DWELL_MS = 140    // 同向最短驻留（防抖）
 const GAZE_IDLE_DELAY = 600  // 抬手后回待机的延迟
@@ -138,9 +144,10 @@ Page({
     const cy = gz.rect.top + gz.draw.y + gz.draw.h / 2
     const ang = Math.atan2(t.clientY - cy, t.clientX - cx)
 
-    /* atan2：0=右、π/2=下、±π=左、-π/2=上 → 档位 k：0=上、2=右、4=下、6=左 */
-    let k = Math.round(ang / (Math.PI / 4)) + 2
-    k = ((k % 8) + 8) % 8
+    /* atan2：0=右、π/2=下、±π=左、-π/2=上 → 档位 k = round(ang/档宽) + N/4（0=上，顺时针） */
+    const N = GAZE_FILES.length
+    let k = Math.round(ang / GAZE_SECTOR) + GAZE_UP_OFFSET
+    k = ((k % N) + N) % N
 
     /* 防抖：方向档位变了 且 距上次切帧 ≥ 140ms 才切 */
     const now = Date.now()
