@@ -210,8 +210,31 @@ const SITE_CARDS = [
   { img: SITE_DIR + '/site_13.webp', name: '末班车开过的路牙', note: '公交站长椅下，站牌后面躲雨' },
 ]
 
+/* 去重：本轮已抽过的去处名，全出完再重置（不重复直至全出完）。
+   site_01（home 卡）不参与去重，goOut 专用；只对 10 张去处卡去重 */
+const PLACE_SEEN_KEY = 'catPlaceSeen'
+function _getPlaceSeen() {
+  try { const v = wx.getStorageSync(PLACE_SEEN_KEY); return Array.isArray(v) ? v : [] } catch (e) { return [] }
+}
+function _setPlaceSeen(arr) {
+  try { wx.setStorageSync(PLACE_SEEN_KEY, arr) } catch (e) {}
+}
+function _pickSiteNoRepeat() {
+  const seen = _getPlaceSeen()
+  const unseen = SITE_CARDS.filter(c => seen.indexOf(c.name) < 0)
+  if (!unseen.length) {
+    /* 10 张全出过 → 重新洗牌，从头开始 */
+    const card = pick(SITE_CARDS)
+    _setPlaceSeen([card.name])
+    return card
+  }
+  const card = pick(unseen)
+  _setPlaceSeen(seen.concat([card.name]))
+  return card
+}
+
 function addPlace(opts) {
-  const card = (opts && opts.home) ? SITE_HOME : pick(SITE_CARDS)
+  const card = (opts && opts.home) ? SITE_HOME : _pickSiteNoRepeat()
   const place = {
     id: 'place_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
     img: card.img,
@@ -219,7 +242,7 @@ function addPlace(opts) {
     note: card.note,
     at: Date.now(),
   }
-  return _pushList(PLACE_KEY, place, 20)
+  return _pushList(PLACE_KEY, place, 50)   /* cap 20→50：兜底冗余，去重后基本不会触顶 */
 }
 function getPlaces() { return _read(PLACE_KEY, []) }
 function getLatestPlace() { const l = getPlaces(); return l.length ? l[0] : null }
