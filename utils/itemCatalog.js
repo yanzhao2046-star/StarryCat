@@ -6,7 +6,7 @@
 
    目录构成：
      · TOY_CATALOG    玩具 13 件，带稀有度 tier
-     · NATURE_CATALOG 自然类 10 件（无稀有度标记，按常见处理）
+     · NATURE_CATALOG 自然类 13 件（无稀有度标记，按常见处理）
      · LEGACY_ITEMS   老素材 7 件（401_620/1~7.svg，跨 toys / sports / clothes / nature）
 
    稀有度（tier）：按素材批次定义，数字越小越稀有、被带回的频率越低
@@ -65,6 +65,11 @@ const NATURE_CATALOG = [
   { id: 'nature_pinecone',     title: '小松果',       category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_pinecone.png' },
   { id: 'nature_key',          title: '钥匙',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_key.png' },
   { id: 'nature_berries',      title: '野莓',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_berries.png' },
+
+  /* —— 自然力的小动物 —— */
+  { id: 'nature_snail',        title: '蜗牛',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_snail.png' },
+  { id: 'nature_ladybug',      title: '瓢虫',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_ladybug.png' },
+  { id: 'nature_grasshopper',  title: '蚱蜢',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_grasshopper.png' },
 ]
 
 /* ---------- 老素材池（401_620/1~7.svg 与名称/分类一一对应）
