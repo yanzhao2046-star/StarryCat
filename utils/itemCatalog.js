@@ -5,9 +5,10 @@
         物品库（pages/catItem）同源读取。本文件是唯一一份硬编码目录。
 
    目录构成：
-     · TOY_CATALOG    玩具 13 件，带稀有度 tier
-     · NATURE_CATALOG 自然类 13 件（无稀有度标记，按常见处理）
-     · LEGACY_ITEMS   老素材 7 件（401_620/1~7.svg，跨 toys / sports / clothes / nature）
+     · TOY_CATALOG     玩具 13 件，带稀有度 tier
+     · NATURE_CATALOG  自然类 13 件（无稀有度标记，按常见处理）
+     · CLOTHES_CATALOG 衣物 5 件（无稀有度标记，按常见处理）
+     · LEGACY_ITEMS    老素材 7 件（401_620/1~7.svg，跨 toys / sports / clothes / nature）
 
    稀有度（tier）：按素材批次定义，数字越小越稀有、被带回的频率越低
      tier 1 = 极为稀有（4 件）
@@ -23,8 +24,10 @@
 const TIER_WEIGHT = { 1: 1, 2: 4, 3: 12 }
 /* 老素材（401_620 的 7 件 SVG，跨 nature / clothes / toys / sports）统一权重 */
 const LEGACY_WEIGHT = 12
-/* 自然类（10 件）：素材无稀有度标记，按「常见」处理，与老素材同权 */
+/* 自然类（13 件）：素材无稀有度标记，按「常见」处理，与老素材同权 */
 const NATURE_WEIGHT = 12
+/* 衣物（5 件）：素材无稀有度标记，按「常见」处理 */
+const CLOTHES_WEIGHT = 12
 
 /* ---------- 玩具目录（13 件）----------
    素材：F:\...\参考\猫\风格\确定风格\物品\玩具\t_*.png
@@ -50,7 +53,7 @@ const TOY_CATALOG = [
   { id: 'toy_crystalBall',  title: '水晶球',     tier: 3, icon: '/assets/CodeBuddyAssets/items/toys/toy_crystalBall.png' },
 ]
 
-/* ---------- 自然类目录（10 件）----------
+/* ---------- 自然类目录（13 件）----------
    素材：F:\...\参考\猫\风格\确定风格\物品\自然类物件\n_*.png
    已按同一规则（裁边 → 统一留白 → 200×200）打包到 assets/CodeBuddyAssets/items/nature/
    无稀有度标记 → 统一按「常见」权重带回 */
@@ -70,6 +73,18 @@ const NATURE_CATALOG = [
   { id: 'nature_snail',        title: '蜗牛',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_snail.png' },
   { id: 'nature_ladybug',      title: '瓢虫',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_ladybug.png' },
   { id: 'nature_grasshopper',  title: '蚱蜢',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_grasshopper.png' },
+]
+
+/* ---------- 衣物目录（5 件）----------
+   素材：F:\...\参考\猫\风格\确定风格\物品\衣物\c_*.png
+   已按同一规则打包到 assets/CodeBuddyAssets/items/clothes/
+   无稀有度标记 → 统一按「常见」权重带回 */
+const CLOTHES_CATALOG = [
+  { id: 'clothes_yarnEnd',     title: '毛线头',   category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_yarnEnd.png' },
+  { id: 'clothes_fabricPatch', title: '花布贴',   category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_fabricPatch.png' },
+  { id: 'clothes_laceTrim',    title: '蕾丝碎边', category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_laceTrim.png' },
+  { id: 'clothes_oldButton',   title: '旧纽扣',   category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_oldButton.png' },
+  { id: 'clothes_oldSock',     title: '旧棉袜',   category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_oldSock.png' },
 ]
 
 /* ---------- 老素材池（401_620/1~7.svg 与名称/分类一一对应）
@@ -96,7 +111,7 @@ function pickWeighted(list) {
   return list[list.length - 1]
 }
 
-/* 猫带回一件物品（老素材 + 玩具 + 自然类 合并加权抽），返回 { icon, title, category, tier } */
+/* 猫带回一件物品（老素材 + 玩具 + 自然类 + 衣物 合并加权抽），返回 { icon, title, category, tier } */
 function pickBringItem() {
   const toys = TOY_CATALOG.map(t => ({
     icon: t.icon,
@@ -106,8 +121,9 @@ function pickBringItem() {
     weight: TIER_WEIGHT[t.tier] || 1,
   }))
   const nature = NATURE_CATALOG.map(n => ({ ...n, weight: NATURE_WEIGHT }))
+  const clothes = CLOTHES_CATALOG.map(c => ({ ...c, weight: CLOTHES_WEIGHT }))
   const legacy = LEGACY_ITEMS.map(it => ({ ...it, weight: LEGACY_WEIGHT }))
-  const src = pickWeighted(legacy.concat(toys).concat(nature))
+  const src = pickWeighted(legacy.concat(toys).concat(nature).concat(clothes))
   return { icon: src.icon, title: src.title, category: src.category, tier: src.tier }
 }
 
@@ -115,8 +131,10 @@ module.exports = {
   TIER_WEIGHT,
   LEGACY_WEIGHT,
   NATURE_WEIGHT,
+  CLOTHES_WEIGHT,
   TOY_CATALOG,
   NATURE_CATALOG,
+  CLOTHES_CATALOG,
   LEGACY_ITEMS,
   pickWeighted,
   pickBringItem,
