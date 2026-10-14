@@ -9,6 +9,7 @@
 const behavior = require('../../utils/catBehavior.js')
 const outputs = require('../../utils/catBehaviorOutputs.js')
 const foods = require('../../utils/foods.js')
+const itemCatalog = require('../../utils/itemCatalog.js')
 
 const STORAGE_KEY = 'catCareMessages'
 
@@ -41,17 +42,8 @@ const NOTHING_LINES = [
   '（猫两手空空地回来了，还装作若无其事）',
   '（猫今天什么都没带回来，但心情好像还不错）',
 ]
-/* 猫带回物品的素材池（icon 401_620/1~7 与名称/分类一一对应，category 对齐物品库的 6 个分类）
-   8.svg 是 62×22 横条素材、9.svg 是空图，不作物品图标用 */
-const BRING_ITEM_POOL = [
-  { icon: '/assets/CodeBuddyAssets/401_620/1.svg', title: '不怕人的小老鼠', category: 'animals' },
-  { icon: '/assets/CodeBuddyAssets/401_620/2.svg', title: '一根蓝色的羽毛', category: 'animals' },
-  { icon: '/assets/CodeBuddyAssets/401_620/3.svg', title: '一只干干净净的小袜子', category: 'clothes' },
-  { icon: '/assets/CodeBuddyAssets/401_620/4.svg', title: '不知道谁家的拨浪鼓', category: 'toys' },
-  { icon: '/assets/CodeBuddyAssets/401_620/5.svg', title: '缺了个角的积木', category: 'toys' },
-  { icon: '/assets/CodeBuddyAssets/401_620/6.svg', title: '瘪了一点的网球', category: 'sports' },
-  { icon: '/assets/CodeBuddyAssets/401_620/7.svg', title: '坐得很端正的玩具熊', category: 'toys' },
-]
+/* 猫带回物品的素材目录已抽到 utils/itemCatalog.js
+   （老素材 401_620/1~7 + 13 件玩具，按 tier 稀有度加权抽取） */
 const pick = arr => arr[Math.floor(Math.random() * arr.length)]
 /* 邮件寄出时间 → "M/D HH:MM"，与邮件一同渲染在内容底部 */
 const formatMailTime = ts => {
@@ -274,13 +266,14 @@ Page({
           break
         }
         case 'bringItem': {          // 带回物品：进物品库（catItem 仓库同源）
-          const src = pick(BRING_ITEM_POOL)
+          const src = itemCatalog.pickBringItem()   // 按 tier 加权：tier1 极为稀有 / tier2 稀有 / tier3 常见
           this.addItem({
             id: 'item_bring_' + Date.now(),
             icon: src.icon,
             title: src.title,
             type: 'normal',
             category: src.category,
+            tier: src.tier,          // 老素材（401_620）无 tier，落库时自动省略
           })
           this.catBubble('（猫带回来一件东西，放进物品库了）')
           break
