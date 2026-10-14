@@ -15,53 +15,53 @@
    页面接入：tick() 返回本结算周期发生的事件数组，页面按事件做 UI。
    ============================================================ */
 
-/* ---------- 配置（编辑器导出原样落表） ---------- */
+/* ---------- 配置（编辑器导出原样落表，过夜测试分支 2026-09-19）----------
+   参数：reactivity=1、tick=5 分钟、dream p=0.08、replyChat 2~5 分钟随机、
+        出门 5~15 分钟、回信 45 分钟、事件流水 300 条 */
 const CONFIG = {
   version: 1,
   global: {
-    reactivity: 0.5,        // 实际延迟 = min + (max-min) × (1-reactivity)
-    tickMinutes: 60,        // 结算粒度（分钟，1 小时一结算）
-    offlineSettle: true,    // 重进小程序时补算猫干了什么
+    reactivity: 1,
+    tickMinutes: 5,
+    offlineSettle: true,
     reactivityByIntimacy: true,
     pByIntimacy: true,
     intimacyBoostK: 1,
     intimacyDecay: true,
   },
   behaviors: [
-    { id: 'moveSpot',      name: '换位置',          scene: 'home',    timeWindow: 'day', trigger: 'autonomous', p: 0.8,  intimacyBoost: false, weight: 10, delayMin: 10,   delayMax: 40,    output: '猫移动到房间新位置',                   page: 'catRoom',    enabled: true },
-    { id: 'sleep',         name: '睡觉',            scene: 'home',    timeWindow: 'night', trigger: 'fixed',   p: 1,    intimacyBoost: false, weight: 0,  delayMin: 0,    delayMax: 0,     output: '夜间在家入睡（状态，非概率——晚上必睡，白天活动）', page: 'catRoom', enabled: true },
-    { id: 'dream',         name: '做梦',            scene: 'home',    timeWindow: 'night', trigger: 'autonomous', p: 0.5, intimacyBoost: false, weight: 6, delayMin: 60,    delayMax: 120,   output: '产出梦卡 1 张',                         page: 'catRoom',    enabled: true },
-    { id: 'goOut',         name: '出门',            scene: 'home',    timeWindow: 'any', trigger: 'autonomous', p: 0.2,  intimacyBoost: false, weight: 3,  delayMin: 0,    delayMax: 0,     output: '猫外出（进入在外状态）',                page: 'catRoom',    enabled: true },
-    { id: 'proactiveTalk', name: '主动说遭遇或心情', scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.35, intimacyBoost: false, weight: 4,  delayMin: 0,    delayMax: 0,     output: '主动气泡讲外面的见闻（p 随用户久未互动上升）', page: 'catRoom', enabled: true },
-    { id: 'catmood',       name: '猫心情',          scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.5,  intimacyBoost: false, weight: 5,  delayMin: 0,    delayMax: 0,     output: '猫产生的心情AI生产',                   page: 'catmoodLib', enabled: true },
+    { id: 'moveSpot',      name: '换位置',          scene: 'home',    timeWindow: 'day', trigger: 'autonomous', p: 0.9,  intimacyBoost: false, weight: 10, delayMin: 0, delayMax: 0, output: '猫移动到房间新位置',                                                                                  page: 'catRoom',    enabled: true },
+    { id: 'sleep',         name: '睡觉',            scene: 'home',    timeWindow: 'night', trigger: 'fixed',   p: 1,    intimacyBoost: false, weight: 0,  delayMin: 0, delayMax: 0, output: '夜间在家入睡（状态，非概率——晚上必睡，白天活动）',                                                page: 'catRoom',    enabled: true },
+    { id: 'dream',         name: '做梦',            scene: 'home',    timeWindow: 'night', trigger: 'autonomous', p: 0.08, intimacyBoost: false, weight: 6, delayMin: 0, delayMax: 0, output: '产出梦卡 1 张',                                                                                        page: 'catRoom',    enabled: true },
+    { id: 'goOut',         name: '出门',            scene: 'home',    timeWindow: 'any', trigger: 'autonomous', p: 0.85, intimacyBoost: false, weight: 3, delayMin: 0, delayMax: 0, output: '猫外出（进入在外状态）',                                                                              page: 'catRoom',    enabled: true },
+    { id: 'proactiveTalk', name: '主动说遭遇或心情', scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.9,  intimacyBoost: false, weight: 4, delayMin: 0, delayMax: 0, output: '主动气泡讲外面的见闻（p 随用户久未互动上升）',                                                        page: 'catRoom',    enabled: true },
+    { id: 'catmood',       name: '猫心情',          scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.9,  intimacyBoost: false, weight: 5, delayMin: 0, delayMax: 0, output: '猫产生的心情AI生产',                                                                                  page: 'catmoodLib', enabled: true },
     /* 互斥组 bringBack：每次回家只带一样东西，按 p 归一化抽一个。 */
-    { id: 'bringFood',     name: '带回食品',        scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.35, intimacyBoost: false, weight: 0,  delayMin: 0,    delayMax: 0,     output: '猫粮 +N g',                            page: 'catFood',    enabled: true },
-    { id: 'cateat',        name: '猫吃粮食',        scene: 'home',    timeWindow: 'any', trigger: 'autonomous', p: 0.85, intimacyBoost: false, weight: 5,  delayMin: 0,    delayMax: 0,     output: '猫在厨房消耗粮食',                     page: 'catFood',    enabled: true },
-    { id: 'bringItem',     name: '带回物品',        scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.65, intimacyBoost: false, weight: 0,  delayMin: 0,    delayMax: 0,     output: '物品入库 1 件',                        page: 'catItem',    enabled: true },
-    { id: 'bringTravel',   name: '带回旅行卡',      scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.45, intimacyBoost: false, weight: 0,  delayMin: 0,    delayMax: 0,     output: '旅行卡 1 张',                          page: 'catItem',    enabled: true },
-    { id: 'catLocation',   name: '猫在哪地图',      scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.65, intimacyBoost: false, weight: 5,  delayMin: 0,    delayMax: 0,     output: '地图卡1张',                            page: 'catRoom',    enabled: true },
-    { id: 'givePlace',     name: '顺手给位置卡',    scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.25, intimacyBoost: false, weight: 4,  delayMin: 0,    delayMax: 0,     output: '位置卡 1 张（随机）',                  page: 'catRoom',    enabled: true },
-    { id: 'bringNothing',  name: '空手而归',        scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.1,  intimacyBoost: false, weight: 0,  delayMin: 0,    delayMax: 0,     output: '（可配一句吐槽）',                     page: '',           enabled: true },
-    { id: 'replyChat',     name: '回复互动',        scene: 'both',    timeWindow: 'any', trigger: 'userAction', p: 1,    intimacyBoost: false, weight: 0,  delayMin: 2,    delayMax: 60,    output: '用户动作后的猫回复总入口：聊天窗口回复、旅行卡回信点评、梦的解析点评、心情点评回复等——用户回复完，猫按概率×延迟由 AI 生成回应', page: 'chat', enabled: true },
-    { id: 'takeMail',      name: '取走邮件',        scene: 'both',    timeWindow: 'any', trigger: 'fixed',      p: 1,    intimacyBoost: false, weight: 0,  delayMin: 0,    delayMax: 0,     output: '2.4 秒叼信演出',                       page: 'catItem',    enabled: true },
-    { id: 'replyMail',     name: '回复邮件',        scene: 'both',    timeWindow: 'any', trigger: 'fixed',      p: 1,    intimacyBoost: false, weight: 0,  delayMin: 4320, delayMax: 4320, output: '回信卡（3 天）',                       page: 'catItem',    enabled: true },
-    { id: 'bringCrystal',  name: '带回水晶',      scene: 'outside', timeWindow: 'any', trigger: 'progress',   p: 1,   intimacyBoost: false, weight: 0, delayMin: 0,  delayMax: 0,  output: '解锁秘境功能（门槛：主人解析 5 个梦且猫全部回复后触发）', page: 'realm', enabled: true },
-    { id: 'giveStairs',    name: '给予楼梯部件',  scene: 'outside', timeWindow: 'any', trigger: 'progress',   p: 0.3,  intimacyBoost: false, weight: 0, delayMin: 0,  delayMax: 0,  output: '秘境物料 +1',                           page: 'realm',      enabled: true },
-    { id: 'bridgeReact',   name: '拼成桥梁反馈',  scene: 'both',    timeWindow: 'any', trigger: 'progress',   p: 1,   intimacyBoost: false, weight: 0, delayMin: 0,  delayMax: 0,  output: '猫的祝贺语',                            page: 'realm',      enabled: true },
+    { id: 'bringFood',     name: '带回食品',        scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.3,  intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '猫粮 +N g',                                                                                           page: 'catFood',    enabled: true },
+    { id: 'cateat',        name: '猫吃粮食',        scene: 'home',    timeWindow: 'any', trigger: 'autonomous', p: 0.9,  intimacyBoost: false, weight: 5, delayMin: 0, delayMax: 0, output: '猫在厨房消耗粮食',                                                                                    page: 'catFood',    enabled: true },
+    { id: 'bringItem',     name: '带回物品',        scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.9,  intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '物品入库 1 件',                                                                                       page: 'catItem',    enabled: true },
+    { id: 'bringTravel',   name: '带回旅行卡',      scene: 'outside', timeWindow: 'any', trigger: 'autonomous', p: 0.4, intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '旅行卡 1 张',                                                                                         page: 'catItem',    enabled: true },
+    { id: 'catLocation',   name: '猫在哪地图',      scene: 'both',    timeWindow: 'any', trigger: 'autonomous', p: 0.6,  intimacyBoost: false, weight: 5, delayMin: 0, delayMax: 0, output: '地图卡1张',                                                                                            page: 'catRoom',    enabled: true },
+    { id: 'bringNothing',  name: '空手而归',        scene: 'outside', timeWindow: 'any', trigger: 'return',     p: 0.1,  intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '（可配一句吐槽）',                                                                                    page: '',           enabled: true },
+    { id: 'replyChat',     name: '回复互动',        scene: 'both',    timeWindow: 'any', trigger: 'userAction', p: 1,    intimacyBoost: false, weight: 0, delayMin: 2, delayMax: 5, output: '用户动作后的猫回复总入口：聊天窗口回复、旅行卡回信点评、梦的解析点评、心情点评回复等——用户回复完，猫按概率×延迟由 AI 生成回应', page: 'chat', enabled: true },
+    { id: 'takeMail',      name: '取走邮件',        scene: 'both',    timeWindow: 'any', trigger: 'fixed',      p: 1,    intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '2.4 秒叼信演出',                                                                                      page: 'catItem',    enabled: true },
+    { id: 'replyMail',     name: '回复邮件',        scene: 'both',    timeWindow: 'any', trigger: 'fixed',      p: 1,    intimacyBoost: false, weight: 0, delayMin: 45, delayMax: 45, output: '回信卡（45 分钟）',                                                                                 page: 'catItem',    enabled: true },
+    { id: 'bringCrystal',  name: '带回水晶',        scene: 'outside', timeWindow: 'any', trigger: 'progress',   p: 1,    intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '解锁秘境功能（门槛：主人解析 5 个梦且猫全部回复后触发）',                                            page: 'realm',      enabled: true },
+    { id: 'giveStairs',    name: '给予楼梯部件',    scene: 'outside', timeWindow: 'any', trigger: 'progress',   p: 0.3,  intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '秘境物料 +1',                                                                                          page: 'realm',      enabled: true },
+    { id: 'bridgeReact',   name: '拼成桥梁反馈',    scene: 'both',    timeWindow: 'any', trigger: 'progress',   p: 1,    intimacyBoost: false, weight: 0, delayMin: 0, delayMax: 0, output: '猫的祝贺语',                                                                                           page: 'realm',      enabled: true },
   ],
   exclusiveGroups: [
     { id: 'bringBack', name: '回家携带产物', members: ['bringFood', 'bringItem', 'bringTravel', 'bringNothing', 'giveStairs'] },
   ],
-  /* 引擎常量（出门时长 / 回家冷却 / 离线补算 / 事件流水 / 亲密度衰减 / 吃粮量）由编辑器生成 */
   engine: {
-    outMin: 5,                    // 出门时长下限（分钟）
-    outMax: 15,                   // 出门时长上限（分钟）
-    homeStayMin: 15,              // 回家后冷却（分钟，冷却期内不再出门）
-    eatGram: 2,                   // 猫每次吃掉的猫粮营养值
-    intimacyDecayDays: 3,         // 连续 N 天不互动开始衰减
-    intimacyDecayPerDay: 0.1,     // 每天衰减量
-    maxOfflineTicks: 288,         // 离线补算上限（tick 数，防一次补太多）
-    eventsKeep: 300,              // 事件流水保留条数
+    outMin: 5,
+    outMax: 15,
+    homeStayMin: 15,
+    eatGram: 2,
+    intimacyDecayDays: 3,
+    intimacyDecayPerDay: 0.1,
+    maxOfflineTicks: 288,
+    eventsKeep: 300,
   },
 }
 
