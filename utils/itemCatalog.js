@@ -8,6 +8,7 @@
      · TOY_CATALOG     玩具 13 件，带稀有度 tier
      · NATURE_CATALOG  自然类 13 件（无稀有度标记，按常见处理）
      · CLOTHES_CATALOG 衣物 5 件（无稀有度标记，按常见处理）
+     · SPORTS_CATALOG  运动 10 件（无稀有度标记，按常见处理）
    （旧素材 401_620/1~7.svg 的 7 件已弃用，不再带回，见文件末尾「弃用素材清理」）
 
    稀有度（tier）：按素材批次定义，数字越小越稀有、被带回的频率越低
@@ -26,6 +27,8 @@ const TIER_WEIGHT = { 1: 1, 2: 4, 3: 12 }
 const NATURE_WEIGHT = 12
 /* 衣物（5 件）：素材无稀有度标记，按「常见」处理 */
 const CLOTHES_WEIGHT = 12
+/* 运动（10 件）：素材无稀有度标记，按「常见」处理 */
+const SPORTS_WEIGHT = 12
 
 /* ---------- 玩具目录（13 件）----------
    素材：F:\...\参考\猫\风格\确定风格\物品\玩具\t_*.png
@@ -85,6 +88,23 @@ const CLOTHES_CATALOG = [
   { id: 'clothes_oldSock',     title: '旧棉袜',   category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_oldSock.png' },
 ]
 
+/* ---------- 运动目录（10 件）----------
+   素材：F:\...\参考\猫\风格\确定风格\物品\运动\s_*.png
+   已按同一规则打包到 assets/CodeBuddyAssets/items/sports/
+   无稀有度标记 → 统一按「常见」权重带回 */
+const SPORTS_CATALOG = [
+  { id: 'sports_jumpRope',        title: '跳绳残段', category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_jumpRope.png' },
+  { id: 'sports_wristband',       title: '运动护腕', category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_wristband.png' },
+  { id: 'sports_shuttlecock',     title: '羽毛球',   category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_shuttlecock.png' },
+  { id: 'sports_pingPong',        title: '乒乓球',   category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_pingPong.png' },
+  { id: 'sports_tennisBall',      title: '网球',     category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_tennisBall.png' },
+  { id: 'sports_cork',            title: '软木塞',   category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_cork.png' },
+  { id: 'sports_pencilSharpener', title: '卷笔刀',   category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_pencilSharpener.png' },
+  { id: 'sports_bookmark',        title: '书签',     category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_bookmark.png' },
+  { id: 'sports_eraser',          title: '小橡皮',   category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_eraser.png' },
+  { id: 'sports_pencilStub',      title: '断铅笔头', category: 'sports', icon: '/assets/CodeBuddyAssets/items/sports/sports_pencilStub.png' },
+]
+
 /* ---------- 弃用素材清理（2026-10：物件图统一换成新三批）----------
    老 storage（catItems）里可能还留着用旧图标的物品，
    读取时把这些条目直接剔除，并回写 storage，不再展示。 */
@@ -118,7 +138,7 @@ function pickWeighted(list) {
   return list[list.length - 1]
 }
 
-/* 猫带回一件物品（玩具 + 自然类 + 衣物 合并加权抽），返回 { icon, title, category, tier } */
+/* 猫带回一件物品（玩具 + 自然类 + 衣物 + 运动 合并加权抽），返回 { icon, title, category, tier } */
 function pickBringItem() {
   const toys = TOY_CATALOG.map(t => ({
     icon: t.icon,
@@ -129,7 +149,8 @@ function pickBringItem() {
   }))
   const nature = NATURE_CATALOG.map(n => ({ ...n, weight: NATURE_WEIGHT }))
   const clothes = CLOTHES_CATALOG.map(c => ({ ...c, weight: CLOTHES_WEIGHT }))
-  const src = pickWeighted(toys.concat(nature).concat(clothes))
+  const sports = SPORTS_CATALOG.map(s => ({ ...s, weight: SPORTS_WEIGHT }))
+  const src = pickWeighted(toys.concat(nature).concat(clothes).concat(sports))
   return { icon: src.icon, title: src.title, category: src.category, tier: src.tier }
 }
 
@@ -137,9 +158,11 @@ module.exports = {
   TIER_WEIGHT,
   NATURE_WEIGHT,
   CLOTHES_WEIGHT,
+  SPORTS_WEIGHT,
   TOY_CATALOG,
   NATURE_CATALOG,
   CLOTHES_CATALOG,
+  SPORTS_CATALOG,
   RETIRED_ICON_PREFIXES,
   isRetiredItem,
   purgeRetiredItems,
