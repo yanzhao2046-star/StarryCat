@@ -46,15 +46,16 @@ const REPLY_ENVELOPE = '/assets/CodeBuddyAssets/1207_179/1.png'
 
 const CATEGORIES = [
   { id: 'toys', label: '玩具' },
-  { id: 'sports', label: '运动' },
+  { id: 'stationery', label: '文具' },
   { id: 'clothes', label: '衣物' },
   { id: 'nature', label: '自然' },
   { id: 'cards', label: '卡片' },
 ]
 
-/* 分类归并：旧的「动物 animals」+「植物 plants」合并为「自然 nature」。
+/* 分类归并：旧的「动物 animals」+「植物 plants」合并为「自然 nature」；
+   「运动 sports」改名为「文具 stationery」。
    老 storage（catItems）里存的仍是旧分类 id，读取时统一归并，不改写历史数据。 */
-const CATEGORY_ALIAS = { animals: 'nature', plants: 'nature' }
+const CATEGORY_ALIAS = { animals: 'nature', plants: 'nature', sports: 'stationery' }
 const normalizeCategory = c => CATEGORY_ALIAS[c] || c || 'toys'
 
 Page({
