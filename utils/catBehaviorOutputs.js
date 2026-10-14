@@ -193,8 +193,9 @@ function removeMail(id) {
    name/note 与画面里烤进图的标签一致；site_01 为 site_02 的草稿未采用。
    ============================================================ */
 const SITE_DIR = '/assets/CodeBuddyAssets/sites'
-/* 猫刚溜出门（goOut）：位置不明，用「我在这儿」这张模糊梗图 */
-const SITE_HOME = { img: SITE_DIR + '/site_02.webp', name: '我在这儿', note: '具体在哪，我不清楚' }
+/* 猫刚溜出门（goOut）：位置不明，用「我在这儿」模糊梗图（site_01 扁平版，
+   无具体景物更贴「不清楚」的梗；site_02 带地图景的版本保留在仓库备用） */
+const SITE_HOME = { img: SITE_DIR + '/site_01.webp', name: '我在这儿', note: '具体在哪，我不清楚' }
 /* 溜达到某处（catLocation）：随机抽一张去处卡 */
 const SITE_CARDS = [
   { img: SITE_DIR + '/site_03.webp', name: '桥洞躲雨处',   note: '垂柳下的风' },
