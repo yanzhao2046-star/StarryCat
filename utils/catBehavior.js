@@ -322,7 +322,9 @@ function info() {
 
 /* ---------- 调试（联调面板用，正式版不暴露入口即可） ---------- */
 const debug = {
-  forceNight(v) { const s = getState(); s.debugNight = v; saveState(s); return info() },
+  forceNight(v) { const s = getState(); s.debugNight = v === false ? null : v; saveState(s); return info() },
+  /* v=false 语义 = 恢复真实时间（debugNight 清为 null，跟随现实昼夜）；
+     只有 true / null（真实时间）两种落盘值，避免 false 把引擎永久钉在白天 */
   forceGoOut() {
     const s = getState(); const now = Date.now()
     goOut(s, now)   // 调试出门直接生效，不受回家冷却限制
