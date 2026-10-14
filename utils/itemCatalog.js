@@ -46,8 +46,8 @@ const TOY_CATALOG = [
 /* ---------- 老素材池（401_620/1~7.svg 与名称/分类一一对应）
    8.svg 是 62×22 横条素材、9.svg 是空图，不作物品图标用 */
 const LEGACY_ITEMS = [
-  { icon: '/assets/CodeBuddyAssets/401_620/1.svg', title: '不怕人的小老鼠',       category: 'animals' },
-  { icon: '/assets/CodeBuddyAssets/401_620/2.svg', title: '一根蓝色的羽毛',       category: 'animals' },
+  { icon: '/assets/CodeBuddyAssets/401_620/1.svg', title: '不怕人的小老鼠',       category: 'nature' },
+  { icon: '/assets/CodeBuddyAssets/401_620/2.svg', title: '一根蓝色的羽毛',       category: 'nature' },
   { icon: '/assets/CodeBuddyAssets/401_620/3.svg', title: '一只干干净净的小袜子', category: 'clothes' },
   { icon: '/assets/CodeBuddyAssets/401_620/4.svg', title: '不知道谁家的拨浪鼓',   category: 'toys' },
   { icon: '/assets/CodeBuddyAssets/401_620/5.svg', title: '缺了个角的积木',       category: 'toys' },

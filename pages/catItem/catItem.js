@@ -48,10 +48,14 @@ const CATEGORIES = [
   { id: 'toys', label: '玩具' },
   { id: 'sports', label: '运动' },
   { id: 'clothes', label: '衣物' },
-  { id: 'animals', label: '动物' },
-  { id: 'plants', label: '植物' },
+  { id: 'nature', label: '自然' },
   { id: 'cards', label: '卡片' },
 ]
+
+/* 分类归并：旧的「动物 animals」+「植物 plants」合并为「自然 nature」。
+   老 storage（catItems）里存的仍是旧分类 id，读取时统一归并，不改写历史数据。 */
+const CATEGORY_ALIAS = { animals: 'nature', plants: 'nature' }
+const normalizeCategory = c => CATEGORY_ALIAS[c] || c || 'toys'
 
 Page({
 
@@ -113,7 +117,7 @@ Page({
     const normals = brought.filter(it => it && it.id).map(it => ({
       id: it.id,
       name: it.title || it.name || '物品',
-      category: it.category || 'toys',
+      category: normalizeCategory(it.category),   // 动物/植物 → 自然
       symbol: it.symbol || '',
       icon: it.icon || '',
     }))
