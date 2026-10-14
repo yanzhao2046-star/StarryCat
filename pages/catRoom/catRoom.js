@@ -292,6 +292,11 @@ Page({
           this.catBubble('（我溜达到「' + place.name + '」，位置地图上多了一张卡片）')
           break
         }
+        case 'givePlace': {          // 顺手给位置卡：与 catLocation 共享 addPlace 池，触发更随机、低频
+          const place = outputs.addPlace()
+          this.catBubble('（猫叼回来一张「' + place.name + '」的地图卡，位置地图上多了一张）')
+          break
+        }
         case 'giveStairs': {         // 楼梯部件：进秘境物料库（realm 读同一份 storage）
           const got = outputs.addRealmMaterial()
           this.catBubble(got
