@@ -1,5 +1,6 @@
 /* pages/catItem/catItem.js — 猫物 (Figma 429_1103) */
 const APP = getApp()
+const itemCatalog = require('../../utils/itemCatalog.js')
 
 const LIB_KEY = 'catItems'        // 猫带回的普通物品（catRoom addItem 落盘），仓库初始为空
 const COMBO_KEY = 'catItemSandbox'
@@ -40,7 +41,6 @@ const REPLY_BG_COLOR = '#FBEEDF'
    ⚠️ 仓库里 1207_179/ 目录为空，请后续把实际信封图放进去再启用 */
 const REPLY_ENVELOPE = '/assets/CodeBuddyAssets/1207_179/1.png'
 
-const ICON_BASE = '/assets/CodeBuddyAssets/401_620/'
 /* 物品库不再预置占位物品：普通物品全部由猫带回（bringItem → catItems），
    卡片由梦卡/旅卡「保存」进来（catItemCards） */
 
@@ -114,7 +114,8 @@ Page({
     let brought = []
     try { brought = wx.getStorageSync(LIB_KEY) || [] } catch (e) {}
     if (!Array.isArray(brought)) brought = []
-    const normals = brought.filter(it => it && it.id).map(it => ({
+    /* 过滤掉用弃用素材（401_620）的历史物品，与 catRoom 的清理口径一致 */
+    const normals = brought.filter(it => it && it.id && !itemCatalog.isRetiredItem(it)).map(it => ({
       id: it.id,
       name: it.title || it.name || '物品',
       category: normalizeCategory(it.category),   // 动物/植物 → 自然

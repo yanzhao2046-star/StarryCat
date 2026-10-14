@@ -8,7 +8,7 @@
      · TOY_CATALOG     玩具 13 件，带稀有度 tier
      · NATURE_CATALOG  自然类 13 件（无稀有度标记，按常见处理）
      · CLOTHES_CATALOG 衣物 5 件（无稀有度标记，按常见处理）
-     · LEGACY_ITEMS    老素材 7 件（401_620/1~7.svg，跨 toys / sports / clothes / nature）
+   （旧素材 401_620/1~7.svg 的 7 件已弃用，不再带回，见文件末尾「弃用素材清理」）
 
    稀有度（tier）：按素材批次定义，数字越小越稀有、被带回的频率越低
      tier 1 = 极为稀有（4 件）
@@ -22,9 +22,7 @@
 
 /* 稀有度权重（可自由调）：tier1 极为稀有 / tier2 稀有 / tier3 常见 */
 const TIER_WEIGHT = { 1: 1, 2: 4, 3: 12 }
-/* 老素材（401_620 的 7 件 SVG，跨 nature / clothes / toys / sports）统一权重 */
-const LEGACY_WEIGHT = 12
-/* 自然类（13 件）：素材无稀有度标记，按「常见」处理，与老素材同权 */
+/* 自然类（13 件）：素材无稀有度标记，按「常见」处理 */
 const NATURE_WEIGHT = 12
 /* 衣物（5 件）：素材无稀有度标记，按「常见」处理 */
 const CLOTHES_WEIGHT = 12
@@ -87,17 +85,26 @@ const CLOTHES_CATALOG = [
   { id: 'clothes_oldSock',     title: '旧棉袜',   category: 'clothes', icon: '/assets/CodeBuddyAssets/items/clothes/clothes_oldSock.png' },
 ]
 
-/* ---------- 老素材池（401_620/1~7.svg 与名称/分类一一对应）
-   8.svg 是 62×22 横条素材、9.svg 是空图，不作物品图标用 */
-const LEGACY_ITEMS = [
-  { icon: '/assets/CodeBuddyAssets/401_620/1.svg', title: '不怕人的小老鼠',       category: 'nature' },
-  { icon: '/assets/CodeBuddyAssets/401_620/2.svg', title: '一根蓝色的羽毛',       category: 'nature' },
-  { icon: '/assets/CodeBuddyAssets/401_620/3.svg', title: '一只干干净净的小袜子', category: 'clothes' },
-  { icon: '/assets/CodeBuddyAssets/401_620/4.svg', title: '不知道谁家的拨浪鼓',   category: 'toys' },
-  { icon: '/assets/CodeBuddyAssets/401_620/5.svg', title: '缺了个角的积木',       category: 'toys' },
-  { icon: '/assets/CodeBuddyAssets/401_620/6.svg', title: '瘪了一点的网球',       category: 'sports' },
-  { icon: '/assets/CodeBuddyAssets/401_620/7.svg', title: '坐得很端正的玩具熊',   category: 'toys' },
-]
+/* ---------- 弃用素材清理（2026-10：物件图统一换成新三批）----------
+   老 storage（catItems）里可能还留着用旧图标的物品，
+   读取时把这些条目直接剔除，并回写 storage，不再展示。 */
+const RETIRED_ICON_PREFIXES = ['/assets/CodeBuddyAssets/401_620/']
+
+/* 是否是弃用图标的物品 */
+function isRetiredItem(it) {
+  const icon = it && it.icon ? it.icon : ''
+  for (let i = 0; i < RETIRED_ICON_PREFIXES.length; i++) {
+    if (icon.indexOf(RETIRED_ICON_PREFIXES[i]) === 0) return true
+  }
+  return false
+}
+
+/* 剔除弃用物品，返回 { list, removed }（removed > 0 则调用方需回写 storage） */
+function purgeRetiredItems(list) {
+  const arr = Array.isArray(list) ? list : []
+  const kept = arr.filter(it => !isRetiredItem(it))
+  return { list: kept, removed: arr.length - kept.length }
+}
 
 /* 加权随机：list 每项自带 weight，缺省按 1 计 */
 function pickWeighted(list) {
@@ -111,7 +118,7 @@ function pickWeighted(list) {
   return list[list.length - 1]
 }
 
-/* 猫带回一件物品（老素材 + 玩具 + 自然类 + 衣物 合并加权抽），返回 { icon, title, category, tier } */
+/* 猫带回一件物品（玩具 + 自然类 + 衣物 合并加权抽），返回 { icon, title, category, tier } */
 function pickBringItem() {
   const toys = TOY_CATALOG.map(t => ({
     icon: t.icon,
@@ -122,20 +129,20 @@ function pickBringItem() {
   }))
   const nature = NATURE_CATALOG.map(n => ({ ...n, weight: NATURE_WEIGHT }))
   const clothes = CLOTHES_CATALOG.map(c => ({ ...c, weight: CLOTHES_WEIGHT }))
-  const legacy = LEGACY_ITEMS.map(it => ({ ...it, weight: LEGACY_WEIGHT }))
-  const src = pickWeighted(legacy.concat(toys).concat(nature).concat(clothes))
+  const src = pickWeighted(toys.concat(nature).concat(clothes))
   return { icon: src.icon, title: src.title, category: src.category, tier: src.tier }
 }
 
 module.exports = {
   TIER_WEIGHT,
-  LEGACY_WEIGHT,
   NATURE_WEIGHT,
   CLOTHES_WEIGHT,
   TOY_CATALOG,
   NATURE_CATALOG,
   CLOTHES_CATALOG,
-  LEGACY_ITEMS,
+  RETIRED_ICON_PREFIXES,
+  isRetiredItem,
+  purgeRetiredItems,
   pickWeighted,
   pickBringItem,
 }

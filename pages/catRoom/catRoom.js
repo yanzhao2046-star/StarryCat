@@ -42,8 +42,8 @@ const NOTHING_LINES = [
   '（猫两手空空地回来了，还装作若无其事）',
   '（猫今天什么都没带回来，但心情好像还不错）',
 ]
-/* 猫带回物品的素材目录已抽到 utils/itemCatalog.js
-   （老素材 401_620/1~7 + 13 件玩具，按 tier 稀有度加权抽取） */
+/* 猫带回物品的素材目录在 utils/itemCatalog.js
+   （玩具 13 + 自然 13 + 衣物 5，玩具带 tier 稀有度，其余按常见加权抽取） */
 const pick = arr => arr[Math.floor(Math.random() * arr.length)]
 /* 邮件寄出时间 → "M/D HH:MM"，与邮件一同渲染在内容底部 */
 const formatMailTime = ts => {
@@ -273,7 +273,7 @@ Page({
             title: src.title,
             type: 'normal',
             category: src.category,
-            tier: src.tier,          // 老素材（401_620）无 tier，落库时自动省略
+            tier: src.tier,          // 自然/衣物无 tier，落库时自动省略
           })
           this.catBubble('（猫带回来一件东西，放进物品库了）')
           break
@@ -1167,6 +1167,12 @@ Page({
     try { items = wx.getStorageSync(ITEM_STORAGE_KEY) || [] } catch (e) {}
     try { noteMap = wx.getStorageSync(ITEM_NOTE_STORAGE_KEY) || {} } catch (e) {}
     if (!Array.isArray(items)) items = []
+    /* 弃用素材清理：还在用旧图（401_620）的物品一次性从 storage 剔除 */
+    const purged = itemCatalog.purgeRetiredItems(items)
+    if (purged.removed) {
+      items = purged.list
+      try { wx.setStorageSync(ITEM_STORAGE_KEY, items) } catch (e) {}
+    }
     this.setData({ items, itemNoteSentMap: noteMap })
   },
 
