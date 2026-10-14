@@ -4,6 +4,11 @@
    由来：猫出门回家时会「带回物品」，物品对象写进 storage `catItems`，
         物品库（pages/catItem）同源读取。本文件是唯一一份硬编码目录。
 
+   目录构成：
+     · TOY_CATALOG    玩具 13 件，带稀有度 tier
+     · NATURE_CATALOG 自然类 10 件（无稀有度标记，按常见处理）
+     · LEGACY_ITEMS   老素材 7 件（401_620/1~7.svg，跨 toys / sports / clothes / nature）
+
    稀有度（tier）：按素材批次定义，数字越小越稀有、被带回的频率越低
      tier 1 = 极为稀有（4 件）
      tier 2 = 稀有    （6 件）
@@ -16,8 +21,10 @@
 
 /* 稀有度权重（可自由调）：tier1 极为稀有 / tier2 稀有 / tier3 常见 */
 const TIER_WEIGHT = { 1: 1, 2: 4, 3: 12 }
-/* 老素材（401_620 的 7 件 SVG，跨 animals / clothes / toys / sports）统一权重 */
+/* 老素材（401_620 的 7 件 SVG，跨 nature / clothes / toys / sports）统一权重 */
 const LEGACY_WEIGHT = 12
+/* 自然类（10 件）：素材无稀有度标记，按「常见」处理，与老素材同权 */
+const NATURE_WEIGHT = 12
 
 /* ---------- 玩具目录（13 件）----------
    素材：F:\...\参考\猫\风格\确定风格\物品\玩具\t_*.png
@@ -41,6 +48,23 @@ const TOY_CATALOG = [
   { id: 'toy_musicBox',     title: '八音盒',     tier: 3, icon: '/assets/CodeBuddyAssets/items/toys/toy_musicBox.png' },
   { id: 'toy_clothRabbit',  title: '布兔子',     tier: 3, icon: '/assets/CodeBuddyAssets/items/toys/toy_clothRabbit.png' },
   { id: 'toy_crystalBall',  title: '水晶球',     tier: 3, icon: '/assets/CodeBuddyAssets/items/toys/toy_crystalBall.png' },
+]
+
+/* ---------- 自然类目录（10 件）----------
+   素材：F:\...\参考\猫\风格\确定风格\物品\自然类物件\n_*.png
+   已按同一规则（裁边 → 统一留白 → 200×200）打包到 assets/CodeBuddyAssets/items/nature/
+   无稀有度标记 → 统一按「常见」权重带回 */
+const NATURE_CATALOG = [
+  { id: 'nature_glassShard',   title: '彩色玻璃碎片', category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_glassShard.png' },
+  { id: 'nature_driedBouquet', title: '干花束',       category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_driedBouquet.png' },
+  { id: 'nature_smoothStone',  title: '光滑石头',     category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_smoothStone.png' },
+  { id: 'nature_grayFeather',  title: '灰蓝羽毛',     category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_grayFeather.png' },
+  { id: 'nature_goldenLeaf',   title: '金黄梧桐叶',   category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_goldenLeaf.png' },
+  { id: 'nature_shell',        title: '小贝壳',       category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_shell.png' },
+  { id: 'nature_mushroom',     title: '小蘑菇',       category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_mushroom.png' },
+  { id: 'nature_pinecone',     title: '小松果',       category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_pinecone.png' },
+  { id: 'nature_key',          title: '钥匙',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_key.png' },
+  { id: 'nature_berries',      title: '野莓',         category: 'nature', icon: '/assets/CodeBuddyAssets/items/nature/nature_berries.png' },
 ]
 
 /* ---------- 老素材池（401_620/1~7.svg 与名称/分类一一对应）
@@ -67,7 +91,7 @@ function pickWeighted(list) {
   return list[list.length - 1]
 }
 
-/* 猫带回一件物品（老素材 + 玩具目录合并加权抽），返回 { icon, title, category, tier } */
+/* 猫带回一件物品（老素材 + 玩具 + 自然类 合并加权抽），返回 { icon, title, category, tier } */
 function pickBringItem() {
   const toys = TOY_CATALOG.map(t => ({
     icon: t.icon,
@@ -76,15 +100,18 @@ function pickBringItem() {
     tier: t.tier,
     weight: TIER_WEIGHT[t.tier] || 1,
   }))
+  const nature = NATURE_CATALOG.map(n => ({ ...n, weight: NATURE_WEIGHT }))
   const legacy = LEGACY_ITEMS.map(it => ({ ...it, weight: LEGACY_WEIGHT }))
-  const src = pickWeighted(legacy.concat(toys))
+  const src = pickWeighted(legacy.concat(toys).concat(nature))
   return { icon: src.icon, title: src.title, category: src.category, tier: src.tier }
 }
 
 module.exports = {
   TIER_WEIGHT,
   LEGACY_WEIGHT,
+  NATURE_WEIGHT,
   TOY_CATALOG,
+  NATURE_CATALOG,
   LEGACY_ITEMS,
   pickWeighted,
   pickBringItem,
