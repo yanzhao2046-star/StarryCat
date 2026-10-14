@@ -188,25 +188,34 @@ function removeMail(id) {
 
 /* ============================================================
    外出去处（goOut · 位置 tab 的地图）
+   位置卡片素材：F:\...\参考\猫\风格\确定风格\位置卡片\site_*.png
+   已打包到 assets/CodeBuddyAssets/sites/（640px WebP）。
+   name/note 与画面里烤进图的标签一致；site_01 为 site_02 的草稿未采用。
    ============================================================ */
-const PLACE_NAMES = [
-  '歪脖子电线杆', '会喘气的信箱', '三楼半的阳台', '月亮垃圾桶',
-  '影子游乐场', '长蘑菇的墙缝', '打盹专用天台', '晾衣绳广场',
-  '纸箱巷', '风把它吹歪的邮筒',
-]
-const PLACE_NOTES = [
-  '这里很适合观察人类。',
-  '风把味道都吹过来了，站一会儿就值。',
-  '据说很久以前有一只很胖的猫住在这。',
-  '阳光落下来的角度刚刚好。',
-  '我在这里留下了三根胡子和一个秘密。',
+const SITE_DIR = '/assets/CodeBuddyAssets/sites'
+/* 猫刚溜出门（goOut）：位置不明，用「我在这儿」这张模糊梗图 */
+const SITE_HOME = { img: SITE_DIR + '/site_02.webp', name: '我在这儿', note: '具体在哪，我不清楚' }
+/* 溜达到某处（catLocation）：随机抽一张去处卡 */
+const SITE_CARDS = [
+  { img: SITE_DIR + '/site_03.webp', name: '桥洞躲雨处',   note: '垂柳下的风' },
+  { img: SITE_DIR + '/site_04.webp', name: '打盹的石阶',   note: '田埂尽头' },
+  { img: SITE_DIR + '/site_05.webp', name: '蒲公英坡',     note: '风停下来的地方，晒过太阳的草甸' },
+  { img: SITE_DIR + '/site_06.webp', name: '漏窗前的影子', note: '假山背后，荷花池边' },
+  { img: SITE_DIR + '/site_07.webp', name: '半山亭子',     note: '溪流水声里，云飘过去的山口' },
+  { img: SITE_DIR + '/site_09.webp', name: '卖花摊边掉落的花瓣', note: '天桥桥墩避风角' },
+  { img: SITE_DIR + '/site_10.webp', name: '掉了半块面包的台阶', note: '超市后门的纸箱，冷藏柜出风口' },
+  { img: SITE_DIR + '/site_11.webp', name: '晒过太阳的墙根', note: '爬墙虎藤下面，墙缝的小风' },
+  { img: SITE_DIR + '/site_12.webp', name: '梧桐树荫下',   note: '冒热气的井盖，路牙石边的光斑' },
+  { img: SITE_DIR + '/site_13.webp', name: '末班车开过的路牙', note: '公交站长椅下，站牌后面躲雨' },
 ]
 
-function addPlace() {
+function addPlace(opts) {
+  const card = (opts && opts.home) ? SITE_HOME : pick(SITE_CARDS)
   const place = {
     id: 'place_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-    name: pick(PLACE_NAMES),
-    note: pick(PLACE_NOTES),
+    img: card.img,
+    name: card.name,
+    note: card.note,
     at: Date.now(),
   }
   return _pushList(PLACE_KEY, place, 20)

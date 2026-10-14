@@ -393,12 +393,9 @@
           </scroll-view>
         </view>
 
-        <!-- ===== 位置：Figma 413_669 风格 =====
-             现阶段直接拿 413_669/1.webp 当样本图（含猫 / pin / 5 个模糊地点名 / 自述）。
-             等设计出一张「无字版」底图后，启用：
-               · 底图替换为无字图
-               · 标签层用 AI 编的「莫名其妙」地点名（机制已经预埋在云函数 chatHunyuan 的 location 分支）
-               · 自述也由 AI 生成 -->
+        <!-- ===== 位置：猫随机带回的位置卡片（site_*.webp，地名烤在图里）=====
+             locationPlace.img 由 catBehaviorOutputs.addPlace() 随机抽取；
+             旧数据（无 img 字段）回退到 413_669 样本图 -->
         <view class="loc-view" wx:elif="{{otherTab === 'location'}}">
           <!-- 空态：猫还没出过门，地图上没有痕迹 -->
           <view class="flow-empty" wx:if="{{!locationPlace}}">
@@ -409,7 +406,7 @@
           <block wx:else>
             <image webp="{{true}}"
               class="loc-map"
-              src="/assets/CodeBuddyAssets/413_669/1.png"
+              src="{{locationPlace.img || '/assets/CodeBuddyAssets/413_669/1.png'}}"
               mode="widthFix"
             />
             <view class="loc-caption">

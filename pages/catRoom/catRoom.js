@@ -241,7 +241,7 @@ Page({
         case 'goOut': {              // 出门：猫从房间消失 + 发来邮件 + 留下去处（位置地图）
           this._lastCatPose = this.data.catPoses[0] || this._lastCatPose
           this.setData({ catPoses: [] })
-          const place = outputs.addPlace()
+          const place = outputs.addPlace({ home: true })   // 刚出门位置不明 → 「我在这儿」模糊卡
           const mail = outputs.addMail()
           this.setData({
             locationPlace: { ...place, timeText: formatMailTime(place.at) },
@@ -889,8 +889,8 @@ Page({
         id: 'placecard_' + Date.now(),
         name: place.name,
         category: 'cards',
-        icon: '/assets/CodeBuddyAssets/413_669/1.png',
-        cover: '/assets/CodeBuddyAssets/413_669/1.png',
+        icon: place.img || '/assets/CodeBuddyAssets/413_669/1.png',
+        cover: place.img || '/assets/CodeBuddyAssets/413_669/1.png',
         source: 'place',
         placeId: place.id,
         note: place.note,
