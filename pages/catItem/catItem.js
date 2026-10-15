@@ -67,6 +67,8 @@ Page({
     slots: [],
     dragItem: null,
     comboMessage: '',
+    /* 卡片放大预览：点卡片栏里的卡全屏放大，点任意处收起 */
+    cardPreview: null,
     msgModalVisible: false,
     msgDraft: '',
     /* 密封信件状态：'' 无信件 → 'letter' 信件出现 → 'taken' 被猫拿走 */
@@ -198,12 +200,27 @@ Page({
 
   onPickItem(e) {
     const id = e.currentTarget.dataset.id
+    const item = (this._itemsById || {})[id]
+    /* 卡片不参与组合：点按 → 全屏放大预览 */
+    if (item && item.category === 'cards') {
+      this.setData({ cardPreview: {
+        id: item.id,
+        icon: item.icon || '',
+        name: item.name || '',
+        note: item.note || item.quote || '',
+      } })
+      return
+    }
     const idx = this._firstEmptySlot()
     if (idx < 0) {
       wx.showToast({ title: '最多放 3 件', icon: 'none' })
       return
     }
     this._placeIntoSlot(id, idx)
+  },
+
+  onCardPreviewClose() {
+    this.setData({ cardPreview: null })
   },
 
   _firstEmptySlot() {
@@ -238,6 +255,8 @@ Page({
     const id = ds.id
     const item = (this._itemsById || {})[id]
     if (!item) return
+    /* 卡片不参与组合：不进入拖拽流程 */
+    if (item.category === 'cards') return
     const touch = e.touches && e.touches[0]
     if (!touch) return
     this._drag = { source: ds.source || 'grid', itemId: id, icon: item.icon, name: item.name }

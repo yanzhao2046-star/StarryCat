@@ -126,6 +126,13 @@
     <image webp="{{true}}" class="drag-icon" src="{{dragItem.icon}}" mode="aspectFit"></image>
   </view>
 
+  <!-- ============== 卡片放大预览（点卡片栏里的卡全屏放大，点任意处收起） ============== -->
+  <view class="card-preview" wx:if="{{cardPreview}}" bindtap="onCardPreviewClose">
+    <image webp="{{true}}" class="card-preview__img" src="{{cardPreview.icon}}" mode="aspectFit" />
+    <text class="card-preview__name">{{cardPreview.name}}</text>
+    <text class="card-preview__note" wx:if="{{cardPreview.note}}">{{cardPreview.note}}</text>
+  </view>
+
   <!-- ============== 留言弹窗 ============== -->
   <view class="msg-modal" wx:if="{{msgModalVisible}}">
     <view class="msg-modal__mask" bindtap="onMessageCancel"></view>

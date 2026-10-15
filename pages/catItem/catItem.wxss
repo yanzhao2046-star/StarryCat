@@ -381,6 +381,45 @@
   filter: drop-shadow(0 4rpx 8rpx rgba(0, 0, 0, 0.2));
 }
 
+/* ============== 卡片放大预览 ============== */
+.card-preview {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(20, 16, 14, 0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: card-preview--in 0.18s ease-out;
+}
+.card-preview__img {
+  width: 86%;
+  max-height: 62vh;
+  border-radius: 24rpx;
+  background: #FFF6F7;
+}
+.card-preview__name {
+  margin-top: 28rpx;
+  font-size: 30rpx;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+.card-preview__note {
+  margin: 16rpx 8% 0;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+@keyframes card-preview--in {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
 /* ============== 留言弹窗 ============== */
 .msg-modal {
   position: fixed;
