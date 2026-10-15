@@ -1,24 +1,19 @@
 <!-- ============================================
-    onboard - 开屏页（Figma 1800_312）
-    星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
-    猫形象：1800_312/1.png 375×489，贴底
-    入口：无 icon —— 长按猫 3 秒（时间环压满）进猫房
+    onboard - 开屏页（Figma 1800_312 + 1804_511）
+    首次进入：全屏玩法介绍页（1804_511），关闭后进入长按猫流程
+    主屏：长按猫 3 秒（时间环压满）进猫房
     ============================================ -->
 
 <view class="splash">
 
-  <!-- 品牌字：三行（Figma top:140 → 280rpx，水平居中） -->
+  <!-- 品牌字：三行（1800_312 top:140 → 280rpx 居中） -->
   <view class="brand">
     <text class="brand-line">星星猫</text>
     <text class="brand-line">宇宙</text>
     <text class="brand-line">Starrycat</text>
   </view>
 
-  <!-- 猫：长按 3 秒时间环压满后进猫房。
-       ⚠️ image 是 native 组件，touch 事件不冒泡到外层 view，
-       所以三个手势必须直接绑在 image 上（绑 cat-stack 是收不到的）。
-       ⚠️ show-menu-by-longpress=false：image 默认长按 500ms 弹「保存图片」菜单，
-       会立刻触发 touchend，把计时永远清掉。 -->
+  <!-- 猫：长按 3 秒时间环压满后进猫房 -->
   <view class="cat-stack">
     <image class="cat-layer"
            src="/assets/CodeBuddyAssets/1800_312/1.png"
@@ -30,11 +25,30 @@
            bindtouchcancel="onPressEnd" />
   </view>
 
-  <!-- 长按时间环：跟随手指位置（clientX/Y 即 splash 局部坐标，页面不可滚动），
-       玫红进度环 + 黑虚线底环，压满进猫房。pointer-events:none 不挡手势 -->
+  <!-- 长按时间环：跟随手指位置（clientX/Y 即 splash 局部坐标） -->
   <view class="press-ring {{pressing ? 'press-ring--on' : ''}}"
         style="left:{{ringX}}px;top:{{ringY}}px;">
     <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
+  </view>
+
+  <!-- 首次进入：全屏玩法介绍页（Figma 1804_511） -->
+  <view class="intro" wx:if="{{introOpen}}">
+    <view class="intro-title">玩法介绍</view>
+    <view class="intro-body">
+      <image class="intro-img" src="/assets/CodeBuddyAssets/1804_511/1.png" mode="widthFix" />
+      <view class="intro-text">
+        <text class="intro-p">你和我互动越多，我可能越愿意主动找你说话（也不一定，看心情）。</text>
+        <text class="intro-p">如果我在家，我们会聊聊天。如果在外面溜达，收集到的物品记得查看，你可以保存在仓库里。</text>
+        <text class="intro-p">你可以回复我的消息，我会随性回信。</text>
+        <text class="intro-p">我做的梦也会给你，可能...</text>
+        <text class="intro-p">仓库物品可以自由组合，把组合的心情写下来交给我。我告诉你我知道的。</text>
+        <text class="intro-p">记得喂我，在厨房，饿了我会不开心。</text>
+        <text class="intro-p">或许有一天我会带回一块宝石，这意味开启秘境。</text>
+      </view>
+    </view>
+    <view class="intro-btn" bindtap="closeIntro" hover-class="intro-btn--hover">
+      <text>我知道了</text>
+    </view>
   </view>
 
 </view>

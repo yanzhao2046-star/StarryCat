@@ -22,12 +22,25 @@ const TICK_MS = 33     // 进度刷新间隔（约 30fps）
 Page({
 
   data: {
-    pressing: false,   // 是否正在长按（控制时间环淡入淡出）
-    ringX: 187,        // 时间环中心 x（px，跟随手指 clientX）
-    ringY: 400,        // 时间环中心 y（px，跟随手指 clientY）
+    introOpen: true,    // 首次进入默认开「玩法介绍」，关闭后写 catIntroShown
+    pressing: false,    // 是否正在长按（控制时间环淡入淡出）
+    ringX: 187,         // 时间环中心 x（px，跟随手指 clientX）
+    ringY: 400,         // 时间环中心 y（px，跟随手指 clientY）
   },
 
-  onLoad() {},
+  onLoad() {
+    /* 检查是否看过介绍：看过就跳过，否则默认显示 */
+    let seen = false
+    try { seen = !!wx.getStorageSync('catIntroShown') } catch (e) {}
+    this.setData({ introOpen: !seen })
+  },
+
+  /* 关闭「玩法介绍」页：写入 storage，回到长按猫流程 */
+  closeIntro() {
+    this.setData({ introOpen: false })
+    try { wx.setStorageSync('catIntroShown', true) } catch (e) {}
+  },
+
   onReady() { this._initRing() },
 
   /* ==========================================================
