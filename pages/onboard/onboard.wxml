@@ -1,7 +1,7 @@
 <!-- ============================================
     onboard - 开屏页（Figma 1800_312 + 1804_511）
-    首次进入：全屏玩法介绍页（1804_511），关闭后进入长按猫流程
-    主屏：长按猫 3 秒（时间环压满）进猫房
+    首次进入：全屏玩法介绍页（1804_511），关闭后进入点击猫流程
+    主屏：点击猫直接进猫房
     ============================================ -->
 
 <view class="splash">
@@ -13,22 +13,13 @@
     <text class="brand-line">Starrycat</text>
   </view>
 
-  <!-- 猫：长按 3 秒时间环压满后进猫房 -->
+  <!-- 猫：点击进猫房 -->
   <view class="cat-stack">
     <image class="cat-layer"
            src="/assets/CodeBuddyAssets/1800_312/1.png"
            mode="widthFix"
            show-menu-by-longpress="{{false}}"
-           bindtouchstart="onPressStart"
-           bindtouchmove="onPressMove"
-           bindtouchend="onPressEnd"
-           bindtouchcancel="onPressEnd" />
-  </view>
-
-  <!-- 长按时间环：跟随手指位置（clientX/Y 即 splash 局部坐标） -->
-  <view class="press-ring {{pressing ? 'press-ring--on' : ''}}"
-        style="left:{{ringX}}px;top:{{ringY}}px;">
-    <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
+           bindtap="onCatTap" />
   </view>
 
 </view>
