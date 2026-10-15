@@ -54,6 +54,29 @@ page {
   text-align: center;
 }
 
+/* ------ 长按时间环（canvas 2d，压满进猫房） ------ */
+/* 位置：跟随手指（left/top 由 js 用 clientX/Y 动态写入，px），
+   transform 负偏移让环心对准指尖；不挡手势 */
+.press-ring {
+  position: absolute;
+  width: 200rpx;
+  height: 200rpx;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;           /* 不拦截长按手势 */
+  z-index: 3;
+}
+
+.press-ring--on {
+  opacity: 1;
+}
+
+.ring-canvas {
+  width: 100%;
+  height: 100%;
+}
+
 /* ------ 动画 ------ */
 @keyframes brand-in {
   from {
