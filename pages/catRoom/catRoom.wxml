@@ -551,4 +551,24 @@
     <bottom-tab current="room" bindchange="onTabChange" />
   </view>
 
+  <!-- 首次进入：全屏玩法介绍页（Figma 1804_511） -->
+  <view class="intro" wx:if="{{introOpen}}">
+    <view class="intro-title">玩法介绍</view>
+    <view class="intro-body">
+      <image class="intro-img" src="/assets/CodeBuddyAssets/1804_511/1.png" mode="widthFix" />
+      <view class="intro-text">
+        <text class="intro-p">你和我互动越多，我可能越愿意主动找你说话（也不一定，看心情）。</text>
+        <text class="intro-p">如果我在家，我们会聊聊天。如果在外面溜达，收集到的物品记得查看，你可以保存在仓库里。</text>
+        <text class="intro-p">你可以回复我的消息，我会随性回信。</text>
+        <text class="intro-p">我做的梦也会给你，可能...</text>
+        <text class="intro-p">仓库物品可以自由组合，把组合的心情写下来交给我。我告诉你我知道的。</text>
+        <text class="intro-p">记得喂我，在厨房，饿了我会不开心。</text>
+        <text class="intro-p">或许有一天我会带回一块宝石，这意味开启秘境。</text>
+      </view>
+    </view>
+    <view class="intro-btn" bindtap="closeIntro" hover-class="intro-btn--hover">
+      <text>我知道了</text>
+    </view>
+  </view>
+
 </view>
