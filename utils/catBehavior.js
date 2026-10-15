@@ -44,48 +44,19 @@ const CONFIG = {
   },
 }
 
-/* ---- 行为表：id + name + tier + when(ctx) + 可选 bubble ----
-   when 谓词统一了"场景门"和"阶段门"——引擎不再按 location/isNight 分支 */
+/* ---- 行为表：id + name + tier（tier 决定 base p） ---- */
 const BEHAVIORS = {
-  /* 基础 · 全程开放 */
-  dream:         { id: 'dream',         name: '做梦',         tier: 'rare',
-                  when: ctx => ctx.scene==='home' && ctx.isNight },
-  cateat:        { id: 'cateat',        name: '猫吃粮食',     tier: 'common',
-                  when: ctx => ctx.scene==='home' && !ctx.isNight },
-  moveSpot:      { id: 'moveSpot',      name: '换位置',       tier: 'common',
-                  when: ctx => ctx.scene==='home' && !ctx.isNight },
-  catmood:       { id: 'catmood',       name: '猫心情',       tier: 'common',
-                  when: () => true },
-
-  /* 阶段门 · 亲密门槛解锁（解锁时第一次触发附带 bubble） */
-  proactiveTalk: { id: 'proactiveTalk', name: '主动说遭遇',   tier: 'common',
-                  when: ctx => ctx.intimacy >= 0.3,
-                  bubble: '（猫凑过来闻了闻你……）' },
-  bringMail:     { id: 'bringMail',     name: '主动寄信',     tier: 'rare',
-                  when: ctx => ctx.scene==='home' && ctx.intimacy >= 0.6,
-                  bubble: '（猫叼着一张明信片过来找你……）' },
-  catLocation:   { id: 'catLocation',   name: '猫在哪地图',   tier: 'common',
-                  when: ctx => ctx.scene==='outside' && ctx.intimacy >= 0.9,
-                  bubble: '（猫示意你可以看看它在外面去了哪）' },
-
-  /* progress 占位（调试 trigger 可触发；正常流程由独立进度系统驱动；自动引擎不走） */
-  bringCrystal:  { id: 'bringCrystal',  name: '带回水晶',     tier: 'rare',   when: () => false },
-  giveStairs:    { id: 'giveStairs',    name: '给予楼梯部件', tier: 'rare',   when: () => false },
-  bridgeReact:   { id: 'bridgeReact',   name: '拼成桥梁反馈', tier: 'rare',   when: () => false },
-
-  /* 互斥组（return 抽带物）的占位 · 调试 trigger 友好 · 自动引擎不走 */
-  bringFood:     { id: 'bringFood',     name: '带回食品',     tier: 'rare',   when: () => false },
-  bringItem:     { id: 'bringItem',     name: '带回物品',     tier: 'rare',   when: () => false },
-  bringTravel:   { id: 'bringTravel',   name: '带回旅行卡',   tier: 'rare',   when: () => false },
-  bringNothing:  { id: 'bringNothing',  name: '空手而归',     tier: 'rare',   when: () => false },
+  dream:         { id: 'dream',         name: '做梦',         tier: 'rare' },
+  cateat:        { id: 'cateat',        name: '猫吃粮食',     tier: 'common' },
+  moveSpot:      { id: 'moveSpot',      name: '换位置',       tier: 'common' },
+  proactiveTalk: { id: 'proactiveTalk', name: '主动说遭遇',   tier: 'common' },
+  catmood:       { id: 'catmood',       name: '猫心情',       tier: 'common' },
+  catLocation:   { id: 'catLocation',   name: '猫在哪地图',   tier: 'common' },
+  /* progress 类（带回宝石 / 楼梯部件）留作占位，调试面板可触发；具体达成逻辑见 catRoom */
+  bringCrystal:  { id: 'bringCrystal',  name: '带回水晶',     tier: 'rare' },
+  giveStairs:    { id: 'giveStairs',    name: '给予楼梯部件', tier: 'rare' },
+  bridgeReact:   { id: 'bridgeReact',   name: '拼成桥梁反馈', tier: 'rare' },
 }
-
-/* ---- 阶段门槛（addIntimacy 跨过门槛时 emit unlock 事件 + 附 bubble） ---- */
-const STAGE_GATES = [
-  { at: 0.3, unlocks: ['proactiveTalk'] },
-  { at: 0.6, unlocks: ['bringMail'] },
-  { at: 0.9, unlocks: ['catLocation'] },
-]
 
 /* ---- 互斥组：回家带物（giveStairs 不在此列） ---- */
 const RETURN_POOL = [
@@ -138,7 +109,6 @@ function saveState() {
 
 function resetState() {
   Object.assign(_state, defaultState())
-  _pendingEvents = []
   _loaded = true
   saveState()
   return _state
@@ -197,7 +167,6 @@ function settleReturn(state, list, at) {
 function _stepOnce(state, list, t) {
   const sens = sensitivity(state)
   const night = isNight(t)
-  const ctx = { sens, intimacy: state.intimacy, scene: state.location, isNight: night, now: t }
 
   /* chain 1：在家 + 非夜 + 满足回家冷却 → 按 common tier 概率出门 */
   if (state.location === 'home' && !night && (t - state.lastBackAt) >= HOME_STAY_MS) {
@@ -219,8 +188,24 @@ function _stepOnce(state, list, t) {
     settleReturn(state, list, t)
   }
 
-  /* behaviors：统一遍历，when 谓词自决（场景 + 阶段门合一） */
-  _runBehaviors(state, list, ctx)
+  /* behaviors：4 段分支（home+夜 / home+白天 / 通用 / outside） */
+  if (state.location === 'home' && night) {
+    /* 夜间在家 = 睡觉状态（ctx.isNight 即"睡"）；只触发 dream */
+    if (Math.random() < actualP('rare', sens)) {
+      pushEvent(state, list, BEHAVIORS.dream, t)
+    }
+  }
+  if (state.location === 'home' && !night) {
+    if (Math.random() < actualP('common', sens)) pushEvent(state, list, BEHAVIORS.cateat, t)
+    if (Math.random() < actualP('common', sens)) pushEvent(state, list, BEHAVIORS.moveSpot, t)
+  }
+  /* 通用：proactiveTalk / catmood 不挑场景 */
+  if (Math.random() < actualP('common', sens)) pushEvent(state, list, BEHAVIORS.proactiveTalk, t)
+  if (Math.random() < actualP('common', sens)) pushEvent(state, list, BEHAVIORS.catmood, t)
+  /* 在外专属：地图 */
+  if (state.location === 'outside') {
+    if (Math.random() < actualP('common', sens)) pushEvent(state, list, BEHAVIORS.catLocation, t)
+  }
 
   /* pending 队列到期 */
   state.pending = state.pending.filter(p => {
@@ -280,52 +265,13 @@ function onUserAction(kind, replyTo) {
   return { ok: true, delayMs: 0 }
 }
 
-/* ---- 行为统一遍历：when 谓词自决，tier 走 actualP ---- */
-function _runBehaviors(state, list, ctx) {
-  for (const id in BEHAVIORS) {
-    const b = BEHAVIORS[id]
-    if (!b.when(ctx)) continue
-    if (Math.random() < actualP(b.tier, ctx.sens)) {
-      pushEvent(state, list, b, ctx.now, b.bubble ? { bubble: b.bubble } : null)
-    }
-  }
-}
-
-/* ---- 模块内 pending 事件队列（addIntimacy 跨门槛时 push；catRoom drain 消费） ---- */
-let _pendingEvents = []
-
-function _checkStageGates(oldI, nextI) {
-  for (const g of STAGE_GATES) {
-    if (oldI < g.at && nextI >= g.at) {
-      for (const id of g.unlocks) {
-        const b = BEHAVIORS[id]
-        if (b && b.bubble) {
-          _pendingEvents.push({
-            id: 'unlock', name: b.name, at: Date.now(),
-            data: { bubble: b.bubble, behaviorId: id },
-          })
-        }
-      }
-    }
-  }
-}
-
-/* ---- 亲密度：用户主动互动累积；跨过 STAGE_GATES 时把 unlock 事件入队 ---- */
+/* ---- 亲密度：用户主动互动累积 ---- */
 function addIntimacy(delta) {
   const state = getState()
-  const oldI = state.intimacy
-  const nextI = Math.max(0, Math.min(1, state.intimacy + delta))
-  state.intimacy = nextI
+  state.intimacy = Math.max(0, Math.min(1, state.intimacy + delta))
   state.lastInteractAt = Date.now()
-  _checkStageGates(oldI, nextI)
   saveState()
   return state.intimacy
-}
-
-function drainPendingEvents() {
-  const out = _pendingEvents
-  _pendingEvents = []
-  return out
 }
 
 /* ---- 状态概览（给 catRoom UI 读） ---- */
@@ -388,7 +334,6 @@ module.exports = {
   tick,
   onUserAction,
   addIntimacy,
-  drainPendingEvents,
   info,
   isNight,
   getState,
@@ -396,8 +341,4 @@ module.exports = {
   debug,
   EAT_GRAM: CONFIG.engine.eatGram,
   TEMPERAMENT_PRESETS,
-  /* 暴露给编辑器 */
-  BEHAVIORS,
-  STAGE_GATES,
-  RETURN_POOL,
 }

@@ -374,10 +374,6 @@ Page({
           if (to && to.scene === 'postcard') this.catReplyToPostcard(to)
           break
         }
-        case 'unlock': {             // 阶段门槛解锁（破冰/熟悉/亲密）→ 一次问候气泡
-          if (ev.data && ev.data.bubble) this.catBubble(ev.data.bubble)
-          break
-        }
         default:
           break
       }
@@ -388,13 +384,6 @@ Page({
   catBubble(text) {
     this.appendMsg('ai', text, this.shouldShowTime())
     this.scrollToBottom()
-  },
-
-  /* 亲密度累积 + 跨过阶段门槛时消费 unlock 事件 */
-  _addIntimacyWithUnlock(delta) {
-    behavior.addIntimacy(delta)
-    const ev = behavior.drainPendingEvents()
-    if (ev && ev.length) this.applyBehaviorEvents(ev)
   },
 
   /* ==========================================================
@@ -607,7 +596,7 @@ Page({
     if (!text || this.data.isTyping) return
     this.appendMsg('user', text, this.shouldShowTime())
     this.scrollToBottom()
-    this._addIntimacyWithUnlock(0.02)      // 用户主动互动 → 亲密度累积（+ 跨门槛 unlock）
+    behavior.addIntimacy(0.02)             // 用户主动互动 → 亲密度累积
 
     /* replyChat 行为：按概率掷骰 + 延迟回应（当前测试参数 p=1、延迟 0~1 分钟） */
     const r = behavior.onUserAction('replyChat')
@@ -753,7 +742,7 @@ Page({
     const text = (this.data.mailReplyDraft || '').trim()
     if (!text || this.data.isMailTyping) return
     this.setData({ mailReplyModalVisible: false, mailReplyDraft: '' })
-    this._addIntimacyWithUnlock(0.02)
+    behavior.addIntimacy(0.02)
     this.sendMailReply(text)
   },
 
@@ -874,7 +863,7 @@ Page({
       icon: 'success',
       duration: 1400,
     })
-    this._addIntimacyWithUnlock(0.02)
+    behavior.addIntimacy(0.02)
     if (getApp().addCatFood) getApp().addCatFood('postcard_reply')
   },
 
@@ -1218,7 +1207,7 @@ Page({
     }
 
     try { wx.setStorageSync(DREAM_NOTE_STORAGE_KEY, hint) } catch (e) {}
-    this._addIntimacyWithUnlock(0.03)      // 解析梦 = 深度互动
+    behavior.addIntimacy(0.03)             // 解析梦 = 深度互动
 
     this.setData({
       dreamDialogVisible: false,
