@@ -23,13 +23,15 @@ Page({
 
   data: {
     pressing: false,   // 是否正在长按（控制时间环淡入淡出）
+    ringX: 187,        // 时间环中心 x（px，跟随手指 clientX）
+    ringY: 400,        // 时间环中心 y（px，跟随手指 clientY）
   },
 
   onLoad() {},
   onReady() { this._initRing() },
 
   /* ==========================================================
-     长按时间环（canvas 2d）
+     长按时间环（canvas 2d，跟随手指位置）
      ========================================================== */
   _initRing() {
     wx.createSelectorQuery().in(this)
@@ -47,11 +49,16 @@ Page({
       })
   },
 
-  onPressStart() {
+  onPressStart(e) {
     if (this._gone || this._pressing) return
+    const t = e.touches && e.touches[0]
     this._pressing = true
     this._startAt = Date.now()
-    this.setData({ pressing: true })
+    this.setData({
+      pressing: true,
+      ringX: t ? t.clientX : this.data.ringX,
+      ringY: t ? t.clientY : this.data.ringY,
+    })
     this._drawRing(0)
     this._ringTimer = setInterval(() => {
       const p = Math.min(1, (Date.now() - this._startAt) / HOLD_MS)
@@ -61,6 +68,14 @@ Page({
         this.goHome()
       }
     }, TICK_MS)
+  },
+
+  /* 手指移动时环跟着走（长按中一般不动，加了防手滑） */
+  onPressMove(e) {
+    if (!this._pressing) return
+    const t = e.touches && e.touches[0]
+    if (!t) return
+    this.setData({ ringX: t.clientX, ringY: t.clientY })
   },
 
   onPressEnd() {
@@ -76,29 +91,32 @@ Page({
     this._drawRing(0)
   },
 
-  /* 画环：p ∈ [0,1]，底环淡黑 + 进度环实黑，起点正上方顺时针 */
+  /* 画环：p ∈ [0,1]。底环黑色虚线（参考图样式），
+     进度环玫红粗线、圆头笔帽，起点正上方顺时针 */
   _drawRing(p) {
     if (!this._ring) return
     const { ctx, w, h } = this._ring
     const cx = w / 2
     const cy = h / 2
-    const r = Math.min(w, h) / 2 - 5
-    const lw = 5
+    const r = Math.min(w, h) / 2 - 9
     ctx.clearRect(0, 0, w, h)
 
-    /* 底环（始终有，给用户一个"要按住这里"的暗示） */
+    /* 底环：黑色虚线圈 */
+    ctx.save()
     ctx.beginPath()
     ctx.arc(cx, cy, r, 0, Math.PI * 2)
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.16)'
-    ctx.lineWidth = lw
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)'
+    ctx.lineWidth = 1.5
+    ctx.setLineDash([4, 4])
     ctx.stroke()
+    ctx.restore()
 
-    /* 进度环 */
+    /* 进度环：玫红 #FF1E9C，粗线圆头 */
     if (p > 0) {
       ctx.beginPath()
       ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2)
-      ctx.strokeStyle = '#000000'
-      ctx.lineWidth = lw
+      ctx.strokeStyle = '#FF1E9C'
+      ctx.lineWidth = 9
       ctx.lineCap = 'round'
       ctx.stroke()
     }

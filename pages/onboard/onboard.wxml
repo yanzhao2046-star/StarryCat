@@ -25,13 +25,16 @@
            mode="widthFix"
            show-menu-by-longpress="{{false}}"
            bindtouchstart="onPressStart"
+           bindtouchmove="onPressMove"
            bindtouchend="onPressEnd"
            bindtouchcancel="onPressEnd" />
+  </view>
 
-    <!-- 长按时间环：canvas 2d 画环形进度，按住时淡入（pointer-events: none，不挡手势） -->
-    <view class="press-ring {{pressing ? 'press-ring--on' : ''}}">
-      <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
-    </view>
+  <!-- 长按时间环：跟随手指位置（clientX/Y 即 splash 局部坐标，页面不可滚动），
+       玫红进度环 + 黑虚线底环，压满进猫房。pointer-events:none 不挡手势 -->
+  <view class="press-ring {{pressing ? 'press-ring--on' : ''}}"
+        style="left:{{ringX}}px;top:{{ringY}}px;">
+    <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
   </view>
 
 </view>
