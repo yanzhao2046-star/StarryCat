@@ -14,14 +14,18 @@
     <text class="brand-line">Starrycat</text>
   </view>
 
-  <!-- 猫：整块可按区，长按 3 秒时间环压满后进猫房 -->
-  <view class="cat-stack"
-        bindtouchstart="onPressStart"
-        bindtouchend="onPressEnd"
-        bindtouchcancel="onPressEnd">
-    <image class="cat-layer" src="/assets/CodeBuddyAssets/1800_312/1.png" mode="widthFix" />
+  <!-- 猫：长按 3 秒时间环压满后进猫房。
+       ⚠️ image 是 native 组件，touch 事件不冒泡到外层 view，
+       所以三个手势必须直接绑在 image 上（绑 cat-stack 是收不到的） -->
+  <view class="cat-stack">
+    <image class="cat-layer"
+           src="/assets/CodeBuddyAssets/1800_312/1.png"
+           mode="widthFix"
+           bindtouchstart="onPressStart"
+           bindtouchend="onPressEnd"
+           bindtouchcancel="onPressEnd" />
 
-    <!-- 长按时间环：canvas 2d 画环形进度，按住时淡入 -->
+    <!-- 长按时间环：canvas 2d 画环形进度，按住时淡入（pointer-events: none，不挡手势） -->
     <view class="press-ring {{pressing ? 'press-ring--on' : ''}}">
       <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
     </view>
