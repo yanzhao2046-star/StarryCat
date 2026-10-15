@@ -16,11 +16,14 @@
 
   <!-- 猫：长按 3 秒时间环压满后进猫房。
        ⚠️ image 是 native 组件，touch 事件不冒泡到外层 view，
-       所以三个手势必须直接绑在 image 上（绑 cat-stack 是收不到的） -->
+       所以三个手势必须直接绑在 image 上（绑 cat-stack 是收不到的）。
+       ⚠️ show-menu-by-longpress=false：image 默认长按 500ms 弹「保存图片」菜单，
+       会立刻触发 touchend，把计时永远清掉。 -->
   <view class="cat-stack">
     <image class="cat-layer"
            src="/assets/CodeBuddyAssets/1800_312/1.png"
            mode="widthFix"
+           show-menu-by-longpress="{{false}}"
            bindtouchstart="onPressStart"
            bindtouchend="onPressEnd"
            bindtouchcancel="onPressEnd" />
