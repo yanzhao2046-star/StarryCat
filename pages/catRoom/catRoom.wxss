@@ -66,6 +66,31 @@ page {
   display: block;
 }
 
+/* 分层尾巴：绝对定位在 stage-cat 容器内，锚点（transform-origin）由 JS 内联注入 */
+.stage-cat__tail {
+  position: absolute;
+  pointer-events: none;   /* 尾巴不拦点击，让热区统一接 */
+}
+/* 摆尾：左右往复 0.6s × 3 个来回后停（不是 infinite） */
+.stage-cat__tail--wag {
+  animation: tailWag 0.6s ease-in-out 3;
+}
+@keyframes tailWag {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(-12deg); }
+  75%  { transform: rotate(12deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* 摸猫热区：覆盖猫整个 box，透明 */
+.stage-cat__hot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /* 空房间提示：居中半透明胶囊，引导用户点击召唤 */
 .stage-hint {
   position: absolute;

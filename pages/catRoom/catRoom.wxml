@@ -39,6 +39,16 @@
         style="left: {{pose.box.left}}%; top: {{pose.box.top}}%; width: {{pose.box.width}}%; height: {{pose.box.height}}%"
       >
         <image webp="{{true}}" class="stage-cat__img" src="{{pose.body}}" mode="aspectFit" />
+        <!-- 分层尾巴：act01 有 tail 配置才渲染；摆尾 class 由 waggingId 控制 -->
+        <image webp="{{true}}"
+          wx:if="{{pose.tail}}"
+          class="stage-cat__tail {{waggingId === pose.id ? 'stage-cat__tail--wag' : ''}}"
+          src="{{pose.tail}}"
+          mode="aspectFit"
+          style="left: {{pose.tailBox.left}}%; top: {{pose.tailBox.top}}%; width: {{pose.tailBox.width}}%; height: {{pose.tailBox.height}}%; transform-origin: {{pose.tailOrigin}};"
+        />
+        <!-- 摸猫热区：覆盖猫整个 box，catchtap 防止冒泡到 stage 连点调试 -->
+        <view class="stage-cat__hot" wx:if="{{pose.tail}}" catchtap="onCatTap" data-id="{{pose.id}}"></view>
       </view>
     </block>
 

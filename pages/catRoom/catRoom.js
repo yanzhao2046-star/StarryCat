@@ -19,7 +19,14 @@ const STORAGE_KEY = 'catCareMessages'
 const CAT_POSES = [
   { id: 'act07', body: '/assets/CodeBuddyAssets/catRoom/act07.png', box: { left: 14.417, top: 75.875, width: 18.875, height: 17.000 } },
   { id: 'act06', body: '/assets/CodeBuddyAssets/catRoom/act06.png', box: { left: 23.583, top: 28.688, width: 22.000, height: 18.406 } },
-  { id: 'act01', body: '/assets/CodeBuddyAssets/catRoom/act01.png', box: { left: 35.250, top: 55.875, width: 17.833, height: 14.188 } },
+  /* act01：分层尾巴版（body=无尾身体 tail=独立尾巴）
+     tailBox 是尾巴 image 在 stage-cat 容器内的百分比定位（微调接缝就改这里）
+     tailOrigin 是尾巴旋转锚点（尾巴根部，相对尾巴图自身百分比） */
+  { id: 'act01', body: '/assets/CodeBuddyAssets/catRoom/act01_body.png',
+    tail: '/assets/CodeBuddyAssets/catRoom/act01_tail.png',
+    tailBox: { left: 6, top: 8, width: 32, height: 105 },
+    tailOrigin: '28% 38%',
+    box: { left: 35.250, top: 55.875, width: 17.833, height: 14.188 } },
   { id: 'act03', body: '/assets/CodeBuddyAssets/catRoom/act03.png', box: { left: 35.458, top: 3.063,  width: 16.375, height: 13.563 } },
   { id: 'act02', body: '/assets/CodeBuddyAssets/catRoom/act02.png', box: { left: 37.333, top: 79.000, width: 19.292, height: 16.375 } },
   { id: 'act08', body: '/assets/CodeBuddyAssets/catRoom/act08.png', box: { left: 71.917, top: 17.750, width: 10.333, height:  9.969 } },
@@ -90,6 +97,7 @@ Page({
     roomSrc: ROOM_LOCAL,          // 当前时段的房间背景图（dusk/night 换云存储大图）
     catPoses: [],
     catMood: '',                 // 猫当前心情标签（行为引擎 catmood 事件更新）
+    waggingId: '',               // 正在摇尾巴的猫 id（点击猫触发，1.9s 后清空）
 
     /* 对话台 · chat */
     tab: 'chat',                 // chat | other
@@ -400,6 +408,16 @@ Page({
       this._stageTapCount = 0
       this.showBehaviorDebugPanel()
     }
+  },
+
+  /* 摸猫：点击带尾巴的猫 → 尾巴摆动 3 个来回（约 1.8s）后停 */
+  onCatTap(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    if (this._wagTimer) clearTimeout(this._wagTimer)
+    this.setData({ waggingId: id })
+    /* 0.6s × 3 次循环 + 一点余量 */
+    this._wagTimer = setTimeout(() => this.setData({ waggingId: '' }), 1950)
   },
 
   /* 行为调试面板（联调用；正式版不删也无入口） */
