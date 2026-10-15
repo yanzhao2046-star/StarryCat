@@ -68,10 +68,10 @@ const BEHAVIORS = {
                   when: ctx => ctx.scene==='outside' && ctx.intimacy >= 0.9,
                   bubble: '（猫示意你可以看看它在外面去了哪）' },
 
-  /* progress 占位（调试 trigger 可触发；正常流程由独立进度系统驱动） */
-  bringCrystal:  { id: 'bringCrystal',  name: '带回水晶',     tier: 'rare',   when: () => true },
-  giveStairs:    { id: 'giveStairs',    name: '给予楼梯部件', tier: 'rare',   when: () => true },
-  bridgeReact:   { id: 'bridgeReact',   name: '拼成桥梁反馈', tier: 'rare',   when: () => true },
+  /* progress 占位（调试 trigger 可触发；正常流程由独立进度系统驱动；自动引擎不走） */
+  bringCrystal:  { id: 'bringCrystal',  name: '带回水晶',     tier: 'rare',   when: () => false },
+  giveStairs:    { id: 'giveStairs',    name: '给予楼梯部件', tier: 'rare',   when: () => false },
+  bridgeReact:   { id: 'bridgeReact',   name: '拼成桥梁反馈', tier: 'rare',   when: () => false },
 
   /* 互斥组（return 抽带物）的占位 · 调试 trigger 友好 · 自动引擎不走 */
   bringFood:     { id: 'bringFood',     name: '带回食品',     tier: 'rare',   when: () => false },
