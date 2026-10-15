@@ -289,6 +289,7 @@ Page({
           break
         case 'catLocation': {        // 猫在哪地图：随机生成一张外出去处地图卡（位置 tab 同源）
           const place = outputs.addPlace()
+          this.setData({ locationPlace: { ...place, timeText: formatMailTime(place.at) } })
           this.catBubble('（我溜达到「' + place.name + '」，位置地图上多了一张卡片）')
           break
         }
