@@ -261,7 +261,12 @@ Page({
     if (item.category === 'cards') return
     const touch = e.touches && e.touches[0]
     if (!touch) return
-    this._drag = { source: ds.source || 'grid', itemId: id, icon: item.icon, name: item.name }
+    const source = ds.source || 'grid'
+    this._drag = {
+      source, itemId: id, icon: item.icon, name: item.name,
+      /* 槽位拖出时记录原槽位（用于松手在槽位外时取出） */
+      fromSlot: source === 'slot' ? Number(ds.slot) : -1,
+    }
     this.setData({
       dragItem: { itemId: id, icon: item.icon, name: item.name, x: touch.clientX, y: touch.clientY },
     })
@@ -287,8 +292,29 @@ Page({
     const touch = e.changedTouches && e.changedTouches[0]
     if (!touch) return
     const idx = this._nearestSlot(touch.clientX, touch.clientY)
+    /* 拖动源是 grid：松手在 combo 外（idx<0）就什么都不做 */
+    if (drag.source === 'grid') {
+      if (idx < 0) return
+      this._placeIntoSlot(drag.itemId, idx)
+      return
+    }
+    /* 拖动源是 slot：松手在另一个槽位 → 移动/互换；松手在 combo 外 → 取出 */
+    if (drag.source === 'slot') {
+      if (idx >= 0 && idx !== drag.fromSlot) {
+        this._placeIntoSlot(drag.itemId, idx)   /* 已有 _placeIntoSlot 内置互换 */
+        return
+      }
+      this._removeFromSlot(drag.itemId)
+      wx.showToast({ title: '已取出', icon: 'none' })
+    }
+  },
+
+  _removeFromSlot(itemId) {
+    const idx = this._combo.findIndex(c => c && c.itemId === itemId)
     if (idx < 0) return
-    this._placeIntoSlot(drag.itemId, idx)
+    this._combo[idx] = null
+    this._saveCombo()
+    this._pushSlots()
   },
 
   _nearestSlot(x, y) {
