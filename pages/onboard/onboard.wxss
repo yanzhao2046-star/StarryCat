@@ -1,10 +1,9 @@
 /* ============================================================
-   onboard - 开屏页样式（Figma 503_1510）
+   onboard - 开屏页样式（Figma 1800_312）
    画布 375×852，背景 #FFDB01（1px = 2rpx）
-   - 品牌字  top:86  → 172rpx，72rpx 黑
-   - 开门图  83×89 @ (146,194) → 166×178rpx @ (292rpx,388rpx)
-   - 进入    15px @ y287 → 30rpx
+   - 品牌字  三行 top:140 → 280rpx，YaHei 32px→64rpx 黑
    - 猫图    375×489 @ top:363 → 750×978rpx 贴底
+   - 长按时间环：canvas 2d，叠在猫身上，3 秒压满进猫房
    ============================================================ */
 
 page {
@@ -19,8 +18,7 @@ page {
   overflow: hidden;
 }
 
-/* ------ 猫形象：整张静态图，贴屏幕底部 ------ */
-/* main.jpg 比例 735:1319，750rpx 宽 → 实际高 ≈1346rpx，容器高度自适应 */
+/* ------ 猫形象：1800_312/1.png（384×478），贴屏幕底部 ------ */
 .cat-stack {
   position: absolute;
   left: 0;
@@ -34,51 +32,50 @@ page {
   width: 750rpx;
 }
 
-
-/* ------ 品牌字（Figma 3_5：文字块 top:231 → 462rpx，下移） ------ */
+/* ------ 品牌字（Figma 1800_312：top:140 → 280rpx，三行居中） ------ */
 .brand {
   position: absolute;
-  left: 184rpx;
-  top: 462rpx;
-  width: 384rpx;
-  height: 276rpx;
+  left: 0;
+  top: 280rpx;
+  width: 100%;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;   /* Figma 文字框顶部对齐 */
   align-items: center;
   animation: brand-in 600ms ease-out both;
 }
 
 .brand-line {
-  font-size: 72rpx;
-  font-weight: 400;
+  font-size: 64rpx;               /* Figma 32px → 64rpx */
+  font-weight: 700;
+  font-family: 'Microsoft YaHei UI', 'PingFang SC', sans-serif;
   color: #000000;
-  line-height: 1.2;              /* Figma Inter 36px 自动行高 ≈ 43px */
+  line-height: 1.18;              /* Figma 138px 容器 / 4 行 ≈ 34.5px */
   text-align: center;
 }
 
-/* ------ 进入入口（唯一点击区，Figma 3_5：无 icon，top:340 → 680rpx 居中） ------ */
-.enter-wrap {
+/* ------ 长按时间环（canvas 2d，压满进猫房） ------ */
+/* 位置：猫图中心偏上（猫头位置），不挡手势 */
+.press-ring {
   position: absolute;
-  left: 0;
+  left: 50%;
+  top: 32%;
+  width: 200rpx;
+  height: 200rpx;
+  margin: -100rpx 0 0 -100rpx;
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;           /* 不拦截长按手势 */
+  z-index: 3;
+}
+
+.press-ring--on {
+  opacity: 1;
+}
+
+.ring-canvas {
   width: 100%;
-  top: 680rpx;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  animation: enter-pulse 2s ease-in-out infinite;
-}
-
-.enter-text {
-  font-size: 30rpx;              /* Figma 15px → 30rpx */
-  font-weight: 400;
-  color: #000000;
-  padding: 16rpx 48rpx;          /* 扩大点击热区 */
-}
-
-.enter-hover {
-  opacity: 0.6;
+  height: 100%;
 }
 
 /* ------ 动画 ------ */
@@ -90,14 +87,5 @@ page {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes enter-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.06);
   }
 }

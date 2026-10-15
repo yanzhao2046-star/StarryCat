@@ -1,25 +1,30 @@
 <!-- ============================================
-    onboard - 开屏页（Figma 3_5）
+    onboard - 开屏页（Figma 1800_312）
     星星猫 · 375×852 → 750×1704rpx（1px=2rpx）
-    猫形象：单张静态图（参考图「首页动画」735×1319，贴底 widthFix）
-    入口：无 icon —— 点击「进入」文字直接进猫房
+    猫形象：1800_312/1.png 375×489，贴底
+    入口：无 icon —— 长按猫 3 秒（时间环压满）进猫房
     ============================================ -->
 
 <view class="splash">
 
-  <!-- 猫形象：750rpx 宽贴底，widthFix 自适应高 ≈1346rpx，整图无裁切 -->
-  <view class="cat-stack">
-    <image class="cat-layer cat-body" src="/assets/CodeBuddyAssets/onboardCat/main.jpg" mode="widthFix" />
-  </view>
-
-  <!-- 品牌字：Figma 3_5 top:231 → 462rpx -->
+  <!-- 品牌字：三行（Figma top:140 → 280rpx，水平居中） -->
   <view class="brand">
     <text class="brand-line">星星猫</text>
+    <text class="brand-line">宇宙</text>
+    <text class="brand-line">Starrycat</text>
   </view>
 
-  <!-- 进入入口（唯一点击区）：无 icon，点击直接进入 -->
-  <view class="enter-wrap" bindtap="goHome" hover-class="enter-hover">
-    <text class="enter-text">进入</text>
+  <!-- 猫：整块可按区，长按 3 秒时间环压满后进猫房 -->
+  <view class="cat-stack"
+        bindtouchstart="onPressStart"
+        bindtouchend="onPressEnd"
+        bindtouchcancel="onPressEnd">
+    <image class="cat-layer" src="/assets/CodeBuddyAssets/1800_312/1.png" mode="widthFix" />
+
+    <!-- 长按时间环：canvas 2d 画环形进度，按住时淡入 -->
+    <view class="press-ring {{pressing ? 'press-ring--on' : ''}}">
+      <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
+    </view>
   </view>
 
 </view>
