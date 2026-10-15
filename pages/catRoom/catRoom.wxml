@@ -324,44 +324,38 @@
           </view>
           </block>
 
-          <!-- ===== 猫的梦：独立卡片，挂在上面 Meow Post 卡下方（Figma 1186_145） ===== -->
+          <!-- ===== 猫的梦：独立卡片，挂在上面 Meow Post 卡下方（Figma 1186_145 / 旅行卡文件 7:39-42） ===== -->
           <view class="dream-postcard" wx:if="{{dream}}">
 
-            <!-- 左列：卡头 + 图 -->
-            <view class="dream-postcard__left">
-              <view class="dream-postcard__head">
-                <image webp="{{true}}" class="dream-postcard__logo" src="/assets/CodeBuddyAssets/1186_145/1.svg" mode="aspectFit" />
-                <view class="dream-postcard__headtext">
-                  <text class="dream-postcard__title">DR Post</text>
-                  <text class="dream-postcard__no">{{dream.no}}</text>
-                </view>
+            <!-- 头部：横跨全宽（logo + DR Post + 编号） -->
+            <view class="dream-postcard__head">
+              <image webp="{{true}}" class="dream-postcard__logo" src="/assets/CodeBuddyAssets/1186_145/1.svg" mode="aspectFit" />
+              <view class="dream-postcard__headtext">
+                <text class="dream-postcard__title">DR Post</text>
+                <text class="dream-postcard__no">{{dream.no}}</text>
               </view>
+            </view>
+
+            <!-- 主体：左图右文（dr01-04 走成对插画；老 8 张共享 DREAM_PHOTO） -->
+            <view class="dream-postcard__body">
               <image webp="{{true}}" class="dream-postcard__photo" src="{{dream.photo}}" mode="aspectFill" />
-            </view>
-
-            <!-- 右列：梦的正文 → 解析 / 保存 → 猫的解析 -->
-            <view class="dream-postcard__right">
               <text class="dream-postcard__text" user-select="true">{{dream.text}}</text>
-
-              <!-- 解析 / 保存（Figma 1186_70：两枚等宽白底描边胶囊）
-                   保存 = 把这张卡收进物品库的「卡片」分类 -->
-              <view class="dream-postcard__actions">
-                <view class="dream-postcard__action" bindtap="onDreamInterpret" hover-class="other-btn--hover">
-                  <text>{{dream.interpreting ? '解析中…' : '解析'}}</text>
-                </view>
-                <view class="dream-postcard__action {{dream.saved ? 'dream-postcard__action--done' : ''}}"
-                      bindtap="onDreamSaveCard" hover-class="other-btn--hover">
-                  <text>{{dream.saved ? '已保存' : '保存'}}</text>
-                </view>
-              </view>
-
-              <!-- 用户自己写的解析（对话框里保存后显示） -->
-              <text class="dream-postcard__mine" wx:if="{{dream.mine}}" user-select="true">你：{{dream.mine}}</text>
-
-              <!-- 解析结果：「猫：…」（没解析过时不占位） -->
-              <text class="dream-postcard__result" wx:if="{{dream.result}}" user-select="true">猫：{{dream.result}}</text>
             </view>
 
+            <!-- 解析 / 保存（Figma 1186_70：两枚等宽白底描边胶囊） -->
+            <view class="dream-postcard__actions">
+              <view class="dream-postcard__action" bindtap="onDreamInterpret" hover-class="other-btn--hover">
+                <text>{{dream.interpreting ? '解析中…' : '解析'}}</text>
+              </view>
+              <view class="dream-postcard__action {{dream.saved ? 'dream-postcard__action--done' : ''}}"
+                    bindtap="onDreamSaveCard" hover-class="other-btn--hover">
+                <text>{{dream.saved ? '已保存' : '保存'}}</text>
+              </view>
+            </view>
+
+            <!-- 用户写的 / 猫的解析（卡内下方） -->
+            <text class="dream-postcard__mine" wx:if="{{dream.mine}}" user-select="true">你：{{dream.mine}}</text>
+            <text class="dream-postcard__result" wx:if="{{dream.result}}" user-select="true">猫：{{dream.result}}</text>
           </view>
 
         </view>

@@ -773,53 +773,45 @@ page {
 }
 
 /* ============================================================
-   猫的梦卡片（Figma 1186_145）· 独立卡片，挂在 Meow Post 卡下方
-   规格（px → 本页 520rpx 卡宽，1px ≈ 1.566rpx）：
-     卡 332×359 · #FFF6F7 · 圆角 22 · outline #EFEAE2
-     左列 172×311（距卡 18,24）：头 38（logo 32 + DR Post 16 700 + 编号 11 600）
-                                  图 172×273 圆角 12
-     右列 138×178（距卡 194,72）：梦正文 122×99 居中（Londrina Solid 12 · #796E2E）
-                                  解析 / 保存 两枚等宽胶囊 138×36 白底 + #FFDBB3 描边
-                                    （Inter 12 600 · #8A5A2B，Figma 1186_70）
-                                  「猫：…」（Londrina Solid 12 · #796E2E）
+   猫的梦卡片（Figma 1186_145 / dr01-dr04）· 独立卡片，挂在 Meow Post 卡下方
+   规格（px → 本页 520rpx 卡宽，1px ≈ 1.667rpx）：
+     卡 312×347 · #FFF6F7 · 圆角 24 · outline #EFEAE2 · shadow 0 16 40
+     头部：logo 24.99 + DR Post 16 700 + 编号 11 600（距卡 17,19）
+     主体：左图 138~166×228（objectFit: cover）+ 右文 109~135×214
+           文字 Noto Sans SC 11 / 行高 1.9 / #796E2E
+     底部：解析 / 保存 两枚等宽白底描边胶囊 138×36（Inter 12 600 · #8A5A2B）
    ============================================================ */
 .dream-postcard {
   width: 100%;
   margin-top: 26rpx;
-  padding: 38rpx 22rpx 38rpx 28rpx;
+  padding: 22rpx 22rpx 26rpx;
   box-sizing: border-box;
   background: #FFF6F7;
-  border-radius: 36rpx;
+  border-radius: 32rpx;
   border: 1rpx solid #EFEAE2;
   box-shadow: 0 22rpx 56rpx rgba(44, 34, 30, 0.12);
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* 左列：卡头 + 图 */
-.dream-postcard__left {
-  flex: 0 0 auto;
-  width: 270rpx;
-  display: flex;
-  flex-direction: column;
-}
+/* 头部（横跨全宽） */
 .dream-postcard__head {
-  height: 60rpx;
+  flex: 0 0 auto;
+  padding: 4rpx 4rpx 16rpx;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14rpx;
 }
 .dream-postcard__logo {
-  width: 50rpx;
-  height: 50rpx;
-  margin-top: 2rpx;
+  width: 48rpx;
+  height: 48rpx;
   flex: 0 0 auto;
 }
 .dream-postcard__headtext {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
-  padding-top: 2rpx;
+  gap: 4rpx;
 }
 .dream-postcard__title {
   font-size: 25rpx;
@@ -835,43 +827,49 @@ page {
   color: #8C7D77;
   line-height: 1.1;
 }
-.dream-postcard__photo {
-  width: 100%;
-  height: 428rpx;
-  display: block;
-  border-radius: 20rpx;
-}
 
-/* 右列：梦的正文 → 解析 → 猫的解析 */
-.dream-postcard__right {
-  flex: 1;
-  min-width: 0;
-  margin-top: 75rpx;
-  margin-left: 6rpx;
+/* 主体：左图右文 */
+.dream-postcard__body {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: 18rpx;
+  padding: 0 4rpx;
+}
+.dream-postcard__photo {
+  flex: 0 0 44%;
+  width: 44%;
+  height: 360rpx;
+  display: block;
+  border-radius: 14rpx;
+  background: #F4EDEA;
 }
 .dream-postcard__text {
-  min-height: 155rpx;
-  font-size: 20rpx;
-  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 360rpx;
+  padding-top: 2rpx;
+  font-size: 22rpx;
+  font-family: 'Noto Sans SC', 'Londrina Solid', 'PingFang SC', cursive;
   color: #796E2E;
-  line-height: 2;
-  text-align: center;
+  line-height: 1.9;
+  text-align: left;
   word-break: break-word;
   white-space: pre-wrap;
 }
-/* 解析 / 保存：并排两枚等宽胶囊（Figma 1186_70 · 白底 + #FFDBB3 描边） */
+
+/* 解析 / 保存 */
 .dream-postcard__actions {
-  margin-top: 16rpx;
+  margin-top: 20rpx;
   display: flex;
-  gap: 10rpx;
+  gap: 14rpx;
+  padding: 0 4rpx;
 }
 .dream-postcard__action {
   flex: 1;
   min-width: 0;
-  height: 56rpx;
-  border-radius: 28rpx;
+  height: 60rpx;
+  border-radius: 30rpx;
   background: #FFFFFF;
   border: 2rpx solid #FFDBB3;
   display: flex;
@@ -880,12 +878,11 @@ page {
   transition: background-color 120ms ease;
 }
 .dream-postcard__action text {
-  font-size: 20rpx;
+  font-size: 21rpx;
   font-weight: 600;
   font-family: 'Inter', -apple-system, sans-serif;
   color: #8A5A2B;
 }
-/* 已保存进物品库：按钮压成灰调，点它只会提示 */
 .dream-postcard__action--done {
   background: #FBF3E4;
   border-color: #EFD9B8;
@@ -893,23 +890,23 @@ page {
 .dream-postcard__action--done text {
   color: #A99A86;
 }
-/* 用户自己写的那句（对话框里保存后显示） */
+
+/* 用户写的 / 猫的解析 */
 .dream-postcard__mine {
-  margin-top: 16rpx;
-  font-size: 20rpx;
-  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  margin: 18rpx 4rpx 0;
+  font-size: 22rpx;
+  font-family: 'Noto Sans SC', 'Londrina Solid', 'PingFang SC', cursive;
   color: #8A5A2B;
-  line-height: 2;
+  line-height: 1.9;
   word-break: break-word;
   white-space: pre-wrap;
 }
-
 .dream-postcard__result {
-  margin-top: 16rpx;
-  font-size: 20rpx;
-  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  margin: 14rpx 4rpx 0;
+  font-size: 22rpx;
+  font-family: 'Noto Sans SC', 'Londrina Solid', 'PingFang SC', cursive;
   color: #796E2E;
-  line-height: 2;
+  line-height: 1.9;
   word-break: break-word;
   white-space: pre-wrap;
 }

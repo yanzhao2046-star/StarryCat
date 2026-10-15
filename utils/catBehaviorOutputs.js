@@ -61,6 +61,12 @@ function _pushList(key, item, cap) {
 /* ============================================================
    梦卡（dream 行为 · 夜间在家做梦产出）
    ============================================================ */
+/* ============================================================
+   梦卡（dream 行为 · 夜间在家做梦产出）
+   · 8 段老文案共用一张占位图（DREAM_PHOTO）
+   · 4 张新成对卡（dr01-dr04，Figma 旅行卡文件 7:39-7:42）各有自己的插画
+   · 抽卡去重（4 + 8 = 12 个槽位，见完一轮再洗牌）
+   ============================================================ */
 const DREAM_TEXTS = [
   '我梦到自己在一条鱼做的桥上散步，桥下的水全是牛奶。',
   '梦里有一片会发光的草地，我追着一只蝴蝶跑了很久，最后蝴蝶停在了我的鼻子上。',
@@ -72,12 +78,57 @@ const DREAM_TEXTS = [
   '梦到小时候的院子，墙上有我爪子印，比现在的小一圈。',
 ]
 
+/* 4 张新梦卡：Figma dr01-dr04，图文成对、文案原文落表（清掉 Figma 缩进） */
+const DREAM_CARDS_PAIRED = [
+  {
+    no: 'No. dr01', file: 'cdr01.jpg',
+    text: '我在屋顶做了一个梦：\n一只狗在漆黑的森林奔跑， 路很明亮，月亮很弯，树在风中摇摆。 月光铺成长长的绸带， 落进林间的缝隙。 它一直向前，没有终点， 森林安静，只有风声， 我悬在半空看着， 分不清是它在赶路，还是我跟着一起流浪。',
+  },
+  {
+    no: 'No. dr02', file: 'cdr02.jpg',
+    text: '我在树荫下，做了一个梦：\n一棵巨大的树撑开柔软的绿冠， 穿红裙的小人静静站在树下，仰起头。 她没有说话，只是望着层层叠叠的叶子。 风慢慢拂过树冠，落下细碎的光斑， 世界安静得只剩下树叶轻轻呼吸。',
+  },
+  {
+    no: 'No. dr03', file: 'cdr03.jpg',
+    text: '我沉沉睡去，走进了雨的梦境。 林间飘着细雨，绿得柔和。 撑橙伞的人与小狗，沿着小路缓步向前。 我悄悄跟在不远处的树影里，看着他们。 雨落在树叶上沙沙作响， 我就这样，陪着他们走了一段安静的雨中长路。',
+  },
+  {
+    no: 'No. dr04', file: 'cdr04.jpg',
+    text: '我打盹的时候做了个梦。 梦里我坐在椅子上，对着老式电视机。 屏幕泛着白光，空空的。 遥控器放在地上。 房间一片昏暗，我不明白电视为啥只有屏幕的光。 我坐着不动，一直看着它。',
+  },
+]
+const DREAM_DIR = '/assets/CodeBuddyAssets/dreamCards/'
+const DREAM_POOL_KEY = 'catDreamPoolUsed'
+
+/* 抽卡：4 张成对 + 8 张共用图，12 个槽位见完一轮再洗牌 */
+function drawDreamCard() {
+  let used = _read(DREAM_POOL_KEY, [])
+  if (!Array.isArray(used)) used = []
+  const total = DREAM_CARDS_PAIRED.length + DREAM_TEXTS.length
+  const available = []
+  for (let i = 0; i < total; i++) if (used.indexOf(i) < 0) available.push(i)
+  if (!available.length) { used = []; for (let i = 0; i < total; i++) available.push(i) }
+  const idx = pick(available)
+  used.push(idx)
+  _write(DREAM_POOL_KEY, used)
+  if (idx < DREAM_CARDS_PAIRED.length) {
+    const tpl = DREAM_CARDS_PAIRED[idx]
+    return { no: tpl.no, text: tpl.text, photo: DREAM_DIR + tpl.file }
+  }
+  return {
+    no: 'No. ' + makeCardNo(),
+    text: DREAM_TEXTS[idx - DREAM_CARDS_PAIRED.length],
+    photo: DREAM_PHOTO,
+  }
+}
+
 function addDreamCard(at) {
+  const tpl = drawDreamCard()
   const card = {
     id: 'dream_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-    no: 'No. ' + makeCardNo(),
-    photo: DREAM_PHOTO,
-    text: pick(DREAM_TEXTS),
+    no: tpl.no,
+    photo: tpl.photo,
+    text: tpl.text,
     mine: '',            // 用户自己写的解析
     result: '',          // 猫的解析
     interpreted: false,  // 是否已解析（水晶进度计数用）
