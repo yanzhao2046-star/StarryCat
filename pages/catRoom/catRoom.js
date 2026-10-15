@@ -31,6 +31,10 @@ const CAT_POSES = [
   { id: 'act02', body: '/assets/CodeBuddyAssets/catRoom/act02.png', box: { left: 37.333, top: 79.000, width: 19.292, height: 16.375 } },
   { id: 'act08', body: '/assets/CodeBuddyAssets/catRoom/act08.png', box: { left: 71.917, top: 17.750, width: 10.333, height:  9.969 } },
 ]
+
+/* 调试锁定：猫固定在沙发位（act01），方便对尾巴接缝。调完改回 '' 即恢复 6 位随机 */
+const DEBUG_SPOT = 'act01'
+
 /* ---------- Storage keys ---------- */
 const ITEM_STORAGE_KEY      = 'catItems'
 const ITEM_NOTE_STORAGE_KEY = 'catItemNotes'
@@ -226,7 +230,8 @@ Page({
       if (Object.keys(patch).length) this.setData(patch)
     } else if (!this.data.catPoses.length) {
       // 回家了：放一只回原来的位置（自动出现，不需要点房间召唤）
-      const back = this._lastCatPose || CAT_POSES[0]
+      const locked = DEBUG_SPOT ? CAT_POSES.find(p => p.id === DEBUG_SPOT) : null
+      const back = locked || this._lastCatPose || CAT_POSES[0]
       this.setData({ catPoses: [back] })
     }
   },
@@ -259,8 +264,9 @@ Page({
       switch (ev.id) {
         case 'moveSpot': {           // 换位置（编辑器概率结算）：6 个动作换一个不同的
           const cur = this.data.catPoses[0]
+          const locked = DEBUG_SPOT ? CAT_POSES.find(p => p.id === DEBUG_SPOT) : null
           const rest = CAT_POSES.filter(p => p !== cur)
-          const p = rest.length ? pick(rest) : CAT_POSES[0]
+          const p = locked || (rest.length ? pick(rest) : CAT_POSES[0])
           this._lastCatPose = p
           if (behavior.info().location === 'home') this.setData({ catPoses: [p] })
           break
