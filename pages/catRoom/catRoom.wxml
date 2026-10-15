@@ -253,7 +253,7 @@
 
           <block wx:if="{{postcard}}">
 
-          <!-- 卡片本体：头 → 图 → 引文 -->
+          <!-- 卡片本体：头 → 左图右文（Figma 993-999；992 是横图，走通栏变体） -->
           <view class="postcard-card">
             <view class="postcard-card__head">
               <image webp="{{true}}" class="postcard-card__logo" src="/assets/CodeBuddyAssets/488_1503/1.svg" mode="aspectFit" />
@@ -263,10 +263,11 @@
               </view>
             </view>
 
-            <image webp="{{true}}" class="postcard-card__photo" src="{{postcard.photo}}" mode="aspectFill" />
-
-            <view class="postcard-card__quote">
-              <text user-select="true">{{postcard.quote}}</text>
+            <view class="postcard-card__body {{postcard.wide ? 'postcard-card__body--wide' : ''}}">
+              <image webp="{{true}}" class="postcard-card__photo" src="{{postcard.photo}}" mode="aspectFill" />
+              <view class="postcard-card__quote">
+                <text user-select="true">{{postcard.quote}}</text>
+              </view>
             </view>
           </view>
 
@@ -312,6 +313,13 @@
             <view wx:elif="{{postcardReplySent}}" class="postcard-reply__sent" bindtap="onPostcardReplyAgain">
               <text class="postcard-reply__sent-tag">已寄出</text>
               <text class="postcard-reply__sent-text">{{postcardReplyText}}</text>
+            </view>
+
+            <!-- 状态 C：猫的回信（寄出后 2~5 分钟，AI 生成 → 永久留在卡上） -->
+            <view class="postcard-reply__cat" wx:if="{{postcardReplySent}}">
+              <text class="postcard-reply__cat-tag">猫的回信</text>
+              <text class="postcard-reply__cat-text" wx:if="{{postcard.catReply}}">{{postcard.catReply}}</text>
+              <text class="postcard-reply__cat-wait" wx:else>（猫还没读，等一下……）</text>
             </view>
           </view>
           </block>

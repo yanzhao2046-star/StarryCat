@@ -216,9 +216,14 @@ Page({
     const dream = outputs.getLatestDream()
     const latestMail = outputs.getLatestMail()
     const latestPlace = outputs.getLatestPlace()
+    const latestTravel = outputs.getLatestTravel()
     const patch = {
       mail: latestMail ? { ...latestMail, timeText: formatMailTime(latestMail.createdAt) } : null,
-      postcard: outputs.getLatestTravel(),
+      postcard: latestTravel,
+      /* 回复状态跟着旅卡一起续显：写过就还是「已寄出」，猫回了就把回信显示出来 */
+      postcardReplyText: latestTravel ? (latestTravel.mine || '') : '',
+      postcardReplySent: !!(latestTravel && latestTravel.mine),
+      postcardReplyOpen: false,
       dream: dream ? { ...dream, interpreting: false } : null,
       locationPlace: latestPlace ? { ...latestPlace, timeText: formatMailTime(latestPlace.at) } : null,
     }
@@ -280,10 +285,17 @@ Page({
         }
         case 'bringTravel': {        // 带回旅行卡：生成一张 Meow Post 明信片
           const card = outputs.addTravelCard()
-          this.setData({ postcard: card })
+          /* 新卡进来 → 回复区回到初始态（上张卡的回信状态不带过来） */
+          this.setData({
+            postcard: card,
+            postcardReplyOpen: false,
+            postcardReplySent: false,
+            postcardReplyText: '',
+          })
           this.catBubble('（猫带回来一张旅行卡，寄到明信片那栏了）')
           break
         }
+
         case 'bringNothing':         // 空手而归
           this.catBubble(pick(NOTHING_LINES))
           break
@@ -341,11 +353,13 @@ Page({
           outputs.unlockRealm()
           this.catBubble('（猫叼回一颗水晶，某个地方好像被点亮了……）')
           break
-        case 'replyChat':           // 回复互动：catRoom.sendText 已经直连 callHunyuan 显示过回复，
-                                    // 引擎事件流这里不再 catBubble，避免双显示。
-                                    // TODO: 其它页面的 replyChat（catItem / 梦解析 / 心情点评）扩展时，
-                                    // 在此按 ev.data.replyTo / 目标页路由派发到对应 UI。
+        case 'replyChat': {         // 回复互动（userAction 延迟到点）。chat 侧的聊天回复由
+                                    // sendText 直连 callHunyuan 显示，这里不再播报，避免双显示；
+                                    // 旅卡回信走这里：AI 带着卡面文案生成猫的回信
+          const to = ev.data && ev.data.replyTo
+          if (to && to.scene === 'postcard') this.catReplyToPostcard(to)
           break
+        }
         default:
           break
       }
@@ -807,15 +821,76 @@ Page({
   onPostcardReplyConfirm() {
     const text = (this.data.postcardReplyDraft || '').trim()
     if (!text) return
+    const card = this.data.postcard
     this.setData({
       postcardReplyOpen: false,
       postcardReplySent: true,
       postcardReplyDraft: '',
       postcardReplyText: text,
     })
-    wx.showToast({ title: '已寄出', icon: 'success', duration: 1200 })
+
+    /* 回复落盘 + 排定猫的回信（replyChat：行为表 2~5 分钟延迟，p=1 必回）
+       落盘后重进页面「已寄出」状态和猫的回信都还在 */
+    let queued = false
+    if (card) {
+      outputs.updateTravelCard(card.id, { mine: text, catReply: '', replied: false })
+      this.setData({ postcard: { ...card, mine: text, catReply: '', replied: false } })
+      const r = behavior.onUserAction('replyChat', {
+        scene: 'postcard',
+        cardId: card.id,
+        quote: card.quote,
+      })
+      queued = !!(r && r.ok)
+      if (queued) this._postcardReplyAt = Date.now()
+    }
+
+    wx.showToast({
+      title: queued ? '已寄出，等猫回信' : '已寄出',
+      icon: 'success',
+      duration: 1400,
+    })
     behavior.addIntimacy(0.02)
     if (getApp().addCatFood) getApp().addCatFood('postcard_reply')
+  },
+
+  /* 猫读卡回信：AI 带着这张卡的文案 + 用户写的话生成回信，永久写回卡片 */
+  async catReplyToPostcard(to) {
+    const card = outputs.getTravelCards().find(c => c && c.id === to.cardId)
+    if (!card) return
+    const messages = [
+      {
+        role: 'system',
+        content: '你是一只刚旅行回来的猫。你在外面给主人寄了张明信片，卡片上写着：' +
+          '“' + (card.quote || to.quote || '') + '”\n' +
+          '主人给这张卡写了回信：“' + (card.mine || '') + '”\n' +
+          '现在写一封信寄回给主人：用猫的口吻、第一人称，简短自然（40~80 字），' +
+          '呼应卡上的事和主人的话，不要复述原文，不要 markdown。',
+      },
+      { role: 'user', content: card.mine || '（主人寄回了一张空白的卡）' },
+    ]
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'moodOperations',
+        data: {
+          action: 'chatHunyuan',
+          messages,
+          moodContext: this.data.moodContext,
+          context: 'postcard_reply',
+        },
+      })
+      if (!(res.result && res.result.code === 0)) return
+      const reply = (res.result.data.reply || '').trim()
+      if (!reply || /^\[(NO_REPLY|SILENT)\]$/i.test(reply)) return
+
+      outputs.updateTravelCard(card.id, { catReply: reply, replied: true })
+      const cur = this.data.postcard
+      if (cur && cur.id === card.id) {
+        this.setData({ postcard: { ...cur, catReply: reply, replied: true } })
+      }
+      this.catBubble('（猫把回信塞回来了：' + (reply.length > 14 ? reply.slice(0, 14) + '…' : reply) + '）')
+    } catch (err) {
+      console.warn('[catRoom] 旅卡回信失败:', err)
+    }
   },
 
   /* 点已寄出区域 → 重新展开可改写 */
@@ -853,6 +928,8 @@ Page({
         no: card.no,
         photo: card.photo,
         quote: card.quote,
+        mine: card.mine || '',
+        catReply: card.catReply || '',
         createdAt: Date.now(),
       })
       wx.setStorageSync(ITEM_CARD_STORAGE_KEY, list)

@@ -208,6 +208,8 @@ Page({
         icon: item.icon || '',
         name: item.name || '',
         note: item.note || item.quote || '',
+        mine: item.mine || '',
+        catReply: item.catReply || '',
       } })
       return
     }

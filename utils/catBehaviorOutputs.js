@@ -22,7 +22,7 @@ const MOOD_KEY    = 'catMoodRecords'   // 心情库（catMoodLib 同源）
 
 /* ---------- 配图（素材池，正式版可扩充 / 换 AI 图） ---------- */
 const DREAM_PHOTO  = '/assets/CodeBuddyAssets/1186_145/2.png'
-const TRAVEL_PHOTO = '/assets/CodeBuddyAssets/488_1503/2.png'
+/* 旅卡插画不再单图占位：8 张图文成对池见下方 TRAVEL_CARDS */
 
 /* ---------- 卡片编号：992-BUG-STARE 风格 ---------- */
 const NO_TAGS = ['BUG-STARE', 'MOON-WALK', 'FISH-BRIDGE', 'RAIN-NAP', 'CLOUD-PAW',
@@ -123,27 +123,85 @@ function countInterpretedDreams() {
 /* ============================================================
    旅卡 / 明信片（bringTravel · 猫外出带回）
    ============================================================ */
-const TRAVEL_QUOTES = [
-  '‘这里的风是甜的，晾衣绳上挂满了别人家的梦。我替你闻了闻，都还不错。’',
-  '‘我在一个没人认识我的屋顶睡了一下午，云走得比钟慢。’',
-  '‘翻过三道围墙，遇见一只很凶的鹅，绕路时发现了整条街最软的草。’',
-  '‘邮筒旁边有一只在打盹的狗，我轻轻走过去了，它没发现。’',
-  '‘今天走了很远，爪垫记得每一块砖的温度。回来时你刚好在窗边。’',
-  '‘有个小孩想摸我，我让他摸了一下下巴。作为交换，他给了我半块小鱼饼干。’',
+/* 旅卡素材池：8 张「插画 + 文案」成对（Figma 旅行卡 992-999 原样落表，
+   编号与文案一字未改，图由 Figma 直出到 assets/CodeBuddyAssets/travelCards/）
+   wide=true 仅 992：通栏横图 + 文案在下；其余为「左图右文」 */
+const TRAVEL_CARDS = [
+  {
+    no: '992-BUG-STARE', file: 'c992.png', wide: true,   // 横图 + 透明底，保留 PNG
+    quote: '翻过三道围墙，遇见一只很凶的鹅，绕路时发现了整条街最软的草。',
+  },
+  {
+    no: '993-BUG-STARE', file: 'c993.jpg',
+    quote: '末班车开过的时候，路牙震得我尾巴麻。我站在站牌边看它开远，想起你上次出门很久才回来，我当时趴在窗台上也是这么等的。',
+  },
+  {
+    no: '994-BUG-STARE', file: 'c994.jpg',
+    quote: '我没有找到什么特别的宝贝。只是一路走走停停，看见很多东西，第一反应都是：要是你也能看见就好了。',
+  },
+  {
+    no: '995-BUG-STARE', file: 'c995.jpg',
+    quote: '我路过一处旧围墙，闻到很久之前残留的情绪。说不清是难过还是疲惫，我停下来陪它待了一小会儿。',
+  },
+  {
+    no: '996-BUG-STARE', file: 'c996.jpg',
+    quote: '草甸上有绵羊在发呆，我也跟它们一起发了十分钟呆。风把蒲公英吹到我鼻子上，我打了个喷嚏，想起你上次笑我打喷嚏皱鼻子的样子。',
+  },
+  {
+    no: '997-BUG-STARE', file: 'c997.jpg',
+    quote: '今天在超市后门躲太阳，冷藏柜吹出来的风，和你上次开冰箱门凉到我鼻子那次一模一样。我蹲在那里等了三分钟，没人给我们递小鱼干。',
+  },
+  {
+    no: '998-BUG-STARE', file: 'c998.jpg',
+    quote: '刚才下了十分钟小雨，我躲在桥洞下面，听雨点打在河面上哒哒响。本来想跟你说今天雨的味道很好闻，但是回来的时候雨停了，我又忘了要说什么。',
+  },
+  {
+    no: '999-BUG-STARE', file: 'c999.jpg',
+    quote: '我偷偷跟着一只蚂蚱走了半条街道！它钻到草丛不见了，害我原地找了好久，差点忘记回家的时间。',
+  },
 ]
+const TRAVEL_DIR = '/assets/CodeBuddyAssets/travelCards/'
+const TRAVEL_POOL_KEY = 'catTravelPoolUsed'   // 已抽过的卡号；见完一轮再洗牌
 
-function addTravelCard() {
+/* 抽卡：8 张抽过不重复，见完一轮重置（与位置卡同款去重） */
+function drawTravelCard() {
+  let used = _read(TRAVEL_POOL_KEY, [])
+  if (!Array.isArray(used)) used = []
+  let pool = TRAVEL_CARDS.filter(c => used.indexOf(c.no) < 0)
+  if (!pool.length) { used = []; pool = TRAVEL_CARDS.slice() }
+  const tpl = pick(pool)
+  used.push(tpl.no)
+  _write(TRAVEL_POOL_KEY, used)
+  return tpl
+}
+
+function addTravelCard(at) {
+  const tpl = drawTravelCard()
   const card = {
     id: 'travel_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-    no: makeCardNo(),
-    photo: TRAVEL_PHOTO,
-    quote: pick(TRAVEL_QUOTES),
-    createdAt: Date.now(),
+    no: tpl.no,                 // 992-BUG-STARE（渲染时前面补 No.）
+    photo: TRAVEL_DIR + tpl.file,
+    wide: !!tpl.wide,           // 992 是横图，卡面布局走通栏
+    quote: tpl.quote,
+    mine: '',                   // 用户写给这张卡的回信
+    catReply: '',               // 猫读完后回的信（AI 生成，永久留在卡上）
+    replied: false,             // 猫是否已回信
+    createdAt: at || Date.now(),
   }
   return _pushList(TRAVEL_KEY, card, 30)
 }
 function getTravelCards() { return _read(TRAVEL_KEY, []) }
 function getLatestTravel() { const l = getTravelCards(); return l.length ? l[0] : null }
+
+/* 旅卡局部更新：用户寄出回信 / 写入猫的回信 */
+function updateTravelCard(id, patch) {
+  const list = getTravelCards()
+  const idx = list.findIndex(c => c && c.id === id)
+  if (idx < 0) return null
+  list[idx] = { ...list[idx], ...patch }
+  _write(TRAVEL_KEY, list)
+  return list[idx]
+}
 /* 旅卡被收入物品库后，从源列表移除（防止下次恢复时再次出现在 other · 明信片 tab） */
 function removeTravelCard(id) {
   const list = _read(TRAVEL_KEY, [])
@@ -346,7 +404,7 @@ module.exports = {
   addDreamCard, getDreamCards, getLatestDream, updateDreamCard, syncOrphanDreams,
   countInterpretedDreams, CRYSTAL_NEED,
   /* 旅卡 / 明信片 */
-  addTravelCard, getTravelCards, getLatestTravel, removeTravelCard,
+  addTravelCard, getTravelCards, getLatestTravel, updateTravelCard, removeTravelCard,
   /* 邮件 */
   addMail, getMails, getLatestMail, removeMail,
   /* 去处（位置地图） */

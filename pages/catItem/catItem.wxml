@@ -131,6 +131,14 @@
     <image webp="{{true}}" class="card-preview__img" src="{{cardPreview.icon}}" mode="aspectFit" />
     <text class="card-preview__name">{{cardPreview.name}}</text>
     <text class="card-preview__note" wx:if="{{cardPreview.note}}">{{cardPreview.note}}</text>
+    <view class="card-preview__reply" wx:if="{{cardPreview.mine}}">
+      <text class="card-preview__reply-tag">我写的</text>
+      <text class="card-preview__reply-text">{{cardPreview.mine}}</text>
+    </view>
+    <view class="card-preview__reply" wx:if="{{cardPreview.catReply}}">
+      <text class="card-preview__reply-tag">猫的回信</text>
+      <text class="card-preview__reply-text card-preview__reply-text--cat">{{cardPreview.catReply}}</text>
+    </view>
   </view>
 
   <!-- ============== 留言弹窗 ============== -->

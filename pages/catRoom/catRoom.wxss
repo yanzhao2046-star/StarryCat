@@ -589,30 +589,54 @@ page {
   line-height: 1.1;
 }
 
-/* 引文（猫的内心独白，居中、艺术字） */
-.postcard-card__quote {
+/* 图 + 文（Figma 993-999：左竖图 121×214 · 右文案 141×214 · 距卡边 17）
+   本页卡宽 520rpx 对 Figma 312px → 1px ≈ 1.667rpx */
+.postcard-card__body {
   flex: 0 0 auto;
-  padding: 22rpx 26rpx 26rpx;
+  padding: 0 26rpx 22rpx;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 128rpx;
+  align-items: flex-start;
+  gap: 18rpx;
+}
+.postcard-card__photo {
+  flex: 0 0 43.5%;
+  width: 43.5%;
+  height: 330rpx;
+  display: block;
+  border-radius: 10rpx;
+  background: #F4EDEA;
+}
+
+/* 引文（猫的内心独白，左侧齐头） */
+.postcard-card__quote {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 330rpx;
+  padding-top: 4rpx;
+  display: block;
 }
 .postcard-card__quote text {
-  font-size: 24rpx;
-  font-family: 'Londrina Solid', 'PingFang SC', cursive;
+  font-size: 22rpx;
+  font-family: 'Noto Sans SC', 'Londrina Solid', 'PingFang SC', cursive;
   color: #796E2E;
-  line-height: 1.45;
-  text-align: center;
+  line-height: 1.9;
+  text-align: left;
   word-break: break-word;
   white-space: pre-wrap;
 }
 
-/* 明信片大图（头部下方，通栏） */
-.postcard-card__photo {
+/* 992 变体：通栏横图 + 文案在下（Figma 302×154） */
+.postcard-card__body--wide {
+  flex-direction: column;
+  gap: 16rpx;
+}
+.postcard-card__body--wide .postcard-card__photo {
+  flex: 0 0 auto;
   width: 100%;
-  height: 248rpx;
-  display: block;
+  height: 240rpx;
+}
+.postcard-card__body--wide .postcard-card__quote {
+  min-height: 0;
 }
 
 /* 按钮：回复 / 保存 */
@@ -715,6 +739,37 @@ page {
   color: #2F2F2F;
   word-break: break-word;
   white-space: pre-wrap;
+}
+
+/* 猫的回信（寄出后延迟到达，永久留在卡上） */
+.postcard-reply__cat {
+  margin-top: 16rpx;
+  padding: 18rpx 22rpx;
+  background: #FFF6F7;
+  border: 2rpx solid #F0E3D2;
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.postcard-reply__cat-tag {
+  font-size: 20rpx;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #8A5A2B;
+  letter-spacing: 1rpx;
+}
+.postcard-reply__cat-text {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #796E2E;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.postcard-reply__cat-wait {
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #B69C7C;
 }
 
 /* ============================================================
