@@ -36,11 +36,13 @@ const REPLY_LINES = [
   '第三个是喇叭，你喜欢喧闹',
 ]
 
-/* AI 回信拆行：先按标点断句，再对超长句硬切（回信卡按行渲染，太长会溢出） */
+/* AI 回信拆行：先按 \n 分段（段间留空行增强段落感），段内按标点断句，
+   超长句硬切（回信卡按行渲染，太长会溢出） */
 function splitReplyLines(text, max = 18) {
   const raw = String(text || '').split(/\n+/).map(s => s.trim()).filter(Boolean)
   const out = []
-  raw.forEach(para => {
+  raw.forEach((para, pi) => {
+    if (pi > 0) out.push(' ')
     const segs = para.match(/[^。！？；，、]+[。！？；，、]?/g) || [para]
     let buf = ''
     segs.forEach(s => {
