@@ -18,6 +18,11 @@ const LETTER_END_MS = 4200
    ⚠ 正式发版：DEBUG_REPLY 改回 false（= 3 天） */
 const DEBUG_REPLY = true
 const TEST_REPLY_MIN = 1                  // 现场调试：回信延迟（分钟）
+
+/* 调试：仓库为空时自动塞入一批测试物品（用猫带回的真实目录数据，带象征含义），
+   省得等猫出门带回。⚠ 正式发版改 false */
+const DEBUG_SEED = true
+const DEBUG_SEED_COUNT = 9
 const REPLY_DELAY = DEBUG_REPLY
   ? LETTER_TAKEN_MS + TEST_REPLY_MIN * 60 * 1000
   : LETTER_TAKEN_MS + 3 * 24 * 60 * 60 * 1000   // 3 天
@@ -98,6 +103,15 @@ Page({
   },
 
   onLoad() {
+    /* 调试：仓库为空时自动放一批测试物品，方便直接组合密封 */
+    if (DEBUG_SEED) {
+      let has = []
+      try { has = wx.getStorageSync(LIB_KEY) || [] } catch (e) {}
+      if (!has || !has.length) {
+        const n = this._debugSeedItems()
+        wx.showToast({ title: '放入 ' + n + ' 件测试物品', icon: 'none' })
+      }
+    }
     this._loadLib()
     this._loadCombo()
     this._loadMessage()
@@ -156,6 +170,28 @@ Page({
     const map = {}
     CATEGORIES.forEach(c => { map[c.id] = lib.filter(it => it.category === c.id) })
     this.setData({ itemsByCategory: map })
+  },
+
+  /* 调试：塞入一批测试物品（pickBringItem 出的真实目录数据，带 symbol）——
+     写入 catItems 后返回件数。也支持 Console 手动触发：
+       getCurrentPages().pop()._debugSeedItems() */
+  _debugSeedItems() {
+    const list = []
+    for (let i = 0; i < DEBUG_SEED_COUNT; i++) {
+      const it = itemCatalog.pickBringItem()
+      list.push({
+        id: 'item_bring_seed_' + Date.now() + '_' + i,
+        title: it.title,
+        name: it.title,
+        icon: it.icon,
+        category: it.category,
+        tier: it.tier,
+        symbol: it.symbol || '',
+        createdAt: Date.now(),
+      })
+    }
+    try { wx.setStorageSync(LIB_KEY, list) } catch (e) {}
+    return list.length
   },
 
   _loadCombo() {
