@@ -32,8 +32,8 @@ const CAT_POSES = [
   { id: 'act08', body: '/assets/CodeBuddyAssets/catRoom/act08.png', box: { left: 71.917, top: 17.750, width: 10.333, height:  9.969 } },
 ]
 
-/* 调试锁定：猫固定在沙发位（act01），方便对尾巴接缝。调完改回 '' 即恢复 6 位随机 */
-const DEBUG_SPOT = 'act01'
+/* 调试锁定：猫固定在某个位置（填 act01 等 id 方便对位调试），'' = 恢复 6 位随机 */
+const DEBUG_SPOT = ''
 
 /* ---------- Storage keys ---------- */
 const ITEM_STORAGE_KEY      = 'catItems'
