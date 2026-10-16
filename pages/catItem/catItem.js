@@ -31,6 +31,22 @@ const REPLY_LINES = [
   '第三个是喇叭，你喜欢喧闹',
 ]
 
+/* AI 回信拆行：先按标点断句，再对超长句硬切（回信卡按行渲染，太长会溢出） */
+function splitReplyLines(text, max = 18) {
+  const raw = String(text || '').split(/\n+/).map(s => s.trim()).filter(Boolean)
+  const out = []
+  raw.forEach(para => {
+    const segs = para.match(/[^。！？；，、]+[。！？；，、]?/g) || [para]
+    let buf = ''
+    segs.forEach(s => {
+      if ((buf + s).length > max && buf) { out.push(buf); buf = s }
+      else buf += s
+    })
+    if (buf) out.push(buf)
+  })
+  return out.length ? out : REPLY_LINES
+}
+
 /* 猫的回信卡片底图（Figma 1205_175/bg，透明底猫对话框）
    ⚠️ 仓库里 1205_175/ 目录为空，请后续把实际底图放进去再启用 */
 const REPLY_BG = '/assets/CodeBuddyAssets/1205_175/bg.png'
@@ -122,7 +138,8 @@ Page({
       id: it.id,
       name: it.title || it.name || '物品',
       category: normalizeCategory(it.category),   // 动物/植物 → 自然
-      symbol: it.symbol || '',
+      /* 象征含义：新物品自带；老数据（只有 icon）用 icon 反查目录补上 */
+      symbol: it.symbol || itemCatalog.getSymbolByIcon(it.icon) || '',
       icon: it.icon || '',
     }))
     /* 卡片：梦卡/旅卡「保存」进来的 */
@@ -362,13 +379,16 @@ Page({
     const byId = this._itemsById || {}
     const items = ids.map(id => {
       const it = byId[id] || {}
-      return { itemId: id, name: it.name || '', icon: it.icon || '' }
+      return { itemId: id, name: it.name || '', icon: it.icon || '', symbol: it.symbol || '' }
     })
+    const sealId = 'seal_' + Date.now()
     try {
       const list = wx.getStorageSync(SEALED_KEY) || []
-      list.push({ id: 'seal_' + Date.now(), items, message: this.data.comboMessage || '', sealedAt: Date.now() })
+      list.push({ id: sealId, items, message: this.data.comboMessage || '', sealedAt: Date.now() })
       wx.setStorageSync(SEALED_KEY, list)
     } catch (e) {}
+    /* 记住这封信的 id：拆信时用它拉猫的回信 */
+    this._lastSealId = sealId
     this._combo = this._combo.map(() => null)
     this._saveCombo()
     this._pushSlots()
@@ -408,6 +428,8 @@ Page({
       if (Array.isArray(list) && list.length) {
         const last = list[list.length - 1] || {}
         sealedAt = last.sealedAt || 0
+        /* 冷启动时从这里找回最后一封信的 id */
+        this._lastSealId = last.id || ''
       }
     } catch (e) {}
     /* 记下这封回信的密封时间，用于卡片栏去重 */
@@ -448,9 +470,64 @@ Page({
     this.onSealTap()
   },
 
-  /* 拆开信封：展开猫的回信内容 */
+  /* 拆开信封：展开猫的回信内容（首次会去问 AI） */
   onReplyOpen() {
     this.setData({ replyOpen: true })
+    this._fetchReply()
+  },
+
+  /* 猫的回信：把这次组合的物品「象征」+ 用户留言交给 AI，
+     生成一段"我看着这几样东西，说我看到了什么"的回信。
+     同一封信只生成一次（写回 storage 缓存，重开不再调 AI）。 */
+  _fetchReply() {
+    let list = []
+    try { list = wx.getStorageSync(SEALED_KEY) || [] } catch (e) {}
+    if (!Array.isArray(list) || !list.length) return
+
+    /* 找到这一封信：优先用记住的 id，否则取最后一封 */
+    let rec = this._lastSealId ? list.find(r => r && r.id === this._lastSealId) : null
+    if (!rec) rec = list[list.length - 1]
+    if (!rec) return
+
+    /* 已生成过 → 直接用 */
+    if (rec.replyText) {
+      this.setData({ replyLines: splitReplyLines(rec.replyText) })
+      return
+    }
+
+    const items = Array.isArray(rec.items) ? rec.items : []
+    if (!items.length) {
+      this.setData({ replyLines: REPLY_LINES })
+      return
+    }
+
+    /* 等 AI 的过渡文案 */
+    this.setData({ replyLines: ['（猫把这几样东西看了很久）'] })
+
+    wx.cloud.callFunction({
+      name: 'moodOperations',
+      data: {
+        action: 'comboReply',
+        items: items.map(it => ({ name: it.name || '', symbol: it.symbol || '' })),
+        message: rec.message || '',
+      },
+      success: (res) => {
+        const r = res && res.result
+        const reply = r && r.code === 0 && r.data ? r.data.reply : ''
+        if (!reply) {
+          this.setData({ replyLines: REPLY_LINES })
+          return
+        }
+        /* 缓存回信，下次打开同一封信不再调 AI */
+        rec.replyText = reply
+        try { wx.setStorageSync(SEALED_KEY, list) } catch (e) {}
+        this.setData({ replyLines: splitReplyLines(reply) })
+      },
+      fail: (err) => {
+        console.warn('[catItem] 猫的回信生成失败:', err && err.message)
+        this.setData({ replyLines: REPLY_LINES })
+      },
+    })
   },
 
   /* 「保存」：把回信卡（底图 + 正文）合成图片，收藏进物品栏的「卡片」分类 */
@@ -549,7 +626,7 @@ Page({
     return this._combo.map((c, i) => {
       if (!c) return null
       const it = byId[c.itemId] || {}
-      return { slot: i, id: c.itemId, name: it.name || '', category: it.category || '' }
+      return { slot: i, id: c.itemId, name: it.name || '', category: it.category || '', symbol: it.symbol || '' }
     }).filter(Boolean)
   },
 

@@ -66,6 +66,11 @@ exports.main = async (event, context) => {
       case 'chatHunyuan':
         return await chatHunyuan(event, openid)
 
+      // ============ 仓库组合回信（物品象征解读） ============
+
+      case 'comboReply':
+        return await comboReply(event, openid)
+
       default:
         return { code: -1, msg: '未知操作: ' + action }
     }
@@ -342,99 +347,180 @@ async function chatHunyuan(event, openid) {
     }))
   ]
 
-  // 不含 system 的备用 messages 数组
+  const temperature = isLocation || isDream ? 1.0 : 0.7
+
+  let reply
+  try {
+    reply = await generateWithFallback(apiMessages, temperature)
+  } catch (e) {
+    console.error('[chatHunyuan] ❌ 全部 ' + FREE_MODELS.length + ' 个模型均调用失败:', e.message)
+    return { code: -1, msg: '星星猫正在打盹，请稍后再试～' }
+  }
+
+  // 位置报告 / 解梦不是聊天内容，不写入 catChat
+  if (!isLocation && !isDream) await saveChatHistory(openid, messages, reply, moodContext)
+  return { code: 0, data: { reply } }
+}
+
+/* ============================================================
+   仓库组合回信（context: 'combo'）
+   用户在仓库把 2~3 件物品拖进组合台、写下留言后密封，
+   猫"收到信"后回信。象征含义不点破，只在回信表述里体现。
+   ============================================================ */
+async function comboReply(event, openid) {
+  const { items = [], message } = event
+
+  if (!items || items.length === 0) {
+    return { code: -1, msg: '没有选物品，猫没什么可说的' }
+  }
+
+  console.log('[comboReply] 物品数:' + items.length + ' 留言长度:' + ((message || '').length))
+
+  const systemPrompt = buildComboReplyPrompt(items, message)
+  const apiMessages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: '（主人把这几样东西摆在一起，递过来给我看）' },
+  ]
+
+  let reply
+  try {
+    reply = await generateWithFallback(apiMessages, 0.8)
+  } catch (e) {
+    console.error('[comboReply] ❌ AI 调用失败:', e.message)
+    return { code: -1, msg: '星星猫正在打盹，请稍后再试～' }
+  }
+
+  return { code: 0, data: { reply } }
+}
+
+function buildComboReplyPrompt(items, message) {
+  const list = items.map((it, i) => `  ${i + 1}. ${it.name || '（没名字的东西）'}${it.symbol ? ' —— ' + it.symbol : ''}`).join('\n')
+
+  let prompt = `你是星猫，一只散漫、慵懒、毒舌、老灵魂的家猫。
+
+主人从仓库里挑了几样东西，摆在一起递给你看。
+这些东西不是随手捡的——主人挑它们，是因为它们像心里某个地方的样子。
+
+铁律：**你不知道"象征"这个词存在。**
+你只是一只猫，看着这几样旧东西，说你看到的东西。
+
+主人摆出来的：
+${list}
+`
+
+  if (message) {
+    prompt += `
+主人还写了一句：
+"""
+${message}
+"""
+`
+  } else {
+    prompt += `
+（主人什么都没写，只是把东西摆在这儿）
+`
+  }
+
+  prompt += `
+要求（逐条遵守）：
+1. **把这几样东西看成一件事**——它们摆在一起是一幅画，不是一张清单。
+   禁止逐条解释"第一个是…第二个是…"。
+2. **只用你看到的具体东西说话**：毛线球的线头、钥匙的齿、纸飞机的折痕、
+   松果的鳞片、橡皮上的铅笔印……说"你手里这团线""这把钥匙插不进任何锁"。
+   **绝不能说"这代表你的思绪""意味着你放不下"。**
+3. **把它们连起来**：一样东西和另一样东西之间发生了什么？
+   比如"线绕住了钥匙的齿，所以插不进去"——用具体画面说，不用抽象词。
+4. **你在场**：说一句你自己的状态（"我今天在窗台趴了一下午""我饿了"）。
+   你是猫，你也在看着这些东西。
+5. 长度 100~160 字，2~4 句。每句 5-15 字，句子短，节奏慢。
+6. 结尾给一个具体的、不鸡汤的动作（"线放着吧，先吃饭"）。
+
+【说话风格】
+- 慵懒、世故、毒舌、贪吃、自我中心，偶尔有温度
+- 句子短，不连续输出观点，一句话说完就停
+- 拒绝感叹号、拒绝热情洋溢的词
+- 偶尔用"喵"，每段最多 1 次
+- 不卖萌、不用"主人""宝宝""小可爱"
+
+【最高优先级禁令】
+绝对禁止出现：
+- "累了吗""辛苦了""注意休息""多喝水""早点睡""别太累"
+- "揉揉眼睛""泡杯茶""我在呢""抱抱""摸摸头""我陪你""我等你"
+- "你怎么了""跟我说说""别难过""会好起来的""加油""一切都会好的"
+- "好棒""真厉害""恭喜""太棒了"——任何夸奖式语气
+- **"象征""代表""意味着""寓意""说明你"——任何点破的心理学词汇**
+- "哈哈哈""笑死""yyds""绝绝子""emo"——任何网梗
+- 撒娇/哄人语气词：呀、哦、嘛、呐、呢、啦
+
+直接输出回信正文，不要以"猫："开头（前端会自己加前缀）。`
+
+  return prompt
+}
+
+/**
+ * 通用：在 hunyuan-exp 组内按 FREE_MODELS 顺序依次尝试，返回首个非空回复
+ * 带 system 角色失败且错误疑似 role/system 时，自动去掉 system 重试一次
+ * 全部失败抛错，由调用方决定兜底文案
+ */
+async function generateWithFallback(apiMessages, temperature) {
   const userOnlyMessages = apiMessages.filter(m => m.role !== 'system')
-
-  // 只使用 hunyuan-exp 组（小程序成长计划，免费 10 亿 Token）
   const GROUP = 'hunyuan-exp'
-
   let firstError = null
 
-  // 只在 hunyuan-exp 组内按模型回退
-  console.log('[chatHunyuan] === 使用模型组: ' + GROUP + ' ===')
+  console.log('[generateWithFallback] === 使用模型组: ' + GROUP + ' ===')
 
   for (let i = 0; i < FREE_MODELS.length; i++) {
     const modelId = FREE_MODELS[i]
-    console.log('[chatHunyuan] --- 第' + (i + 1) + '个模型ID: ' + modelId + ' ---')
+    console.log('[generateWithFallback] --- 第' + (i + 1) + '个模型ID: ' + modelId + ' ---')
 
     // ----- 带 system 角色 -----
     try {
-      console.log('[chatHunyuan] 入参 systemPrompt 前100字:', systemPrompt.substring(0, 100))
       const model = ai.createModel(GROUP)
-      const result = await model.generateText({
-        model: modelId,
-        messages: apiMessages,
-        temperature: isLocation || isDream ? 1.0 : 0.7
-      })
-
-      console.log('[chatHunyuan] 返回 usage:', JSON.stringify(result.usage))
-      console.log('[chatHunyuan] 返回 text 前100字:', result.text ? result.text.substring(0, 100) : '空')
-
+      const result = await model.generateText({ model: modelId, messages: apiMessages, temperature })
+      console.log('[generateWithFallback] 返回 usage:', JSON.stringify(result.usage))
       const reply = extractReply(result)
       if (reply) {
-        console.log('[chatHunyuan] ✅ 成功! 模型:' + modelId + ' 回复长度:' + reply.length)
-        // 位置报告 / 解梦不是聊天内容，不写入 catChat
-        if (!isLocation && !isDream) await saveChatHistory(openid, messages, reply, moodContext)
-        return { code: 0, data: { reply } }
+        console.log('[generateWithFallback] ✅ 成功! 模型:' + modelId + ' 回复长度:' + reply.length)
+        return reply
       }
-      console.warn('[chatHunyuan] ⚠ 返回了但 extractReply 为空')
+      console.warn('[generateWithFallback] ⚠ 返回了但 extractReply 为空')
     } catch (err) {
       firstError = firstError || err
-      console.error('[chatHunyuan] ❌ 模型=' + modelId + ' 调用失败')
-      console.error('[chatHunyuan] message:', err.message)
-      console.error('[chatHunyuan] stack:', (err.stack || '').substring(0, 500))
+      console.error('[generateWithFallback] ❌ 模型=' + modelId + ' 调用失败')
+      console.error('[generateWithFallback] message:', err.message)
 
-      // 分类错误给出建议
-      const em = (err.message || '')
+      // 错误分类诊断
+      const em = err.message || ''
       if (em.includes('not enabled') || em.includes('not activated') || em.includes('NotFound') || em.includes('ResourceNotFound')) {
-        console.error('[chatHunyuan] 💡 诊断: 模型 ' + modelId + ' 未在 hunyuan-exp 组中启用！')
+        console.error('[generateWithFallback] 💡 诊断: 模型 ' + modelId + ' 未在 hunyuan-exp 组中启用！')
       } else if (em.includes('charge') || em.includes('quota') || em.includes('token') || em.includes('credit') || em.includes('package') || em.includes('insufficient')) {
-        console.error('[chatHunyuan] 💡 诊断: Token Credits 额度不足或未开通！请在控制台 > 资源包 中购买/领取 AI 资源包')
+        console.error('[generateWithFallback] 💡 诊断: Token Credits 额度不足或未开通！')
       } else if (em.includes('auth') || em.includes('permission') || em.includes('credentials') || em.includes('unauthorized')) {
-        console.error('[chatHunyuan] 💡 诊断: 鉴权失败！请检查 @cloudbase/node-sdk 环境变量配置')
-      } else {
-        console.error('[chatHunyuan] 💡 未分类错误，完整信息:', JSON.stringify(err).substring(0, 300))
+        console.error('[generateWithFallback] 💡 诊断: 鉴权失败！')
       }
 
       // ----- 去掉 system 角色重试 -----
       const errStr = em + (err.stack || '')
       const isSystemRoleError = errStr.includes('role') || errStr.includes('system') || errStr.includes('validation')
       if (isSystemRoleError && userOnlyMessages.length > 0) {
-        console.log('[chatHunyuan] 🔄 检测到 role/system 错误，去掉 system 重试...')
+        console.log('[generateWithFallback] 🔄 去掉 system 重试...')
         try {
-          const model = ai.createModel(GROUP)
-          const result2 = await model.generateText({
-            model: modelId,
-            messages: userOnlyMessages,
-            temperature: isLocation || isDream ? 1.0 : 0.7
-          })
-          console.log('[chatHunyuan] 去掉system后 usage:', JSON.stringify(result2.usage))
-          console.log('[chatHunyuan] 去掉system后 text 前100字:', result2.text ? result2.text.substring(0, 100) : '空')
-
+          const model2 = ai.createModel(GROUP)
+          const result2 = await model2.generateText({ model: modelId, messages: userOnlyMessages, temperature })
           const reply2 = extractReply(result2)
           if (reply2) {
-            console.log('[chatHunyuan] ✅ 去掉system成功! 模型:' + modelId)
-            if (!isLocation && !isDream) await saveChatHistory(openid, messages, reply2, moodContext)
-            return { code: 0, data: { reply: reply2 } }
+            console.log('[generateWithFallback] ✅ 去system成功! 模型:' + modelId)
+            return reply2
           }
-          console.warn('[chatHunyuan] ⚠ 去system后 extractReply 为空')
         } catch (err2) {
-          console.error('[chatHunyuan] ❌ 去system后仍失败:', err2.message)
+          console.error('[generateWithFallback] ❌ 去system后仍失败:', err2.message)
         }
       }
     }
   }
 
-  // 全部失败，输出总结
-  console.error('[chatHunyuan] ❌ 全部 ' + FREE_MODELS.length + ' 个模型均调用失败')
-  if (firstError) {
-    console.error('[chatHunyuan] 首个失败原因:', firstError.message)
-  }
-  console.error('[chatHunyuan] 💡 自助修复路径（按现象选）:')
-  console.error('  · 多个 "not enabled/NotFound" → 控制台 > AI 资源包 勾选该模型')
-  console.error('  · "quota / package" → 资源包额度用完；或试 cloudbase 主组（修改 GROUP 常量）')
-  console.error('  · "permission / unauthorized" → 检查云函数 IAM')
-  return { code: -1, msg: '星星猫正在打盹，请稍后再试～' }
+  console.error('[generateWithFallback] ❌ 全部 ' + FREE_MODELS.length + ' 个模型均调用失败')
+  throw firstError || new Error('全部模型均调用失败')
 }
 
 // 保存聊天记录到 catChat 集合

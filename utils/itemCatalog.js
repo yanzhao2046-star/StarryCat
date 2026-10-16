@@ -22,6 +22,8 @@
    ⚠ icon 必须写成完整字面量路径（依赖分析器只认字面量），否则不会被打进包
    ============================================================ */
 
+const { getItemSymbol } = require('./itemSymbols.js')
+
 /* 稀有度权重（可自由调）：tier1 极为稀有 / tier2 稀有 / tier3 常见 */
 const TIER_WEIGHT = { 1: 1, 2: 4, 3: 12 }
 /* 自然类（13 件）：素材无稀有度标记，按「常见」处理 */
@@ -139,9 +141,22 @@ function pickWeighted(list) {
   return list[list.length - 1]
 }
 
-/* 猫带回一件物品（玩具 + 自然类 + 衣物 + 文具 合并加权抽），返回 { icon, title, category, tier } */
+/* ---------- 物品象征反查（icon → symbol）----------
+   老 storage（catItems）里的物品 id 是 'item_bring_<时间戳>'，不是目录 id，
+   查不到象征；但它们存了 icon（即目录里的图标路径）——用它反查。 */
+const SYMBOL_BY_ICON = {}
+;[...TOY_CATALOG, ...NATURE_CATALOG, ...CLOTHES_CATALOG, ...STATIONERY_CATALOG]
+  .forEach(it => { SYMBOL_BY_ICON[it.icon] = getItemSymbol(it.id) })
+
+function getSymbolByIcon(icon) {
+  if (!icon) return ''
+  return SYMBOL_BY_ICON[icon] || ''
+}
+
+/* 猫带回一件物品（玩具 + 自然类 + 衣物 + 文具 合并加权抽），返回 { icon, title, category, tier, symbol } */
 function pickBringItem() {
   const toys = TOY_CATALOG.map(t => ({
+    id: t.id,
     icon: t.icon,
     title: t.title,
     category: 'toys',
@@ -152,7 +167,13 @@ function pickBringItem() {
   const clothes = CLOTHES_CATALOG.map(c => ({ ...c, weight: CLOTHES_WEIGHT }))
   const stationery = STATIONERY_CATALOG.map(s => ({ ...s, weight: STATIONERY_WEIGHT }))
   const src = pickWeighted(toys.concat(nature).concat(clothes).concat(stationery))
-  return { icon: src.icon, title: src.title, category: src.category, tier: src.tier }
+  return {
+    icon: src.icon,
+    title: src.title,
+    category: src.category,
+    tier: src.tier,
+    symbol: getItemSymbol(src.id),   // 象征含义：猫的回信用它来解读
+  }
 }
 
 module.exports = {
@@ -169,4 +190,5 @@ module.exports = {
   purgeRetiredItems,
   pickWeighted,
   pickBringItem,
+  getSymbolByIcon,
 }
