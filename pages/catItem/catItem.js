@@ -94,6 +94,9 @@ Page({
     msgDraft: '',
     /* 密封信件状态：'' 无信件 → 'letter' 信件出现 → 'taken' 被猫拿走 */
     sealState: '',
+    /* 「猫已拿走…」提示：与 sealState 解耦，信件动画收尾后仍保留，
+       一直到回信抵达（replyReady）才收起 */
+    takenTip: false,
     /* 猫的回信：replyReady 密封圆可点击入口；replyOpen 展开回信卡 */
     replyReady: false,
     replyOpen: false,
@@ -432,7 +435,7 @@ Page({
     this._pushSlots()
     try { wx.removeStorageSync(MSG_KEY) } catch (e) {}
     /* 新一轮密封：回信入口收起，等待猫把信拿走后再送达回信 */
-    this.setData({ comboMessage: '', msgDraft: '', replyReady: false, replyOpen: false })
+    this.setData({ comboMessage: '', msgDraft: '', replyReady: false, replyOpen: false, takenTip: false })
     if (APP && APP.addCatFood) APP.addCatFood('item_message')
     wx.showToast({ title: '已密封', icon: 'none', duration: 1200 })
     this._playLetter()
@@ -444,9 +447,11 @@ Page({
     this._clearLetterTimers()
     this.setData({ sealState: 'letter' })
     this._letterTimer1 = setTimeout(() => {
-      this.setData({ sealState: 'taken' })
+      /* 信被叼走的同时亮起提示，此后一直保留 */
+      this.setData({ sealState: 'taken', takenTip: true })
     }, LETTER_TAKEN_MS)
     this._letterTimer2 = setTimeout(() => {
+      /* 动画收尾只撤掉信封图，takenTip 不动——提示继续显示到回信来 */
       this.setData({ sealState: '' })
       this._letterTimer1 = null
       this._letterTimer2 = null
@@ -475,9 +480,17 @@ Page({
     const ready = !!sealedAt && Date.now() - sealedAt >= REPLY_DELAY
     this._clearReplyTimer()
     if (ready) {
-      if (!this.data.replyReady) this.setData({ replyReady: true })
+      /* 回信抵达：提示收起 */
+      const patch = { replyReady: true, takenTip: false }
+      this.setData(patch)
     } else {
-      if (this.data.replyReady) this.setData({ replyReady: false })
+      const patch = { replyReady: false }
+      /* 信封已寄出、回信未到：显示「猫已拿走…」
+         （冷启动回到本页也要显示；动画播放中除外） */
+      if (this.data.sealState !== 'letter') {
+        patch.takenTip = (this.data.sealState === 'taken') || !!sealedAt
+      }
+      this.setData(patch)
       /* 停留本页时，到点自动亮起「猫的回信」 */
       if (sealedAt) {
         const rest = sealedAt + REPLY_DELAY - Date.now()

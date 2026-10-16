@@ -78,7 +78,7 @@
     <!-- 回信未到：密封圆 + 信件动画 -->
     <block wx:if="{{!replyReady}}">
       <view class="seal-circle" bindtap="onSealCircleTap" hover-class="seal-circle--hover"></view>
-      <view wx:if="{{sealState === 'taken'}}" class="seal-tip">猫已拿走...</view>
+      <view wx:if="{{takenTip}}" class="seal-tip">猫已拿走...</view>
       <image webp="{{true}}" wx:if="{{sealState}}"
              class="seal-envelope {{sealState === 'letter' ? 'seal-envelope--in' : 'seal-envelope--taken'}}"
              src="/assets/CodeBuddyAssets/1186_123/1.png"
