@@ -679,15 +679,20 @@ Page({
       }
       const dpr = 2
       const { w, h, textLeft, textTop, lineHeight, fontSize } = REPLY_CARD
+      /* 文字多时画布加高（正文底 + 按钮区），底图只画顶部标准区域，
+         下方延伸底色——与页面上的自适应卡片一致 */
+      const BTN_AREA = 66
+      const lines = this.data.replyLines
+      const H = Math.max(h, textTop + lines.length * lineHeight + BTN_AREA)
       canvas.width = w * dpr
-      canvas.height = h * dpr
+      canvas.height = H * dpr
       const ctx = canvas.getContext('2d')
       ctx.scale(dpr, dpr)
       ctx.fillStyle = REPLY_BG_COLOR
-      ctx.fillRect(0, 0, w, h)
+      ctx.fillRect(0, 0, w, H)
       const img = canvas.createImage()
       img.onload = () => {
-        /* 与 Figma 一致：底图按 cover 铺满卡片 */
+        /* 与 Figma 一致：底图按 cover 铺满顶部标准区域（w×h） */
         const scale = Math.max(w / img.width, h / img.height)
         const dw = img.width * scale
         const dh = img.height * scale

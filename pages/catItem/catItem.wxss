@@ -291,69 +291,64 @@
 
 /* ============== 猫的回信内容（Figma 1205_175）============== */
 /* 卡 424×534px 按 1px ≈ 1.769rpx 做成 750×944rpx 后整体缩到 0.86 呈现
-   （≈645×812rpx），内部各元素保持设计比例；底 #FBEEDF，猫对话框为透明底切图 */
+   （≈645×812rpx）——以下尺寸均为换算后的显示值；
+   底 #FBEEDF，猫对话框为透明底切图。
+   高度自适应：短回信保持 812rpx 原观感，长回信由内容撑开 */
 .reply-card {
-  width: 750rpx;
-  height: 812rpx;
+  width: 645rpx;
   margin: 58rpx auto 0;
   animation: replyIn 360ms ease-out both;
 }
 .reply-card__inner {
   position: relative;
-  width: 750rpx;
-  height: 944rpx;
+  width: 100%;
+  min-height: 812rpx;
   background: #FBEEDF;
   overflow: hidden;
-  transform: scale(0.86);
-  transform-origin: center top;
 }
 .reply-card__bg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-/* 正文 15px → 27rpx、行高 1.9em → 50rpx；left 62px → 110rpx，top 165px → 292rpx */
-.reply-card__text {
   position: absolute;
-  left: 110rpx;
-  top: 292rpx;
-  width: 620rpx;
-  display: flex;
-  flex-direction: column;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* 猫框区域固定高：卡片加高时下方露底色无缝延伸，猫框不变形 */
+  height: 812rpx;
+}
+/* 正文 15px → 27rpx、行高 1.9em → 50rpx，再乘 0.86 缩放
+   left 62px → 95rpx，top 165px → 251rpx；静态流布局，行数多时撑开卡片 */
+.reply-card__text {
+  position: relative;
+  padding: 251rpx 17rpx 0 95rpx;
 }
 .reply-card__line {
-  font-size: 27rpx;
-  line-height: 50rpx;
+  font-size: 23rpx;
+  line-height: 43rpx;
   color: #000000;
   font-family: Inter, Microsoft YaHei, sans-serif;
 }
-/* 底部双按钮（回复 / 保存）：贴卡片底边（inner 944rpx、显示缩放 0.86，
-   top 830rpx ≈ 视觉距底 40rpx），居中一排 */
+/* 底部双按钮（回复 / 保存）：流式跟在正文后面，始终在文字最下方，不覆盖文字 */
 .reply-card__actions {
-  position: absolute;
-  left: 0;
-  top: 830rpx;
-  width: 100%;
   display: flex;
   justify-content: center;
+  padding: 26rpx 0 40rpx;
 }
 .reply-card__btn {
-  width: 150rpx;
-  height: 74rpx;
-  margin: 0 20rpx;
+  width: 129rpx;
+  height: 64rpx;
+  margin: 0 17rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #FFFFFF;
   border: 2rpx solid #FFDBB3;
-  border-radius: 37rpx;
+  border-radius: 32rpx;
   box-sizing: border-box;
 }
 .reply-card__btn--hover {
   opacity: 0.85;
 }
 .reply-card__btn-text {
-  font-size: 24rpx;
+  font-size: 21rpx;
   font-weight: 600;
   color: #8A5A2B;
   font-family: Inter, Microsoft YaHei, sans-serif;
