@@ -91,9 +91,6 @@ const ROOM_LOCAL = '/assets/CodeBuddyAssets/catRoom/room_01.jpg'
 Page({
 
   data: {
-    /* 首次进入：全屏玩法介绍页（catIntroShown 标记只看一次） */
-    introOpen: false,
-
     /* 房间空态提示（猫出门时显示，回家自动出现猫就隐藏） */
     stageHint: CAT_OUT_HINT,
     /* 房间：猫只受行为引擎驱动（在家自动随机日常 / 出门流浪），点 stage 无玩法功能 */
@@ -160,11 +157,6 @@ Page({
      ========================================================== */
 
   async onLoad() {
-    /* 首次进入：未看过玩法介绍就默认展开（写 catIntroShown 持久化） */
-    let seenIntro = false
-    try { seenIntro = !!wx.getStorageSync('catIntroShown') } catch (e) {}
-    this.setData({ introOpen: !seenIntro })
-
     this.applyTimeOfDay()
     this.loadStatusBar()
     this.loadUserAvatar()
@@ -181,12 +173,6 @@ Page({
 
     /* 猫行为引擎：启动结算（含离线补算） */
     this.startBehaviorEngine()
-  },
-
-  /* 关闭「玩法介绍」全屏页：写入 storage，仅展示一次 */
-  closeIntro() {
-    this.setData({ introOpen: false })
-    try { wx.setStorageSync('catIntroShown', true) } catch (e) {}
   },
 
   onShow() {
