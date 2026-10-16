@@ -105,13 +105,44 @@
       <view class="reply-card__text">
         <text class="reply-card__line" wx:for="{{replyLines}}" wx:key="*this">{{item}}</text>
       </view>
-      <view class="reply-card__save"
-            catchtap="onSaveReply"
-            hover-class="reply-card__save--hover">
-        <text class="reply-card__save-text">保存</text>
+      <view class="reply-card__actions">
+        <view class="reply-card__btn" catchtap="onReplyChatTap" hover-class="reply-card__btn--hover">
+          <text class="reply-card__btn-text">回复</text>
+        </view>
+        <view class="reply-card__btn" catchtap="onSaveReply" hover-class="reply-card__btn--hover">
+          <text class="reply-card__btn-text">保存</text>
+        </view>
       </view>
     </view>
     <canvas type="2d" id="replyCanvas" class="reply-canvas"></canvas>
+  </view>
+
+  <!-- ============== 回信对话（点「回复」展开） ==============
+       围绕这封回信和猫继续聊；对话随密封记录持久化 -->
+  <view class="reply-chat" wx:if="{{replyChatOpen}}">
+    <scroll-view class="reply-chat__list" scroll-y
+                 scroll-into-view="{{replyChatAnchor}}"
+                 scroll-with-animation
+                 enhanced show-scrollbar="{{false}}">
+      <view wx:for="{{replyChatLog}}" wx:key="index"
+            class="reply-chat__msg reply-chat__msg--{{item.role}}">
+        <text>{{item.content}}</text>
+      </view>
+      <view wx:if="{{replyChatTyping}}" class="reply-chat__msg reply-chat__msg--ai">
+        <text>…</text>
+      </view>
+      <view id="reply-chat-bottom" class="reply-chat__bottom"></view>
+    </scroll-view>
+    <view class="reply-chat__inputrow">
+      <input class="reply-chat__input" value="{{replyChatDraft}}"
+             placeholder="跟猫说说…" placeholder-class="reply-chat__placeholder"
+             maxlength="300" confirm-type="send" cursor-spacing="20"
+             bindinput="onReplyChatInput" bindconfirm="onReplyChatSend" />
+      <view class="reply-chat__send {{replyChatDraft ? 'reply-chat__send--on' : ''}}"
+            bindtap="onReplyChatSend" hover-class="reply-chat__send--hover">
+        <text>发送</text>
+      </view>
+    </view>
   </view>
 
   <!-- ============== 浮动拖动层 ============== -->

@@ -327,14 +327,20 @@
   color: #000000;
   font-family: Inter, Microsoft YaHei, sans-serif;
 }
-/* 保存按钮 73×36px → 129×64rpx 后放大到 150×74rpx（水平仍居中，
-   左 375-75），圆角 37rpx，白底 1px #FFDBB3 描边 */
-.reply-card__save {
+/* 底部双按钮（回复 / 保存）：贴卡片底边（inner 944rpx、显示缩放 0.86，
+   top 830rpx ≈ 视觉距底 40rpx），居中一排 */
+.reply-card__actions {
   position: absolute;
-  left: 300rpx;
-  top: 628rpx;
+  left: 0;
+  top: 830rpx;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.reply-card__btn {
   width: 150rpx;
   height: 74rpx;
+  margin: 0 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -343,14 +349,81 @@
   border-radius: 37rpx;
   box-sizing: border-box;
 }
-.reply-card__save-text {
+.reply-card__btn--hover {
+  opacity: 0.85;
+}
+.reply-card__btn-text {
   font-size: 24rpx;
   font-weight: 600;
   color: #8A5A2B;
   font-family: Inter, Microsoft YaHei, sans-serif;
 }
-.reply-card__save--hover {
+/* 回信对话：点「回复」在卡片下方展开，围绕这封回信和猫继续聊 */
+.reply-chat {
+  width: 690rpx;
+  margin: 24rpx auto 40rpx;
+  background: #FFFDF8;
+  border: 2rpx solid #F0E2CE;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  animation: replyIn 360ms ease-out both;
+}
+.reply-chat__list {
+  max-height: 460rpx;
+}
+.reply-chat__msg {
+  max-width: 78%;
+  padding: 16rpx 22rpx;
+  border-radius: 18rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+  word-break: break-all;
+}
+.reply-chat__msg--user {
+  background: #FBEEDF;
+  color: #4A3B2A;
+  margin-left: auto;
+}
+.reply-chat__msg--ai {
+  background: #FFFFFF;
+  border: 2rpx solid #F0E2CE;
+  color: #333333;
+}
+.reply-chat__inputrow {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+}
+.reply-chat__input {
+  flex: 1;
+  height: 68rpx;
+  background: #F7F1E6;
+  border-radius: 34rpx;
+  padding: 0 26rpx;
+  font-size: 26rpx;
+}
+.reply-chat__send {
+  margin-left: 16rpx;
+  width: 120rpx;
+  height: 68rpx;
+  border-radius: 34rpx;
+  background: #E8DCC8;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+}
+.reply-chat__send--on {
+  background: #8A5A2B;
+}
+.reply-chat__send--hover {
   opacity: 0.85;
+}
+.reply-chat__bottom {
+  height: 4rpx;
 }
 /* 离屏画布：仅用于把回信卡合成成图片保存到相册 */
 .reply-canvas {

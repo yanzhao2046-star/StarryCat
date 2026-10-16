@@ -103,6 +103,12 @@ Page({
     replyLines: REPLY_LINES,
     replyBg: REPLY_BG,
     replyEnvelope: REPLY_ENVELOPE,
+    /* 回信对话：点「回复」展开，围绕这封回信和猫继续聊 */
+    replyChatOpen: false,
+    replyChatLog: [],
+    replyChatDraft: '',
+    replyChatTyping: false,
+    replyChatAnchor: '',
   },
 
   onLoad() {
@@ -435,7 +441,11 @@ Page({
     this._pushSlots()
     try { wx.removeStorageSync(MSG_KEY) } catch (e) {}
     /* 新一轮密封：回信入口收起，等待猫把信拿走后再送达回信 */
-    this.setData({ comboMessage: '', msgDraft: '', replyReady: false, replyOpen: false, takenTip: false })
+    this.setData({
+      comboMessage: '', msgDraft: '',
+      replyReady: false, replyOpen: false, takenTip: false,
+      replyChatOpen: false, replyChatLog: [], replyChatDraft: '', replyChatTyping: false,
+    })
     if (APP && APP.addCatFood) APP.addCatFood('item_message')
     wx.showToast({ title: '已密封', icon: 'none', duration: 1200 })
     this._playLetter()
@@ -581,6 +591,77 @@ Page({
       fail: (err) => {
         console.warn('[catItem] 猫的回信生成失败:', err && err.message)
         this.setData({ replyLines: REPLY_LINES })
+      },
+    })
+  },
+
+  /* ---------- 回信对话（点「回复」展开，围绕这封回信继续聊） ---------- */
+
+  /* 当前密封记录：优先用记住的 id，兜底最后一封（与 _fetchReply 同口径） */
+  _currentSealRec() {
+    let list = []
+    try { list = wx.getStorageSync(SEALED_KEY) || [] } catch (e) {}
+    if (!Array.isArray(list) || !list.length) return null
+    let rec = this._lastSealId ? list.find(r => r && r.id === this._lastSealId) : null
+    if (!rec) rec = list[list.length - 1]
+    return rec || null
+  },
+
+  onReplyChatTap() {
+    const open = !this.data.replyChatOpen
+    if (open && !this.data.replyChatLog.length) {
+      /* 首次展开：载入这封信的历史对话（重开小程序也能接着聊） */
+      const rec = this._currentSealRec()
+      const log = rec && Array.isArray(rec.chatLog) ? rec.chatLog : []
+      this.setData({ replyChatOpen: true, replyChatLog: log, replyChatAnchor: 'reply-chat-bottom' })
+    } else {
+      this.setData({ replyChatOpen: open })
+    }
+  },
+
+  onReplyChatInput(e) {
+    this.setData({ replyChatDraft: e.detail.value })
+  },
+
+  onReplyChatSend() {
+    const text = (this.data.replyChatDraft || '').trim()
+    if (!text || this.data.replyChatTyping) return
+    const rec = this._currentSealRec()
+    const replyText = (rec && rec.replyText) || (this.data.replyLines || []).join('\n')
+
+    const log = this.data.replyChatLog.concat([{ role: 'user', content: text }])
+    this.setData({ replyChatLog: log, replyChatDraft: '', replyChatTyping: true })
+
+    /* 猫的回信作为上文 + 最近 10 条，让猫知道自己在回应什么 */
+    const messages = [
+      { role: 'assistant', content: replyText },
+      ...log.slice(-10).map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
+    ]
+
+    wx.cloud.callFunction({
+      name: 'moodOperations',
+      data: { action: 'chatHunyuan', messages, context: 'mail_reply' },
+      success: (res) => {
+        const r = res && res.result
+        const reply = r && r.code === 0 && r.data ? (r.data.reply || '') : ''
+        const newLog = log.concat([{ role: 'ai', content: reply || '（猫打了个哈欠，没搭理你）' }])
+        this.setData({ replyChatAnchor: '' }, () => {
+          this.setData({ replyChatLog: newLog, replyChatTyping: false, replyChatAnchor: 'reply-chat-bottom' })
+        })
+        /* 对话写回密封记录持久化 */
+        if (rec) {
+          rec.chatLog = newLog
+          try {
+            const list = wx.getStorageSync(SEALED_KEY) || []
+            const i = list.findIndex(x => x && x.id === rec.id)
+            if (i >= 0) { list[i] = rec; wx.setStorageSync(SEALED_KEY, list) }
+          } catch (e) {}
+        }
+      },
+      fail: (err) => {
+        console.warn('[catItem] 回信对话失败:', err && err.message)
+        this.setData({ replyChatTyping: false })
+        wx.showToast({ title: '猫没听见，再试一次', icon: 'none' })
       },
     })
   },
