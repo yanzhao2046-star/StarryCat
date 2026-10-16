@@ -15,9 +15,12 @@
    页面接入：tick() 返回本结算周期发生的事件数组，页面按事件做 UI。
    ============================================================ */
 
-/* ---------- 配置（编辑器导出原样落表，过夜测试分支 2026-09-19）----------
-   参数：reactivity=1、tick=5 分钟、dream p=0.08、replyChat 2~5 分钟随机、
-        出门 5~15 分钟、回信 45 分钟、事件流水 300 条 */
+/* ---------- 配置（编辑器导出原样落表）----------
+   参数：reactivity=1、tick=5 分钟、dream p=0.08、
+        replyChat 5~15 秒随机（delayMin/Max 单位「分钟」→ 0.083~0.25）、
+        moveSpot p=0.4、proactiveTalk p=0.5、goOut p=0.4、catmood p=0.3、
+        出门 5~15 分钟、回信 45 分钟、事件流水 300 条
+   改参数优先去 tools/catBehaviorEditor.html 调 → 导出 JSON → node tools/apply-config.cjs */
 const CONFIG = {
   version: 1,
   global: {
