@@ -14,10 +14,10 @@ const LETTER_END_MS = 4200
 
 /* 猫回信延迟：猫把信拿走 N 天后抵达（正式值 3 天）
    DEBUG_REPLY = true 时用短延迟方便现场调试；
-   当前为【过夜测试分支 2026-09-19】值：45 分钟（原 5 秒）——
-   今晚密封留言 → 明早 8:30 打开时回信应已送达；测试后还原为 5000 或改 false 回 3 天 */
+   当前为【现场调试】值：1 分钟——密封后 1 分钟回信送达，方便快速验证全链路；
+   ⚠ 正式发版：DEBUG_REPLY 改回 false（= 3 天） */
 const DEBUG_REPLY = true
-const TEST_REPLY_MIN = 45                 // 过夜测试：回信延迟（分钟）
+const TEST_REPLY_MIN = 1                  // 现场调试：回信延迟（分钟）
 const REPLY_DELAY = DEBUG_REPLY
   ? LETTER_TAKEN_MS + TEST_REPLY_MIN * 60 * 1000
   : LETTER_TAKEN_MS + 3 * 24 * 60 * 60 * 1000   // 3 天
