@@ -377,10 +377,12 @@ Page({
       return
     }
     const byId = this._itemsById || {}
-    const items = ids.map(id => {
-      const it = byId[id] || {}
-      return { itemId: id, name: it.name || '', icon: it.icon || '', symbol: it.symbol || '' }
-    })
+    /* 按真实槽位记录摆放先后（只放 2 件时 slot 可能是 0 和 2）——顺序是释梦素材 */
+    const items = this._combo.map((c, i) => {
+      if (!c) return null
+      const it = byId[c.itemId] || {}
+      return { itemId: c.itemId, slot: i, name: it.name || '', icon: it.icon || '', symbol: it.symbol || '' }
+    }).filter(Boolean)
     const sealId = 'seal_' + Date.now()
     try {
       const list = wx.getStorageSync(SEALED_KEY) || []
@@ -508,7 +510,11 @@ Page({
       name: 'moodOperations',
       data: {
         action: 'comboReply',
-        items: items.map(it => ({ name: it.name || '', symbol: it.symbol || '' })),
+        items: items.map((it, i) => ({
+          slot: it.slot != null ? it.slot : i,
+          name: it.name || '',
+          symbol: it.symbol || '',
+        })),
         message: rec.message || '',
       },
       success: (res) => {
